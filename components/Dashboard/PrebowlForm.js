@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { formatWeekDate } from "@/lib/formatWeekDate";
 import styles from "./PrebowlForm.module.scss";
 
 const REASON_MAX = 128;
 
 // authState: "signed-out" | "not-captain" | "captain"
 // team: { id, name } — only present when authState === "captain"
-export default function PrebowlForm({ authState, team, seasonId }) {
+// weeks: [{ week_number, week_date }] — every week in the season's schedule
+export default function PrebowlForm({ authState, team, seasonId, weeks }) {
+  const [weekNumber, setWeekNumber] = useState(weeks?.[0]?.week_number ?? "");
   const [requestType, setRequestType] = useState("prebowl");
   const [targetDate, setTargetDate] = useState("");
   const [reason, setReason] = useState("");
@@ -53,6 +56,7 @@ export default function PrebowlForm({ authState, team, seasonId }) {
         body: JSON.stringify({
           seasonId,
           teamId: team.id,
+          weekNumber,
           requestType,
           targetDate,
           reason,
@@ -73,6 +77,22 @@ export default function PrebowlForm({ authState, team, seasonId }) {
         <label htmlFor="teamSelect">Your team</label>
         <select id="teamSelect" value={team.id} disabled>
           <option value={team.id}>{team.name}</option>
+        </select>
+      </div>
+
+      <div className={styles.field}>
+        <label htmlFor="weekSelect">Which week</label>
+        <select
+          id="weekSelect"
+          value={weekNumber}
+          onChange={(e) => setWeekNumber(Number(e.target.value))}
+          required
+        >
+          {weeks?.map((week) => (
+            <option key={week.week_number} value={week.week_number}>
+              Week {week.week_number} — {formatWeekDate(week.week_date)}
+            </option>
+          ))}
         </select>
       </div>
 

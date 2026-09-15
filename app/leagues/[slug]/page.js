@@ -39,7 +39,7 @@ export default async function LeagueDashboardPage({ params }) {
 
   const thisWeekNumber = lastCompletedWeek ? lastCompletedWeek + 1 : 1;
 
-  const [totalWeeksRows, thisWeekScheduleRows, lastWeekResults, teamStandings, standingSheets] = await Promise.all([
+  const [totalWeeksRows, thisWeekScheduleRows, lastWeekResults, teamStandings, standingSheets, scheduleWeeks] = await Promise.all([
     sql`SELECT MAX(week_number) AS total_weeks FROM schedule WHERE season_id = ${season.id}`,
     sql`
       SELECT * FROM schedule WHERE season_id = ${season.id} AND week_number = ${thisWeekNumber}
@@ -64,6 +64,11 @@ export default async function LeagueDashboardPage({ params }) {
       LEFT JOIN schedule sc ON sc.season_id = ss.season_id AND sc.week_number = ss.week_number
       WHERE ss.season_id = ${season.id}
       ORDER BY ss.week_number ASC
+    `,
+    sql`
+      SELECT week_number, week_date FROM schedule
+      WHERE season_id = ${season.id}
+      ORDER BY week_number ASC
     `,
   ]);
 
@@ -181,7 +186,12 @@ export default async function LeagueDashboardPage({ params }) {
                 choose pre-bowl or makeup from the two choices, and select the date you will have
                 completed the pre-bowl or makeup.
               </p>
-              <PrebowlForm authState={prebowlAuthState} team={captainTeam} seasonId={season.id} />
+              <PrebowlForm
+                authState={prebowlAuthState}
+                team={captainTeam}
+                seasonId={season.id}
+                weeks={scheduleWeeks}
+              />
             </div>
           </div>
 

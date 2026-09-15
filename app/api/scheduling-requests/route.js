@@ -13,8 +13,8 @@ export async function POST(req) {
   }
 
   const body = await req.json();
-  const { seasonId, teamId, requestType, targetDate, reason } = body;
-  if (!seasonId || !teamId || !requestType || !targetDate) {
+  const { seasonId, teamId, weekNumber, requestType, targetDate, reason } = body;
+  if (!seasonId || !teamId || !weekNumber || !requestType || !targetDate) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -44,6 +44,7 @@ export async function POST(req) {
       teamName: membershipRows[0].team_name,
       captainBowlerId,
       captainEmail: email,
+      weekNumber,
       requestType,
       targetDate,
       reason,

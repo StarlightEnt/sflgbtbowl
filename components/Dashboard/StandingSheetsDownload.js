@@ -1,16 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { formatWeekDate } from "@/lib/formatWeekDate";
 import styles from "./StandingSheetsDownload.module.scss";
-
-function weekDateLabel(date) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
 
 export default function StandingSheetsDownload({ sheets }) {
   const latest = sheets[sheets.length - 1];
@@ -33,7 +25,7 @@ export default function StandingSheetsDownload({ sheets }) {
           {sheets.map((sheet) => (
             <option key={sheet.id} value={sheet.id}>
               Week {sheet.week_number}
-              {sheet.week_date ? ` — ${weekDateLabel(sheet.week_date)}` : ""}
+              {sheet.week_date ? ` — ${formatWeekDate(sheet.week_date)}` : ""}
             </option>
           ))}
         </select>
