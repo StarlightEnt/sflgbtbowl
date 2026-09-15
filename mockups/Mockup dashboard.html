@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LGBT Wednesday Community League Dashboard — mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0a14;
+    --bg-mid: #171129;
+    --bg-deep2: #241a3d;
+    --ink: #f4f1fb;
+    --ink-dim: #a89fc9;
+    --red: #ff4d5e;
+    --orange: #ff9838;
+    --yellow: #ffd54a;
+    --green: #35d68f;
+    --blue: #3fa8ff;
+    --purple: #b874ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+  .display { font-family: 'Bungee', cursive; letter-spacing: 0.01em; }
+
+  .stripe-bar { height: 5px; display: flex; }
+  .stripe-bar span { flex: 1; }
+  .stripe-bar .s1 { background: var(--red); }
+  .stripe-bar .s2 { background: var(--orange); }
+  .stripe-bar .s3 { background: var(--yellow); }
+  .stripe-bar .s4 { background: var(--green); }
+  .stripe-bar .s5 { background: var(--blue); }
+  .stripe-bar .s6 { background: var(--purple); }
+
+  nav { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid rgba(244,241,251,0.12); }
+  .nav-inner { max-width: 1180px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .wordmark { font-size: 1.15rem; color: var(--ink); text-decoration: none; line-height: 1.2; }
+  .wordmark small { display: block; font-family: 'Inter', sans-serif; font-size: 0.65rem; color: var(--ink-dim); font-weight: 600; letter-spacing: 0.06em; margin-top: 3px; }
+  .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--ink); text-decoration: none; font-weight: 500; font-size: 0.95rem; border-bottom: 2px solid transparent; padding-bottom: 4px; transition: border-color 0.2s ease, color 0.2s ease; }
+  .nav-links a:hover { border-color: var(--purple); color: var(--purple); }
+  .nav-links a.active { border-color: var(--purple); color: var(--purple); }
+  .badge-soon { display: inline-block; font-size: 0.62rem; font-weight: 700; color: var(--bg); background: var(--ink-dim); border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
+  .nav-links .disabled { opacity: 0.75; cursor: default; border-bottom-color: transparent !important; }
+
+  .page-head { max-width: 1180px; margin: 0 auto; padding: 40px 24px 8px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+  .page-head h1 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); }
+  .page-head p { color: var(--ink-dim); font-size: 0.95rem; margin-top: 6px; }
+  .week-badge { font-family: 'Bungee', cursive; font-size: 0.85rem; color: var(--bg); background: var(--yellow); padding: 8px 16px; border-radius: 999px; white-space: nowrap; }
+
+  .section { max-width: 1180px; margin: 0 auto; padding: 32px 24px 8px; }
+  .section h2 { font-size: 1.3rem; margin-bottom: 18px; }
+  .section h2 .wk-tag { font-family: 'Bungee', cursive; font-size: 0.65rem; color: var(--bg); background: var(--purple); padding: 3px 8px; border-radius: 999px; vertical-align: middle; margin-left: 8px; }
+
+  /* Last week's results — MLB scoreboard strip */
+  .scoreboard-wrap { max-width: 640px; }
+  .scoreboard-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .score-box {
+    width: 82px;
+    background: var(--bg-mid);
+    border: 1px solid rgba(244,241,251,0.14);
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+  .score-box .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 3px 6px; font-size: 0.72rem;
+  }
+  .score-box .row:first-child { border-bottom: 1px solid rgba(244,241,251,0.1); }
+  .score-box .row .code { font-weight: 600; color: var(--ink-dim); letter-spacing: 0.02em; }
+  .score-box .row .pts { font-variant-numeric: tabular-nums; color: var(--ink-dim); }
+  .score-box .row.win { background: rgba(53,214,143,0.14); }
+  .score-box .row.win .code, .score-box .row.win .pts { color: var(--green); font-weight: 700; }
+
+  /* Two column: schedule + standings */
+  .two-col { display: grid; grid-template-columns: 1fr 1.3fr; gap: 28px; align-items: start; }
+  .col-stack { display: flex; flex-direction: column; gap: 20px; }
+  .card { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 22px; }
+  .card h2 { font-size: 1.3rem; margin-bottom: 18px; }
+
+  .schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(244,241,251,0.06); font-size: 0.9rem; }
+  .schedule-item:last-child { border-bottom: none; }
+  .schedule-item .lane-tag { font-size: 0.72rem; color: var(--ink-dim); min-width: 64px; }
+  .schedule-item .matchup { flex: 1; padding: 0 12px; }
+
+  /* Pre-bowl / makeup placeholder */
+  .placeholder-card p { color: var(--ink-dim); font-size: 0.88rem; margin-bottom: 16px; }
+  .placeholder-btn {
+    display: inline-block; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.88rem;
+    color: var(--ink-dim); background: rgba(244,241,251,0.06); border: 1px dashed rgba(244,241,251,0.25);
+    padding: 10px 18px; border-radius: 999px; cursor: default;
+  }
+  .placeholder-note { margin-top: 12px; font-size: 0.72rem; color: var(--ink-dim); opacity: 0.7; font-style: italic; }
+
+  .prebowl-intro { color: var(--ink-dim); font-size: 0.88rem; margin-bottom: 16px; }
+  .mock-toggle { font-size: 0.72rem; color: var(--ink-dim); margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px dashed rgba(244,241,251,0.15); }
+  .toggle-btn {
+    font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--ink-dim);
+    background: rgba(244,241,251,0.06); border: 1px solid rgba(244,241,251,0.16); padding: 4px 10px;
+    border-radius: 999px; margin-left: 6px; cursor: pointer;
+  }
+  .toggle-btn.active { background: var(--purple); color: #1a0a2e; border-color: var(--purple); }
+
+  .auth-error {
+    background: rgba(255,77,94,0.1); border: 1px solid rgba(255,77,94,0.35); color: var(--red);
+    border-radius: 8px; padding: 14px 16px; font-size: 0.88rem;
+  }
+  .auth-error a { color: var(--red); text-decoration: underline; font-weight: 600; }
+
+  .prebowl-form .field { margin-bottom: 16px; }
+  .prebowl-form label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink-dim); margin-bottom: 6px; }
+  .prebowl-form select, .prebowl-form input[type="date"] {
+    width: 100%; font-family: 'Inter', sans-serif; font-size: 0.92rem; padding: 10px 12px;
+    border: 1px solid rgba(244,241,251,0.16); border-radius: 8px; background: rgba(11,10,20,0.6); color: var(--ink);
+  }
+  .prebowl-form textarea {
+    width: 100%; font-family: 'Inter', sans-serif; font-size: 0.92rem; padding: 10px 12px;
+    border: 1px solid rgba(244,241,251,0.16); border-radius: 8px; background: rgba(11,10,20,0.6); color: var(--ink);
+    resize: vertical;
+  }
+  .char-count { text-transform: none; font-weight: 400; color: var(--ink-dim); opacity: 0.7; font-size: 0.75rem; float: right; }
+  .radio-group { display: flex; gap: 20px; }
+  .radio-option { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 500; color: var(--ink); cursor: pointer; }
+  .radio-option input { width: 16px; height: 16px; }
+  .btn-submit-request {
+    display: inline-block; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.92rem; color: #1a0a0a;
+    background: linear-gradient(90deg, var(--orange), var(--red)); padding: 11px 24px; border-radius: 999px; border: none; cursor: pointer;
+  }
+
+  table.standings { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  table.standings th { text-align: left; color: var(--ink-dim); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 8px; border-bottom: 1px solid rgba(244,241,251,0.14); }
+  table.standings td { padding: 8px 8px; border-bottom: 1px solid rgba(244,241,251,0.06); }
+  table.standings tr:nth-child(-n+3) td:first-child { color: var(--yellow); font-weight: 700; }
+  table.standings td.num, table.standings th.num { text-align: center; font-variant-numeric: tabular-nums; }
+
+  .download-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .week-select {
+    flex: 1; min-width: 160px; font-family: 'Inter', sans-serif; font-size: 0.9rem;
+    color: var(--ink); background: rgba(11,10,20,0.6); border: 1px solid rgba(244,241,251,0.16);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .btn-download {
+    display: inline-flex; align-items: center; font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 0.88rem; color: #1a0a0a; background: linear-gradient(90deg, var(--orange), var(--red));
+    padding: 10px 18px; border-radius: 999px; text-decoration: none; white-space: nowrap;
+  }
+
+  .announce-card { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 26px; color: var(--ink-dim); font-size: 0.92rem; }
+
+  footer { background: var(--bg); padding: 28px 24px; text-align: center; color: var(--ink-dim); font-size: 0.85rem; margin-top: 40px; }
+
+  @media (max-width: 860px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="wordmark display">SF LGBT BOWLERS
+      <small>WEDNESDAY COMMUNITY BOWLING</small>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#" class="active">Leagues</a></li>
+      <li><a href="#" class="disabled">Tournaments<span class="badge-soon">Coming soon</span></a></li>
+      <li><a href="#" class="disabled">Member Login<span class="badge-soon">Coming soon</span></a></li>
+    </ul>
+  </div>
+</nav>
+<div class="stripe-bar"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s5"></span><span class="s6"></span></div>
+
+<div class="page-head">
+  <div>
+    <h1 class="display">LGBT Wednesday Community League</h1>
+    <p style="color:var(--purple); font-weight:600; text-transform:uppercase; letter-spacing:0.04em; font-size:0.8rem; margin-top:8px;">Fall/Winter &rsquo;26&ndash;&rsquo;27 Season</p>
+    <p>Wednesdays · 7:25 PM · Classic Bowling Center</p>
+  </div>
+  <div class="week-badge">WEEK 2 OF 29</div>
+</div>
+
+<section class="section">
+  <h2>Last week's results <span class="wk-tag">WK 1</span></h2>
+  <div class="scoreboard-wrap">
+    <div class="scoreboard-row">
+      <div class="score-box" title="StrikeForce vs BYE — Lanes 1–2">
+        <div class="row win"><span class="code">StF</span><span class="pts">3</span></div>
+        <div class="row"><span class="code">BYE</span><span class="pts">1</span></div>
+      </div>
+      <div class="score-box" title="Sacurrity vs Gutter Fillers — Lanes 3–4 (half-point tie on one game)">
+        <div class="row win"><span class="code">Sac</span><span class="pts">2½</span></div>
+        <div class="row"><span class="code">GuF</span><span class="pts">1½</span></div>
+      </div>
+      <div class="score-box" title="O'Malley &amp; The Sallys vs Pick Up Artists — Lanes 5–6">
+        <div class="row"><span class="code">OtS</span><span class="pts">2</span></div>
+        <div class="row"><span class="code">PUA</span><span class="pts">2</span></div>
+      </div>
+      <div class="score-box" title="Rocky Squirrels vs Wisteria Lanes — Lanes 7–8">
+        <div class="row win"><span class="code">RSq</span><span class="pts">3</span></div>
+        <div class="row"><span class="code">WsL</span><span class="pts">1</span></div>
+      </div>
+      <div class="score-box" title="Dawg Pound vs Pilsner Penguins — Lanes 9–10">
+        <div class="row win"><span class="code">DgP</span><span class="pts">3</span></div>
+        <div class="row"><span class="code">PiP</span><span class="pts">1</span></div>
+      </div>
+      <div class="score-box" title="Taste The Rainbow vs Wood Whackers — Lanes 11–12">
+        <div class="row win"><span class="code">TtR</span><span class="pts">3</span></div>
+        <div class="row"><span class="code">WdW</span><span class="pts">1</span></div>
+      </div>
+      <div class="score-box" title="Pity Party of Four vs Snappy Backends — Lanes 13–14">
+        <div class="row win"><span class="code">PP4</span><span class="pts">3</span></div>
+        <div class="row"><span class="code">SBe</span><span class="pts">1</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="two-col">
+    <div class="col-stack">
+      <div class="card">
+        <h2>This week's schedule <span class="wk-tag">WK 2</span></h2>
+        <div class="schedule-item"><span class="lane-tag">Lanes 1–2</span><span class="matchup">BYE vs Gutter Fillers</span></div>
+        <div class="schedule-item"><span class="lane-tag">Lanes 3–4</span><span class="matchup">Wisteria Lanes vs Pilsner Penguins</span></div>
+        <div class="schedule-item"><span class="lane-tag">Lanes 5–6</span><span class="matchup">Pity Party of Four vs Taste The Rainbow</span></div>
+        <div class="schedule-item"><span class="lane-tag">Lanes 7–8</span><span class="matchup">Sacurrity vs Snappy Backends</span></div>
+        <div class="schedule-item"><span class="lane-tag">Lanes 9–10</span><span class="matchup">Rocky Squirrels vs O'Malley &amp; The Sallys</span></div>
+        <div class="schedule-item"><span class="lane-tag">Lanes 11–12</span><span class="matchup">Pick Up Artists vs StrikeForce</span></div>
+        <div class="schedule-item"><span class="lane-tag">Lanes 13–14</span><span class="matchup">Dawg Pound vs Wood Whackers</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Schedule a pre-bowl or makeup</h2>
+        <p class="prebowl-intro">Only Team Captains will be able to request pre-bowl or makeup games for a week they can't make it. Please select your team from the drop down list below, choose pre-bowl or makeup from the two choices, and select the date you will have completed the pre-bowl or makeup.</p>
+
+        <div class="mock-toggle">
+          Preview as:
+          <button class="toggle-btn active" id="toggleLoggedOut" onclick="setAuthState(false)">Not logged in</button>
+          <button class="toggle-btn" id="toggleLoggedIn" onclick="setAuthState(true)">Logged in as Captain</button>
+        </div>
+
+        <div id="authError" class="auth-error">
+          The Team Captain must be logged in to complete this request. <a href="#">(Member login, top of page)</a>
+        </div>
+
+        <div id="prebowlForm" class="prebowl-form" style="display:none;">
+          <div class="field">
+            <label for="teamSelect">Your team</label>
+            <select id="teamSelect">
+              <option>Taste The Rainbow</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Request type</label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="reqType" value="prebowl" checked> Pre-Bowl</label>
+              <label class="radio-option"><input type="radio" name="reqType" value="makeup"> Makeup</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="completeDate">Date you'll complete it</label>
+            <input type="date" id="completeDate">
+          </div>
+
+          <div class="field">
+            <label for="reasonText">Reason for Pre-Bowl / Makeup <span class="char-count" id="charCount">128 characters left</span></label>
+            <textarea id="reasonText" maxlength="128" rows="2" placeholder="Brief reason (optional context for the officers)" oninput="document.getElementById('charCount').textContent = (128 - this.value.length) + ' characters left'"></textarea>
+          </div>
+
+          <button class="btn-submit-request">Submit request</button>
+          <div class="placeholder-note">Sends a pre-filled message to officers@sflgbtbowl.com with your team, request type, date, reason, and your captain email (allison.laureano@example.com) — reason is the only free text.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-stack">
+      <div class="card">
+        <h2>Team standings</h2>
+        <table class="standings">
+          <thead>
+            <tr><th>#</th><th>Team</th><th class="num">W–L</th><th class="num">%Won</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Pity Party of Four</td><td class="num">3–1</td><td class="num">75.0</td></tr>
+            <tr><td>2</td><td>Dawg Pound</td><td class="num">3–1</td><td class="num">75.0</td></tr>
+            <tr><td>3</td><td>StrikeForce</td><td class="num">3–1</td><td class="num">75.0</td></tr>
+            <tr><td>4</td><td>Rocky Squirrels</td><td class="num">3–1</td><td class="num">75.0</td></tr>
+            <tr><td>5</td><td>Taste The Rainbow</td><td class="num">3–1</td><td class="num">75.0</td></tr>
+            <tr><td>6</td><td>Sacurrity</td><td class="num">2½–1½</td><td class="num">62.5</td></tr>
+            <tr><td>7</td><td>O'Malley &amp; The Sallys</td><td class="num">2–2</td><td class="num">50.0</td></tr>
+            <tr><td>8</td><td>Pick Up Artists</td><td class="num">2–2</td><td class="num">50.0</td></tr>
+            <tr><td>9</td><td>Gutter Fillers</td><td class="num">1½–2½</td><td class="num">37.5</td></tr>
+            <tr><td>10</td><td>Snappy Backends</td><td class="num">1–3</td><td class="num">25.0</td></tr>
+            <tr><td>11</td><td>Pilsner Penguins</td><td class="num">1–3</td><td class="num">25.0</td></tr>
+            <tr><td>12</td><td>Wisteria Lanes</td><td class="num">1–3</td><td class="num">25.0</td></tr>
+            <tr><td>13</td><td>Wood Whackers</td><td class="num">1–3</td><td class="num">25.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Download standing sheets</h2>
+        <p style="color:var(--ink-dim); font-size:0.88rem; margin-bottom:16px;">Full stats — season high scores, bowler averages, and rosters — live in the original PDF for any week.</p>
+        <div class="download-row">
+          <select class="week-select">
+            <option>Week 1 — Sep 9, 2026</option>
+          </select>
+          <a href="#" class="btn-download">Download PDF</a>
+        </div>
+        <div class="placeholder-note" style="margin-top:12px;">More weeks appear here as sheets are uploaded</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Announcements</h2>
+  <div class="announce-card">No announcements posted yet. Check back soon.</div>
+</section>
+
+<div class="stripe-bar" style="margin-top:40px;"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s5"></span><span class="s6"></span></div>
+<footer>SF LGBT Bowlers</footer>
+
+<script>
+function setAuthState(loggedIn) {
+  document.getElementById('authError').style.display = loggedIn ? 'none' : 'block';
+  document.getElementById('prebowlForm').style.display = loggedIn ? 'block' : 'none';
+  document.getElementById('toggleLoggedOut').classList.toggle('active', !loggedIn);
+  document.getElementById('toggleLoggedIn').classList.toggle('active', loggedIn);
+}
+</script>
+
+</body>
+</html>

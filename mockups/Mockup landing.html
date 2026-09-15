@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF LGBT Bowlers — mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0a14;
+    --bg-mid: #171129;
+    --bg-deep2: #241a3d;
+    --ink: #f4f1fb;
+    --ink-dim: #a89fc9;
+    --red: #ff4d5e;
+    --orange: #ff9838;
+    --yellow: #ffd54a;
+    --green: #35d68f;
+    --blue: #3fa8ff;
+    --purple: #b874ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .display {
+    font-family: 'Bungee', cursive;
+    letter-spacing: 0.01em;
+  }
+
+  .stripe-bar { height: 5px; display: flex; }
+  .stripe-bar span { flex: 1; }
+  .stripe-bar .s1 { background: var(--red); }
+  .stripe-bar .s2 { background: var(--orange); }
+  .stripe-bar .s3 { background: var(--yellow); }
+  .stripe-bar .s4 { background: var(--green); }
+  .stripe-bar .s5 { background: var(--blue); }
+  .stripe-bar .s6 { background: var(--purple); }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    border-bottom: 1px solid rgba(244,241,251,0.12);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .wordmark {
+    font-size: 1.15rem;
+    color: var(--ink);
+    text-decoration: none;
+    line-height: 1.2;
+  }
+  .wordmark small {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    color: var(--ink-dim);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-top: 3px;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 4px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .nav-links a:hover { border-color: var(--purple); color: var(--purple); }
+  .badge-soon {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--ink-dim);
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .nav-links .disabled {
+    opacity: 0.75;
+    cursor: default;
+    border-bottom-color: transparent !important;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 64px 24px 72px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: -10%;
+    left: 10%;
+    width: 60%;
+    height: 70%;
+    background: radial-gradient(ellipse 60% 60% at 50% 30%, #2a1c4a 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero h1 {
+    font-size: clamp(2rem, 4.2vw, 3.1rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .hero p {
+    max-width: 46ch;
+    color: var(--ink-dim);
+    font-size: 1.05rem;
+    margin-bottom: 28px;
+  }
+  .btn {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1a0a0a;
+    background: linear-gradient(90deg, var(--orange), var(--red));
+    padding: 13px 28px;
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(255, 77, 94, 0.28);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    border: none;
+    cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255,77,94,0.38); }
+
+  .lane-scene { width: 100%; height: auto; }
+
+  /* WHO WE ARE */
+  .who { background: var(--bg-mid); }
+  .who-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 72px 24px;
+  }
+  .who h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin-bottom: 22px;
+    color: var(--ink);
+  }
+  .who p {
+    max-width: 68ch;
+    font-size: 1.02rem;
+    color: var(--ink-dim);
+    margin-bottom: 18px;
+  }
+  .scoreboard {
+    margin-top: 32px;
+    border: 1px solid rgba(184,116,255,0.4);
+    border-radius: 14px;
+    padding: 22px 26px;
+    background: rgba(244,241,251,0.03);
+  }
+  .scoreboard p {
+    font-family: 'Bungee', cursive;
+    font-size: 1.05rem;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* CONTACT */
+  .contact { max-width: 1100px; margin: 0 auto; padding: 72px 24px 88px; }
+  .contact h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .contact > p {
+    color: var(--ink-dim);
+    max-width: 60ch;
+    margin-bottom: 34px;
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+  .sheet {
+    background: rgba(244,241,251,0.03);
+    border: 1px solid rgba(244,241,251,0.1);
+    border-radius: 22px;
+    padding: 28px;
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border: 1px solid rgba(244,241,251,0.16);
+    border-radius: 10px;
+    background: rgba(11,10,20,0.6);
+    color: var(--ink);
+  }
+  .field input:focus, .field textarea:focus {
+    outline: 2px solid var(--blue);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+  .field textarea { resize: vertical; min-height: 90px; }
+
+  .direct-contact { padding-top: 6px; }
+  .direct-contact h3 {
+    font-family: 'Bungee', cursive;
+    font-size: 1.05rem;
+    color: var(--ink-dim);
+    margin-bottom: 12px;
+  }
+  .direct-contact a {
+    color: var(--yellow);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  footer {
+    background: var(--bg);
+    padding: 28px 24px;
+    text-align: center;
+    color: var(--ink-dim);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; padding-top: 44px; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .nav-links { gap: 18px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="wordmark display">SF LGBT BOWLERS
+      <small>WEDNESDAY COMMUNITY BOWLING</small>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Leagues</a></li>
+      <li><a href="#" class="disabled">Tournaments<span class="badge-soon">Coming soon</span></a></li>
+      <li><a href="#" class="disabled">Member Login<span class="badge-soon">Coming soon</span></a></li>
+    </ul>
+  </div>
+</nav>
+<div class="stripe-bar"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s5"></span><span class="s6"></span></div>
+
+<section class="hero">
+  <div>
+    <h1 class="display">Wednesday night bowling, for everyone.</h1>
+    <p>San Francisco's LGBTQ+ community bowling league — beginners welcome, teams forming now, every lane open to you.</p>
+    <a href="#contact" class="btn">Get in touch</a>
+  </div>
+  <svg class="lane-scene" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="140,240 260,240 300,40 100,40" fill="#171129"/>
+    <polygon points="150,232 250,232 284,48 116,48" fill="#241a3d"/>
+    <line x1="200" y1="60" x2="200" y2="225" stroke="#3a2a5c" stroke-width="2" opacity="0.6"/>
+
+    <g id="pins">
+      <ellipse cx="200" cy="55" rx="6" ry="14" fill="var(--yellow)"/>
+      <ellipse cx="188" cy="60" rx="6" ry="14" fill="var(--orange)"/>
+      <ellipse cx="212" cy="60" rx="6" ry="14" fill="var(--red)"/>
+      <ellipse cx="176" cy="66" rx="6" ry="14" fill="var(--green)"/>
+      <ellipse cx="224" cy="66" rx="6" ry="14" fill="var(--blue)"/>
+    </g>
+
+    <circle id="ball" cx="200" cy="215" r="13" fill="var(--purple)">
+      <animate attributeName="cy" values="215;70;215" dur="3.2s" repeatCount="indefinite" keyTimes="0;0.65;1" calcMode="spline" keySplines="0.3 0 0.7 1;0.3 0 0.7 1"/>
+    </circle>
+    <animateTransform xlink:href="#pins" attributeName="transform" type="translate" values="0,0; 0,0; -2,-6; 6,4; -8,10; 4,-8; -2,-6" dur="3.2s" begin="0s" repeatCount="indefinite" keyTimes="0;0.6;0.68;0.75;0.82;0.9;1"/>
+  </svg>
+</section>
+
+<section class="who">
+  <div class="who-inner">
+    <h2 class="display">Who we are</h2>
+    <p>We're a community bowling league that meets every Wednesday night in San Francisco. Whether you've been bowling for decades or you're picking up a ball for the first time, there's a lane for you here.</p>
+    <p>The league is run entirely by volunteer officers, and every bit of dues and fundraising goes back into keeping league nights affordable and welcoming.</p>
+    <div class="scoreboard">
+      <p>Every bowler. Every skill level. Every Wednesday.</p>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <h2 class="display">Get in touch</h2>
+  <p>Have questions about joining, substituting, or league nights? Reach out — an officer will get back to you.</p>
+  <div class="contact-grid">
+    <form class="sheet">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="message">Message</label>
+        <textarea id="message" placeholder="What's on your mind?"></textarea>
+      </div>
+      <button type="button" class="btn">Send message</button>
+    </form>
+    <div class="direct-contact">
+      <h3>Prefer email?</h3>
+      <p>Reach us directly at <a href="mailto:officers@sflgbtbowl.com">officers@sflgbtbowl.com</a> — an officer checks this regularly and will get back to you.</p>
+    </div>
+  </div>
+</section>
+
+<div class="stripe-bar"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s5"></span><span class="s6"></span></div>
+<footer>SF LGBT Bowlers</footer>
+
+</body>
+</html>

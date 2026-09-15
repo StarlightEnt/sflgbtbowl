@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Weekly Standing Sheet — mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0a14; --bg-mid: #171129; --bg-deep2: #241a3d;
+    --ink: #f4f1fb; --ink-dim: #a89fc9;
+    --red: #ff4d5e; --orange: #ff9838; --yellow: #ffd54a;
+    --green: #35d68f; --blue: #3fa8ff; --purple: #b874ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+  .display { font-family: 'Bungee', cursive; letter-spacing: 0.01em; }
+
+  .stripe-bar { height: 5px; display: flex; }
+  .stripe-bar span { flex: 1; }
+  .stripe-bar .s1 { background: var(--red); } .stripe-bar .s2 { background: var(--orange); }
+  .stripe-bar .s3 { background: var(--yellow); } .stripe-bar .s4 { background: var(--green); }
+  .stripe-bar .s5 { background: var(--blue); } .stripe-bar .s6 { background: var(--purple); }
+
+  nav { background: var(--bg); border-bottom: 1px solid rgba(244,241,251,0.12); }
+  .nav-inner { max-width: 1180px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .wordmark { font-size: 1.15rem; color: var(--ink); text-decoration: none; line-height: 1.2; }
+  .wordmark small { display: block; font-family: 'Inter', sans-serif; font-size: 0.65rem; color: var(--ink-dim); font-weight: 600; letter-spacing: 0.06em; margin-top: 3px; }
+  .admin-pill { font-family: 'Bungee', cursive; font-size: 0.65rem; color: var(--bg); background: var(--purple); padding: 4px 10px; border-radius: 999px; }
+
+  .shell { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
+
+  .sidebar { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 18px; position: sticky; top: 24px; }
+  .sidebar .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); margin-bottom: 10px; }
+  .sidebar a { display: block; padding: 10px 12px; border-radius: 6px; color: var(--ink-dim); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+  .sidebar a.active { background: rgba(184,116,255,0.14); color: var(--purple); font-weight: 600; }
+  .sidebar .divider-line { height: 1px; background: rgba(244,241,251,0.1); margin: 12px 0; }
+
+  .main h1 { font-size: 1.6rem; margin-bottom: 6px; }
+  .main > p.sub { color: var(--ink-dim); font-size: 0.92rem; margin-bottom: 28px; }
+
+  .card { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .card-sub { color: var(--ink-dim); font-size: 0.85rem; margin-bottom: 16px; }
+
+  .upload-area { border: 2px dashed rgba(244,241,251,0.2); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; }
+  .upload-area .icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .upload-area .text { color: var(--ink-dim); font-size: 0.88rem; }
+  .status-ok { margin-top: 14px; background: rgba(53,214,143,0.1); border: 1px solid rgba(53,214,143,0.3); color: var(--green); border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; }
+
+  .detected-week { display: inline-block; font-family: 'Bungee', cursive; font-size: 0.72rem; color: var(--bg); background: var(--yellow); padding: 5px 12px; border-radius: 999px; margin-bottom: 16px; }
+
+  .parse-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .parse-summary .stat { background: rgba(244,241,251,0.03); border: 1px solid rgba(244,241,251,0.08); border-radius: 8px; padding: 12px 14px; }
+  .parse-summary .stat .n { font-family: 'Bungee', cursive; font-size: 1.3rem; color: var(--green); }
+  .parse-summary .stat .l { font-size: 0.72rem; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+  .review-label { font-size: 0.85rem; font-weight: 600; color: var(--ink-dim); margin: 18px 0 10px; }
+
+  .roster-change-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    background: rgba(184,116,255,0.06); border: 1px solid rgba(184,116,255,0.2); border-radius: 8px;
+    padding: 12px 16px; margin-bottom: 8px;
+  }
+  .roster-change-row.fuzzy { background: rgba(255,213,74,0.06); border-color: rgba(255,213,74,0.25); }
+  .roster-change-text { font-size: 0.88rem; }
+  .roster-change-text .arrow { color: var(--purple); margin: 0 4px; }
+  .roster-change-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-accept {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.78rem; color: var(--green);
+    background: rgba(53,214,143,0.1); border: 1px solid rgba(53,214,143,0.35); padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  }
+  .btn-ignore {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.78rem; color: var(--ink-dim);
+    background: transparent; border: 1px solid rgba(244,241,251,0.16); padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  }
+
+  .scoreboard-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .score-box { width: 82px; background: rgba(11,10,20,0.5); border: 1px solid rgba(244,241,251,0.14); border-radius: 3px; overflow: hidden; }
+  .score-box .row { display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; font-size: 0.72rem; }
+  .score-box .row:first-child { border-bottom: 1px solid rgba(244,241,251,0.1); }
+  .score-box .row .code { font-weight: 600; color: var(--ink-dim); }
+  .score-box .row .pts { font-variant-numeric: tabular-nums; color: var(--ink-dim); }
+  .score-box .row.win { background: rgba(53,214,143,0.14); }
+  .score-box .row.win .code, .score-box .row.win .pts { color: var(--green); font-weight: 700; }
+  .score-box .row.half { background: rgba(255,213,74,0.14); }
+  .score-box .row.half .code, .score-box .row.half .pts { color: var(--yellow); font-weight: 700; }
+
+  .btn-save {
+    display: inline-block; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.92rem; color: #1a0a0a;
+    background: linear-gradient(90deg, var(--orange), var(--red)); padding: 12px 26px; border-radius: 999px; border: none; cursor: pointer; margin-top: 8px;
+  }
+  .btn-secondary {
+    display: inline-block; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem; color: var(--ink-dim);
+    background: rgba(244,241,251,0.06); border: 1px solid rgba(244,241,251,0.16); padding: 10px 18px; border-radius: 999px; margin-left: 10px; text-decoration: none;
+  }
+
+  table.history { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  table.history th { text-align: left; color: var(--ink-dim); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 8px; border-bottom: 1px solid rgba(244,241,251,0.14); }
+  table.history td { padding: 8px; border-bottom: 1px solid rgba(244,241,251,0.06); }
+  table.history a { color: var(--purple); text-decoration: none; font-size: 0.82rem; }
+
+  .danger-card { border: 1px solid rgba(255,77,94,0.35); background: rgba(255,77,94,0.04); }
+  .danger-row-stack { display: flex; flex-direction: column; gap: 14px; }
+  .danger-row-title { font-size: 0.92rem; font-weight: 600; margin-bottom: 4px; }
+  .danger-row-sub { font-size: 0.78rem; color: var(--ink-dim); max-width: 52ch; }
+  .confirm-box { background: rgba(11,10,20,0.4); border: 1px dashed rgba(255,77,94,0.3); border-radius: 8px; padding: 14px 16px; }
+  .confirm-label { display: block; font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 10px; }
+  .confirm-label strong { color: var(--red); font-family: 'Inter', sans-serif; letter-spacing: 0.03em; }
+  .confirm-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+  .confirm-input {
+    flex: 1; min-width: 140px; font-family: 'Inter', sans-serif; font-size: 0.9rem; padding: 9px 12px;
+    border: 1px solid rgba(244,241,251,0.16); border-radius: 8px; background: rgba(11,10,20,0.6); color: var(--ink);
+  }
+  .btn-danger {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem; color: var(--red);
+    background: rgba(255,77,94,0.1); border: 1px solid rgba(255,77,94,0.4); padding: 9px 18px;
+    border-radius: 8px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-danger:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-cancel {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem; color: var(--ink-dim);
+    background: transparent; border: 1px solid rgba(244,241,251,0.16); padding: 9px 18px;
+    border-radius: 8px; cursor: pointer; white-space: nowrap;
+  }
+
+  footer { background: var(--bg); padding: 28px 24px; text-align: center; color: var(--ink-dim); font-size: 0.85rem; margin-top: 20px; }
+
+  @media (max-width: 800px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .parse-summary { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="wordmark display">SF LGBT BOWLERS
+      <small>WEDNESDAY COMMUNITY BOWLING</small>
+    </a>
+    <span class="admin-pill">ADMIN — allisushi@gmail.com</span>
+  </div>
+</nav>
+<div class="stripe-bar"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s5"></span><span class="s6"></span></div>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="label">LGBT Wednesday Community</div>
+    <a href="#">Season Setup</a>
+    <a href="#" class="active">Weekly Standing Sheet</a>
+    <a href="#">Schedule</a>
+    <div class="divider-line"></div>
+    <div class="label">Site-wide</div>
+    <a href="#">Admin Settings</a>
+    <a href="#">&larr; Back to dashboard</a>
+  </div>
+
+  <div class="main">
+    <h1 class="display">Weekly Standing Sheet</h1>
+    <p class="sub">Upload this week's League Standings PDF to update the dashboard — standings, last week's results, and bowler averages.</p>
+
+    <div class="card">
+      <div class="card-title">Upload standing sheet</div>
+      <div class="card-sub">Same PDF format as Season Setup — the current week's League Standings sheet from BLS software.</div>
+      <div class="upload-area">
+        <div class="icon">📄</div>
+        <div class="text">Drag &amp; drop this week's League Standings PDF here, or click to browse</div>
+      </div>
+      <div class="status-ok">✓ LeagueStandings.pdf uploaded and parsed successfully.</div>
+    </div>
+
+    <div class="card">
+      <div class="detected-week">DETECTED: WEEK 1 OF 29 · 9/9/2026</div>
+
+      <div class="parse-summary">
+        <div class="stat"><div class="n">13</div><div class="l">Team records updated</div></div>
+        <div class="stat"><div class="n">7</div><div class="l">Matchup results found</div></div>
+        <div class="stat"><div class="n">54</div><div class="l">Bowler averages updated</div></div>
+      </div>
+
+      <div class="review-label">Last week's results — review before publishing</div>
+      <div class="scoreboard-row">
+        <div class="score-box"><div class="row win"><span class="code">StF</span><span class="pts">3</span></div><div class="row"><span class="code">BYE</span><span class="pts">1</span></div></div>
+        <div class="score-box"><div class="row win"><span class="code">Sac</span><span class="pts">3</span></div><div class="row"><span class="code">GuF</span><span class="pts">1</span></div></div>
+        <div class="score-box"><div class="row"><span class="code">OtS</span><span class="pts">2</span></div><div class="row"><span class="code">PUA</span><span class="pts">2</span></div></div>
+        <div class="score-box"><div class="row win"><span class="code">RSq</span><span class="pts">3</span></div><div class="row"><span class="code">WsL</span><span class="pts">1</span></div></div>
+        <div class="score-box"><div class="row win"><span class="code">DgP</span><span class="pts">3</span></div><div class="row"><span class="code">PiP</span><span class="pts">1</span></div></div>
+        <div class="score-box"><div class="row win"><span class="code">TtR</span><span class="pts">3</span></div><div class="row"><span class="code">WdW</span><span class="pts">1</span></div></div>
+        <div class="score-box"><div class="row win"><span class="code">PP4</span><span class="pts">3</span></div><div class="row"><span class="code">SBe</span><span class="pts">1</span></div></div>
+      </div>
+      <p style="font-size:0.72rem; color:var(--ink-dim); margin-top:10px; font-style:italic;">Yellow row = half-point split detected. Green row = winner. Doesn't match what actually happened? Don't publish — fix the PDF at the source and re-upload.</p>
+
+      <div class="review-label">Roster changes detected <span style="font-weight:400; font-style:italic; color:var(--ink-dim);">(illustrative — Week 1 has no prior week to compare against; this review appears starting Week 2)</span></div>
+      <div class="roster-change-row">
+        <div class="roster-change-text"><strong>Jeremy Schrader</strong> — Gutter Fillers <span class="arrow">&rarr;</span> StrikeForce</div>
+        <div class="roster-change-actions">
+          <button class="btn-accept">Accept move</button>
+          <button class="btn-ignore">Keep on Gutter Fillers</button>
+        </div>
+      </div>
+      <div class="roster-change-row">
+        <div class="roster-change-text"><strong>Douglas Litwin</strong> — substitute <span class="arrow">&rarr;</span> now rostered on Wood Whackers</div>
+        <div class="roster-change-actions">
+          <button class="btn-accept">Accept move</button>
+          <button class="btn-ignore">Keep as substitute</button>
+        </div>
+      </div>
+      <div class="roster-change-row fuzzy">
+        <div class="roster-change-text">🔍 <strong>"Jon Chow"</strong> (new on this sheet) <span class="arrow">&harr;</span> <strong>Jonathan Chow</strong> (existing substitute) — same person?</div>
+        <div class="roster-change-actions">
+          <button class="btn-accept">Yes, same person</button>
+          <button class="btn-ignore">No, create new bowler</button>
+        </div>
+      </div>
+      <p style="font-size:0.72rem; color:var(--ink-dim); margin-top:8px;">Each change needs a decision before publishing — an unresolved name match (spelling variants, subs promoted mid-season) could otherwise silently reassign someone to the wrong team, or silently split one person into two records.</p>
+
+      <div style="margin-top: 22px;">
+        <button class="btn-save">Publish to dashboard</button>
+        <a href="#" class="btn-secondary">Discard this upload</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Previously uploaded</div>
+      <table class="history">
+        <thead><tr><th>Week</th><th>Date</th><th>Uploaded</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Week 1</td><td>9/9/2026</td><td>Sep 10, 2026</td><td><a href="#">View PDF</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card danger-card">
+      <div class="card-title" style="color: var(--red);">⚠ Danger zone</div>
+      <div class="card-sub">These actions are permanent and can't be undone.</div>
+
+      <div class="danger-row-stack">
+        <div>
+          <div class="danger-row-title">Delete Week 1 standing sheet</div>
+          <div class="danger-row-sub">Removes this week's standings, results, and bowler averages from the dashboard, and deletes the stored PDF. You'll need to re-upload a corrected sheet afterward.</div>
+        </div>
+        <div class="confirm-box">
+          <label class="confirm-label">Type <strong>WEEK 1</strong> to confirm:</label>
+          <div class="confirm-controls">
+            <input type="text" class="confirm-input" placeholder="WEEK 1">
+            <button class="btn-danger" disabled>Confirm delete</button>
+            <button class="btn-cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>SF LGBT Bowlers — Admin</footer>
+</body>
+</html>
