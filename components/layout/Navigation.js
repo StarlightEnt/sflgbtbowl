@@ -16,7 +16,7 @@ export default function Navigation({ authState = "guest" }) {
               <Link href="/">Home</Link>
             </li>
             <li>
-              <Link href="#">Leagues</Link>
+              <Link href="/leagues/lgbt-wednesday-community">Leagues</Link>
             </li>
             <li>
               <span className={styles.disabled}>
