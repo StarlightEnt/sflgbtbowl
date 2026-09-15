@@ -161,7 +161,9 @@ export default function SeasonSetupForm() {
       <aside className={styles.sidebar}>
         <div className={styles.label}>LGBT Wednesday Community</div>
         <span className={`${styles.sidebarLink} ${styles.active}`}>Season Setup</span>
-        <span className={styles.sidebarLink}>Weekly Standing Sheet</span>
+        <Link href="/admin/weekly" className={styles.sidebarLink}>
+          Weekly Standing Sheet
+        </Link>
         <span className={styles.sidebarLink}>Schedule</span>
         <div className={styles.dividerLine} />
         <div className={styles.label}>Site-wide</div>
