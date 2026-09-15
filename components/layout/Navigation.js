@@ -26,10 +26,7 @@ export default function Navigation({ authState = "guest" }) {
             </li>
             {authState === "guest" && (
               <li>
-                <span className={styles.disabled}>
-                  Member Login
-                  <span className={styles.badgeSoon}>Coming soon</span>
-                </span>
+                <Link href="/signin">Member Login</Link>
               </li>
             )}
             {authState === "member" && (
