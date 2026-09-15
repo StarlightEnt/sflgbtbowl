@@ -36,7 +36,9 @@ export default function Navigation({ authState = "guest" }) {
             )}
             {authState === "admin" && (
               <li>
-                <span className={styles.adminPill}>Admin</span>
+                <Link href="/admin/season-setup" className={styles.adminPill}>
+                  Admin
+                </Link>
               </li>
             )}
           </ul>
