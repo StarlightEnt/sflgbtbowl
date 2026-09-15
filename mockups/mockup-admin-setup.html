@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Season Setup — mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0a14; --bg-mid: #171129; --bg-deep2: #241a3d;
+    --ink: #f4f1fb; --ink-dim: #a89fc9;
+    --red: #ff4d5e; --orange: #ff9838; --yellow: #ffd54a;
+    --green: #35d68f; --blue: #3fa8ff; --purple: #b874ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+  .display { font-family: 'Bungee', cursive; letter-spacing: 0.01em; }
+
+  .stripe-bar { height: 5px; display: flex; }
+  .stripe-bar span { flex: 1; }
+  .stripe-bar .s1 { background: var(--red); } .stripe-bar .s2 { background: var(--orange); }
+  .stripe-bar .s3 { background: var(--yellow); } .stripe-bar .s4 { background: var(--green); }
+  .stripe-bar .s5 { background: var(--blue); } .stripe-bar .s6 { background: var(--purple); }
+
+  nav { background: var(--bg); border-bottom: 1px solid rgba(244,241,251,0.12); }
+  .nav-inner { max-width: 1180px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .wordmark { font-size: 1.15rem; color: var(--ink); text-decoration: none; line-height: 1.2; }
+  .wordmark small { display: block; font-family: 'Inter', sans-serif; font-size: 0.65rem; color: var(--ink-dim); font-weight: 600; letter-spacing: 0.06em; margin-top: 3px; }
+  .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--ink); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+  .admin-pill { font-family: 'Bungee', cursive; font-size: 0.65rem; color: var(--bg); background: var(--purple); padding: 4px 10px; border-radius: 999px; }
+
+  .shell { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
+
+  .sidebar { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 18px; position: sticky; top: 24px; }
+  .sidebar .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); margin-bottom: 10px; }
+  .sidebar a { display: block; padding: 10px 12px; border-radius: 6px; color: var(--ink-dim); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+  .sidebar a.active { background: rgba(184,116,255,0.14); color: var(--purple); font-weight: 600; }
+  .sidebar a:hover:not(.active) { color: var(--ink); }
+  .sidebar .divider-line { height: 1px; background: rgba(244,241,251,0.1); margin: 12px 0; }
+
+  .main h1 { font-size: 1.6rem; margin-bottom: 6px; }
+  .main > p.sub { color: var(--ink-dim); font-size: 0.92rem; margin-bottom: 28px; }
+
+  .field-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink-dim); margin-bottom: 6px; }
+  .field input { width: 100%; font-family: 'Inter', sans-serif; font-size: 0.95rem; padding: 10px 12px; border: 1px solid rgba(244,241,251,0.16); border-radius: 8px; background: rgba(11,10,20,0.6); color: var(--ink); }
+
+  .card { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .card-sub { color: var(--ink-dim); font-size: 0.85rem; margin-bottom: 16px; }
+
+  .upload-area { border: 2px dashed rgba(244,241,251,0.2); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; }
+  .upload-area .icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .upload-area .text { color: var(--ink-dim); font-size: 0.88rem; }
+  .status-ok { margin-top: 14px; background: rgba(53,214,143,0.1); border: 1px solid rgba(53,214,143,0.3); color: var(--green); border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; }
+
+  table.review { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.review th { text-align: left; color: var(--ink-dim); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 8px; border-bottom: 1px solid rgba(244,241,251,0.14); }
+  table.review td { padding: 6px 8px; border-bottom: 1px solid rgba(244,241,251,0.06); }
+  table.review input.abbr {
+    width: 64px; font-family: 'Inter', sans-serif; font-weight: 600; text-align: center;
+    padding: 6px 8px; border: 1px solid rgba(244,241,251,0.18); border-radius: 6px; background: rgba(11,10,20,0.6); color: var(--ink);
+  }
+  table.review td.num { color: var(--ink-dim); width: 32px; }
+
+  .btn-save {
+    display: inline-block; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.92rem; color: #1a0a0a;
+    background: linear-gradient(90deg, var(--orange), var(--red)); padding: 12px 26px; border-radius: 999px; border: none; cursor: pointer; margin-top: 8px;
+  }
+
+  footer { background: var(--bg); padding: 28px 24px; text-align: center; color: var(--ink-dim); font-size: 0.85rem; margin-top: 20px; }
+
+  @media (max-width: 800px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="wordmark display">SF LGBT BOWLERS
+      <small>WEDNESDAY COMMUNITY BOWLING</small>
+    </a>
+    <ul class="nav-links">
+      <li><span class="admin-pill">ADMIN — allisushi@gmail.com</span></li>
+    </ul>
+  </div>
+</nav>
+<div class="stripe-bar"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s5"></span><span class="s6"></span></div>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="label">LGBT Wednesday Community</div>
+    <a href="#" class="active">Season Setup</a>
+    <a href="#">Weekly Standing Sheet</a>
+    <a href="#">Schedule</a>
+    <div class="divider-line"></div>
+    <div class="label">Site-wide</div>
+    <a href="#">Admin Settings</a>
+    <a href="#">&larr; Back to dashboard</a>
+  </div>
+
+  <div class="main">
+    <h1 class="display">Season Setup</h1>
+    <p class="sub">Upload the League Standings and Schedule PDFs to set up a new season for LGBT Wednesday Community.</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="seasonName">Season name</label>
+        <input type="text" id="seasonName" value="Fall/Winter '26-'27">
+      </div>
+      <div class="field">
+        <label for="startYear">Start year</label>
+        <input type="text" id="startYear" value="2026">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Step 1 — League Standings PDF</div>
+      <div class="card-sub">Imports teams, bowlers, and substitutes from the current week's League Standings sheet.</div>
+      <div class="upload-area">
+        <div class="icon">📄</div>
+        <div class="text">Drag &amp; drop your League Standings PDF here, or click to browse</div>
+      </div>
+      <div class="status-ok">✓ LeagueStandings.pdf — Found 14 teams (13 rostered + BYE), 54 bowlers, 25 substitutes.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Step 2 — Schedule PDF</div>
+      <div class="card-sub">Imports lane assignments for every week of the season.</div>
+      <div class="upload-area">
+        <div class="icon">📄</div>
+        <div class="text">Drag &amp; drop your Schedule PDF here, or click to browse</div>
+      </div>
+      <div class="status-ok">✓ Lane_Assignments_Schedule.pdf — Found 29 weeks.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Review teams &amp; abbreviations</div>
+      <div class="card-sub">Auto-suggested from team names — edit any of these before saving. Used across the dashboard and results scoreboard.</div>
+      <table class="review">
+        <thead><tr><th>#</th><th>Team name</th><th>Abbreviation</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Snappy Backends</td><td><input class="abbr" value="SBe"></td></tr>
+          <tr><td class="num">2</td><td>Pity Party of Four</td><td><input class="abbr" value="PP4"></td></tr>
+          <tr><td class="num">3</td><td>Sacurrity</td><td><input class="abbr" value="Sac"></td></tr>
+          <tr><td class="num">4</td><td>Gutter Fillers</td><td><input class="abbr" value="GuF"></td></tr>
+          <tr><td class="num">5</td><td>O'Malley &amp; The Sallys</td><td><input class="abbr" value="OtS"></td></tr>
+          <tr><td class="num">6</td><td>Pick Up Artists</td><td><input class="abbr" value="PUA"></td></tr>
+          <tr><td class="num">7</td><td>Wisteria Lanes</td><td><input class="abbr" value="WsL"></td></tr>
+          <tr><td class="num">8</td><td>Rocky Squirrels</td><td><input class="abbr" value="RSq"></td></tr>
+          <tr><td class="num">9</td><td>Dawg Pound</td><td><input class="abbr" value="DgP"></td></tr>
+          <tr><td class="num">10</td><td>Pilsner Penguins</td><td><input class="abbr" value="PiP"></td></tr>
+          <tr><td class="num">11</td><td>Taste The Rainbow</td><td><input class="abbr" value="TtR"></td></tr>
+          <tr><td class="num">12</td><td>Wood Whackers</td><td><input class="abbr" value="WdW"></td></tr>
+          <tr><td class="num">13</td><td>StrikeForce</td><td><input class="abbr" value="StF"></td></tr>
+          <tr><td class="num">14</td><td>BYE</td><td><input class="abbr" value="BYE"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button class="btn-save">Save season setup</button>
+  </div>
+</div>
+
+<footer>SF LGBT Bowlers — Admin</footer>
+</body>
+</html>

@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Area — Roster — mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0a14; --bg-mid: #171129; --bg-deep2: #241a3d;
+    --ink: #f4f1fb; --ink-dim: #a89fc9;
+    --red: #ff4d5e; --orange: #ff9838; --yellow: #ffd54a;
+    --green: #35d68f; --blue: #3fa8ff; --purple: #b874ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+  .display { font-family: 'Bungee', cursive; letter-spacing: 0.01em; }
+
+  .stripe-bar { height: 5px; display: flex; }
+  .stripe-bar span { flex: 1; }
+  .stripe-bar .s1 { background: var(--red); } .stripe-bar .s2 { background: var(--orange); }
+  .stripe-bar .s3 { background: var(--yellow); } .stripe-bar .s4 { background: var(--green); }
+  .stripe-bar .s5 { background: var(--blue); } .stripe-bar .s6 { background: var(--purple); }
+
+  nav { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid rgba(244,241,251,0.12); }
+  .nav-inner { max-width: 1180px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .wordmark { font-size: 1.15rem; color: var(--ink); text-decoration: none; line-height: 1.2; }
+  .wordmark small { display: block; font-family: 'Inter', sans-serif; font-size: 0.65rem; color: var(--ink-dim); font-weight: 600; letter-spacing: 0.06em; margin-top: 3px; }
+  .nav-links { display: flex; align-items: center; gap: 24px; list-style: none; }
+  .nav-links a { color: var(--ink); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+  .member-pill { font-family: 'Bungee', cursive; font-size: 0.65rem; color: var(--bg); background: var(--green); padding: 4px 10px; border-radius: 999px; }
+
+  .page-head { max-width: 1180px; margin: 0 auto; padding: 36px 24px 8px; }
+  .page-head h1 { font-size: 1.6rem; margin-bottom: 6px; }
+  .page-head p { color: var(--ink-dim); font-size: 0.92rem; }
+
+  .section { max-width: 1180px; margin: 0 auto; padding: 24px 24px 8px; }
+  .section h2 { font-size: 1.2rem; margin-bottom: 6px; }
+  .section-sub { color: var(--ink-dim); font-size: 0.85rem; margin-bottom: 18px; }
+
+  .roster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .team-roster-card { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 16px 18px; }
+  .team-roster-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: var(--purple); }
+  .bowler-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 4px; border-radius: 6px; cursor: pointer; font-size: 0.88rem; transition: background 0.15s ease; }
+  .bowler-row:hover { background: rgba(184,116,255,0.1); }
+  .bname { color: var(--ink); }
+  .bavg { color: var(--ink-dim); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .cap-star { color: var(--yellow); font-size: 0.8rem; }
+
+  .subs-card { background: var(--bg-mid); border: 1px solid rgba(255,213,74,0.2); border-radius: 10px; padding: 18px 20px; }
+  .subs-card .team-roster-name { color: var(--yellow); }
+  .subs-grid-inner { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 2px 20px; }
+
+  .legend-note { font-size: 0.78rem; color: var(--ink-dim); margin-bottom: 14px; }
+  .legend-note .cap-star { margin-right: 4px; }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal-card { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.15); border-radius: 14px; padding: 28px; max-width: 400px; width: 100%; position: relative; max-height: 85vh; overflow-y: auto; }
+  .modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--ink-dim); font-size: 1.2rem; cursor: pointer; }
+  .modal-card h3 { font-size: 1.2rem; margin-bottom: 18px; }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label { display: block; font-size: 0.72rem; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .modal-field .value { font-size: 0.95rem; }
+  .modal-field input { width: 100%; font-family: 'Inter', sans-serif; font-size: 0.9rem; padding: 8px 10px; border: 1px solid rgba(244,241,251,0.16); border-radius: 6px; background: rgba(11,10,20,0.6); color: var(--ink); }
+  .modal-note { font-size: 0.72rem; color: var(--ink-dim); margin-top: 16px; }
+
+  .leagues-label { font-size: 0.72rem; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.04em; margin: 20px 0 8px; }
+  .league-block { background: rgba(184,116,255,0.06); border: 1px solid rgba(184,116,255,0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+  .league-block .lname { font-weight: 700; font-size: 0.85rem; color: var(--purple); margin-bottom: 4px; }
+  .league-block .lteam { font-size: 0.88rem; }
+  .league-block .lavg { font-size: 0.8rem; color: var(--ink-dim); margin-top: 2px; }
+  .league-block .lnote { font-size: 0.7rem; color: var(--yellow); font-style: italic; margin-top: 4px; }
+  .cap-checkbox { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.8rem; }
+  .cap-checkbox input { width: 15px; height: 15px; }
+
+  /* Message officers card */
+  .card { background: var(--bg-mid); border: 1px solid rgba(244,241,251,0.08); border-radius: 10px; padding: 24px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink-dim); margin-bottom: 6px; }
+  .field input, .field textarea { width: 100%; font-family: 'Inter', sans-serif; font-size: 0.92rem; padding: 10px 12px; border: 1px solid rgba(244,241,251,0.16); border-radius: 8px; background: rgba(11,10,20,0.6); color: var(--ink); }
+  .field textarea { min-height: 110px; resize: vertical; }
+  .btn-send {
+    display: inline-block; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.92rem; color: #1a0a0a;
+    background: linear-gradient(90deg, var(--orange), var(--red)); padding: 12px 26px; border-radius: 999px; border: none; cursor: pointer;
+  }
+  .privacy-note { font-size: 0.78rem; color: var(--ink-dim); margin-top: 12px; }
+
+  footer { background: var(--bg); padding: 28px 24px; text-align: center; color: var(--ink-dim); font-size: 0.85rem; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="wordmark display">SF LGBT BOWLERS
+      <small>WEDNESDAY COMMUNITY BOWLING</small>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Leagues</a></li>
+      <li><span class="member-pill">MEMBER — allison.laureano@example.com</span></li>
+    </ul>
+  </div>
+</nav>
+<div class="stripe-bar"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s5"></span><span class="s6"></span></div>
+
+<div class="page-head">
+  <h1 class="display">Member Area</h1>
+  <p>Team rosters, bowler info, and a direct line to the officers.</p>
+</div>
+
+<section class="section">
+  <h2>Team roster</h2>
+  <p class="section-sub">Click any bowler to see their info — including every league they bowl in, not just this one.</p>
+  <p class="legend-note"><span class="cap-star">&#9733;</span>Team Captain</p>
+  <div class="roster-grid">
+      <div class="team-roster-card">
+        <div class="team-roster-name">Snappy Backends</div>
+        <div class="bowler-row" onclick="openBowler('b1')"><span class="bname">Mark Bertelsen</span><span class="bavg">173</span></div><div class="bowler-row" onclick="openBowler('b2')"><span class="bname">Patrick Mebine</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b3')"><span class="bname">Glenn Normandin <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">185</span></div><div class="bowler-row" onclick="openBowler('b4')"><span class="bname">Charlie Esteban</span><span class="bavg">&mdash;</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Pity Party of Four</div>
+        <div class="bowler-row" onclick="openBowler('b5')"><span class="bname">Robert Hughes <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">175</span></div><div class="bowler-row" onclick="openBowler('b6')"><span class="bname">Rian Vandermaden</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b7')"><span class="bname">Cathy Patterson</span><span class="bavg">161</span></div><div class="bowler-row" onclick="openBowler('b8')"><span class="bname">Richard Perez</span><span class="bavg">181</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Sacurrity</div>
+        <div class="bowler-row" onclick="openBowler('b9')"><span class="bname">Joseph Johnson</span><span class="bavg">139</span></div><div class="bowler-row" onclick="openBowler('b10')"><span class="bname">Mark Parrott <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">129</span></div><div class="bowler-row" onclick="openBowler('b11')"><span class="bname">Walter Turner</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b12')"><span class="bname">Vince Wilson</span><span class="bavg">179</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Gutter Fillers</div>
+        <div class="bowler-row" onclick="openBowler('b13')"><span class="bname">Stephen Yu</span><span class="bavg">151</span></div><div class="bowler-row" onclick="openBowler('b14')"><span class="bname">Ric Lewis <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">150</span></div><div class="bowler-row" onclick="openBowler('b15')"><span class="bname">Micah Castro</span><span class="bavg">171</span></div><div class="bowler-row" onclick="openBowler('b16')"><span class="bname">Jeremy Schrader</span><span class="bavg">156</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">O'Malley & The Sallys</div>
+        <div class="bowler-row" onclick="openBowler('b17')"><span class="bname">John Bernier</span><span class="bavg">126</span></div><div class="bowler-row" onclick="openBowler('b18')"><span class="bname">Wade Crosson</span><span class="bavg">161</span></div><div class="bowler-row" onclick="openBowler('b19')"><span class="bname">Patrick O'Connor <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">140</span></div><div class="bowler-row" onclick="openBowler('b20')"><span class="bname">Saman Oun</span><span class="bavg">156</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Pick Up Artists</div>
+        <div class="bowler-row" onclick="openBowler('b21')"><span class="bname">Chad Amsler</span><span class="bavg">124</span></div><div class="bowler-row" onclick="openBowler('b22')"><span class="bname">Todd Nagengast</span><span class="bavg">184</span></div><div class="bowler-row" onclick="openBowler('b23')"><span class="bname">Duane Flohra</span><span class="bavg">188</span></div><div class="bowler-row" onclick="openBowler('b24')"><span class="bname">Henry Stockwell <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">203</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Wisteria Lanes</div>
+        <div class="bowler-row" onclick="openBowler('b25')"><span class="bname">Keith Myers</span><span class="bavg">133</span></div><div class="bowler-row" onclick="openBowler('b26')"><span class="bname">Andy LeClair</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b27')"><span class="bname">Peter Grady <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">164</span></div><div class="bowler-row" onclick="openBowler('b28')"><span class="bname">Kirk Smith</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b29')"><span class="bname">Robert Martin</span><span class="bavg">142</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Rocky Squirrels</div>
+        <div class="bowler-row" onclick="openBowler('b30')"><span class="bname">Peter Thomas</span><span class="bavg">122</span></div><div class="bowler-row" onclick="openBowler('b31')"><span class="bname">John Francis Unson</span><span class="bavg">128</span></div><div class="bowler-row" onclick="openBowler('b32')"><span class="bname">Michael Cross</span><span class="bavg">192</span></div><div class="bowler-row" onclick="openBowler('b33')"><span class="bname">Robert Werner <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">165</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Dawg Pound</div>
+        <div class="bowler-row" onclick="openBowler('b34')"><span class="bname">James Camarillo</span><span class="bavg">166</span></div><div class="bowler-row" onclick="openBowler('b35')"><span class="bname">Michael Harrington</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b36')"><span class="bname">Joe Kelso</span><span class="bavg">159</span></div><div class="bowler-row" onclick="openBowler('b37')"><span class="bname">Robert Whitman <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">158</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Pilsner Penguins</div>
+        <div class="bowler-row" onclick="openBowler('b38')"><span class="bname">Brian Kneuker</span><span class="bavg">160</span></div><div class="bowler-row" onclick="openBowler('b39')"><span class="bname">David Caldera</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b40')"><span class="bname">Charles Reader</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b41')"><span class="bname">Bryan Hoff</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b42')"><span class="bname">Darryl Lee <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">&mdash;</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Taste The Rainbow</div>
+        <div class="bowler-row" onclick="openBowler('b43')"><span class="bname">Raymond Evans</span><span class="bavg">141</span></div><div class="bowler-row" onclick="openBowler('b44')"><span class="bname">Don Corbiell</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b45')"><span class="bname">Samuel Kohler</span><span class="bavg">128</span></div><div class="bowler-row" onclick="openBowler('b46')"><span class="bname">Allison Laureano <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">145</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">Wood Whackers</div>
+        <div class="bowler-row" onclick="openBowler('b47')"><span class="bname">John Riccuito</span><span class="bavg">163</span></div><div class="bowler-row" onclick="openBowler('b48')"><span class="bname">Rodney Duncan</span><span class="bavg">106</span></div><div class="bowler-row" onclick="openBowler('b49')"><span class="bname">Jerry Cox</span><span class="bavg">110</span></div><div class="bowler-row" onclick="openBowler('b50')"><span class="bname">Ron Jury <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">124</span></div>
+      </div>
+      <div class="team-roster-card">
+        <div class="team-roster-name">StrikeForce</div>
+        <div class="bowler-row" onclick="openBowler('b51')"><span class="bname">Erric White</span><span class="bavg">166</span></div><div class="bowler-row" onclick="openBowler('b52')"><span class="bname">Todd Barrett</span><span class="bavg">156</span></div><div class="bowler-row" onclick="openBowler('b53')"><span class="bname">Andrei Cobbs II</span><span class="bavg">153</span></div><div class="bowler-row" onclick="openBowler('b54')"><span class="bname">Kevin Ahart <span class="cap-star" title="Team Captain">★</span></span><span class="bavg">183</span></div>
+      </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Substitutes</h2>
+  <p class="section-sub">Not assigned to a specific team — available to fill in as needed. Most show no average yet since they haven't subbed in this season.</p>
+  <div class="subs-card">
+    <div class="team-roster-name">Temporary Substitutes (25)</div>
+    <div class="subs-grid-inner">
+      <div class="bowler-row" onclick="openBowler('b55')"><span class="bname">Ray Aquino</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b56')"><span class="bname">Bryn Barone</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b57')"><span class="bname">Ryan Behrens</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b58')"><span class="bname">Jonathan Chow</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b59')"><span class="bname">Paul Chung</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b60')"><span class="bname">Alex Dohrmann</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b61')"><span class="bname">Joe Dolen</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b62')"><span class="bname">Allister Fong</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b63')"><span class="bname">Gregg Gaubatz</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b64')"><span class="bname">Jeff Goldenberg</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b65')"><span class="bname">Brandon Holroyd</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b66')"><span class="bname">Thomas Ligouri</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b67')"><span class="bname">Douglas Litwin</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b68')"><span class="bname">David Marks</span><span class="bavg">186</span></div><div class="bowler-row" onclick="openBowler('b69')"><span class="bname">Alfredo Martinez</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b70')"><span class="bname">Rich Martini</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b71')"><span class="bname">Michael Masterson</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b72')"><span class="bname">Ken Mitchell</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b73')"><span class="bname">Sean Pappas</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b74')"><span class="bname">Reagan Peralta</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b75')"><span class="bname">Jorge Pinero</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b76')"><span class="bname">Jesse Pugach</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b77')"><span class="bname">Dave Savoni</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b78')"><span class="bname">YuPing Toh</span><span class="bavg">&mdash;</span></div><div class="bowler-row" onclick="openBowler('b79')"><span class="bname">Linda Wright</span><span class="bavg">&mdash;</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Message the officers</h2>
+  <p class="section-sub">Sends privately to officers@sflgbtbowl.com — not posted anywhere public.</p>
+  <div class="card">
+    <div class="field">
+      <label for="subject">Subject</label>
+      <input type="text" id="subject" placeholder="What's this about?">
+    </div>
+    <div class="field">
+      <label for="msg">Message</label>
+      <textarea id="msg" placeholder="Write your message to the officers here..."></textarea>
+    </div>
+    <button class="btn-send">Send to officers</button>
+    <div class="privacy-note">Your name and email come from your member sign-in automatically — officers will know who sent this.</div>
+  </div>
+</section>
+
+<footer>SF LGBT Bowlers</footer>
+
+<div class="modal-overlay" id="bowlerModal" onclick="if(event.target===this) closeModal()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3 id="modalName">—</h3>
+
+    <div class="modal-field">
+      <label>First name</label>
+      <div class="value" id="modalFirst">—</div>
+    </div>
+    <div class="modal-field">
+      <label>Last name</label>
+      <div class="value" id="modalLast">—</div>
+    </div>
+    <div class="modal-field">
+      <label>Email</label>
+      <input type="email" placeholder="Not yet provided — add yours">
+    </div>
+    <div class="modal-field">
+      <label>Phone number</label>
+      <input type="tel" placeholder="Not yet provided — add yours">
+    </div>
+    <div class="modal-field">
+      <label>USBC ID number</label>
+      <input type="text" placeholder="Not yet provided — add yours">
+    </div>
+
+    <div class="leagues-label">Leagues</div>
+    <div id="modalLeagues"></div>
+
+    <div class="modal-note">Identity fields (name, email, phone, USBC ID) are shared everywhere. Team Captain is set per league/team and controls who can submit pre-bowl/makeup requests for that team. Only admins can change the captain flag.</div>
+  </div>
+</div>
+
+<script>
+const bowlers = {
+  "b1": {
+    "first": "Mark",
+    "last": "Bertelsen",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Snappy Backends",
+        "avg": 173,
+        "captain": false
+      }
+    ]
+  },
+  "b2": {
+    "first": "Patrick",
+    "last": "Mebine",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Snappy Backends",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b3": {
+    "first": "Glenn",
+    "last": "Normandin",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Snappy Backends",
+        "avg": 185,
+        "captain": true
+      }
+    ]
+  },
+  "b4": {
+    "first": "Charlie",
+    "last": "Esteban",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Snappy Backends",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b5": {
+    "first": "Robert",
+    "last": "Hughes",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pity Party of Four",
+        "avg": 175,
+        "captain": true
+      }
+    ]
+  },
+  "b6": {
+    "first": "Rian",
+    "last": "Vandermaden",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pity Party of Four",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b7": {
+    "first": "Cathy",
+    "last": "Patterson",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pity Party of Four",
+        "avg": 161,
+        "captain": false
+      }
+    ]
+  },
+  "b8": {
+    "first": "Richard",
+    "last": "Perez",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pity Party of Four",
+        "avg": 181,
+        "captain": false
+      }
+    ]
+  },
+  "b9": {
+    "first": "Joseph",
+    "last": "Johnson",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Sacurrity",
+        "avg": 139,
+        "captain": false
+      }
+    ]
+  },
+  "b10": {
+    "first": "Mark",
+    "last": "Parrott",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Sacurrity",
+        "avg": 129,
+        "captain": true
+      }
+    ]
+  },
+  "b11": {
+    "first": "Walter",
+    "last": "Turner",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Sacurrity",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b12": {
+    "first": "Vince",
+    "last": "Wilson",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Sacurrity",
+        "avg": 179,
+        "captain": false
+      }
+    ]
+  },
+  "b13": {
+    "first": "Stephen",
+    "last": "Yu",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Gutter Fillers",
+        "avg": 151,
+        "captain": false
+      }
+    ]
+  },
+  "b14": {
+    "first": "Ric",
+    "last": "Lewis",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Gutter Fillers",
+        "avg": 150,
+        "captain": true
+      }
+    ]
+  },
+  "b15": {
+    "first": "Micah",
+    "last": "Castro",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Gutter Fillers",
+        "avg": 171,
+        "captain": false
+      }
+    ]
+  },
+  "b16": {
+    "first": "Jeremy",
+    "last": "Schrader",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Gutter Fillers",
+        "avg": 156,
+        "captain": false
+      }
+    ]
+  },
+  "b17": {
+    "first": "John",
+    "last": "Bernier",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "O'Malley & The Sallys",
+        "avg": 126,
+        "captain": false
+      }
+    ]
+  },
+  "b18": {
+    "first": "Wade",
+    "last": "Crosson",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "O'Malley & The Sallys",
+        "avg": 161,
+        "captain": false
+      }
+    ]
+  },
+  "b19": {
+    "first": "Patrick",
+    "last": "O'Connor",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "O'Malley & The Sallys",
+        "avg": 140,
+        "captain": true
+      }
+    ]
+  },
+  "b20": {
+    "first": "Saman",
+    "last": "Oun",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "O'Malley & The Sallys",
+        "avg": 156,
+        "captain": false
+      }
+    ]
+  },
+  "b21": {
+    "first": "Chad",
+    "last": "Amsler",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pick Up Artists",
+        "avg": 124,
+        "captain": false
+      }
+    ]
+  },
+  "b22": {
+    "first": "Todd",
+    "last": "Nagengast",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pick Up Artists",
+        "avg": 184,
+        "captain": false
+      }
+    ]
+  },
+  "b23": {
+    "first": "Duane",
+    "last": "Flohra",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pick Up Artists",
+        "avg": 188,
+        "captain": false
+      }
+    ]
+  },
+  "b24": {
+    "first": "Henry",
+    "last": "Stockwell",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pick Up Artists",
+        "avg": 203,
+        "captain": true
+      }
+    ]
+  },
+  "b25": {
+    "first": "Keith",
+    "last": "Myers",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wisteria Lanes",
+        "avg": 133,
+        "captain": false
+      }
+    ]
+  },
+  "b26": {
+    "first": "Andy",
+    "last": "LeClair",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wisteria Lanes",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b27": {
+    "first": "Peter",
+    "last": "Grady",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wisteria Lanes",
+        "avg": 164,
+        "captain": true
+      }
+    ]
+  },
+  "b28": {
+    "first": "Kirk",
+    "last": "Smith",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wisteria Lanes",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b29": {
+    "first": "Robert",
+    "last": "Martin",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wisteria Lanes",
+        "avg": 142,
+        "captain": false
+      }
+    ]
+  },
+  "b30": {
+    "first": "Peter",
+    "last": "Thomas",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Rocky Squirrels",
+        "avg": 122,
+        "captain": false
+      }
+    ]
+  },
+  "b31": {
+    "first": "John Francis",
+    "last": "Unson",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Rocky Squirrels",
+        "avg": 128,
+        "captain": false
+      }
+    ]
+  },
+  "b32": {
+    "first": "Michael",
+    "last": "Cross",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Rocky Squirrels",
+        "avg": 192,
+        "captain": false
+      }
+    ]
+  },
+  "b33": {
+    "first": "Robert",
+    "last": "Werner",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Rocky Squirrels",
+        "avg": 165,
+        "captain": true
+      }
+    ]
+  },
+  "b34": {
+    "first": "James",
+    "last": "Camarillo",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Dawg Pound",
+        "avg": 166,
+        "captain": false
+      }
+    ]
+  },
+  "b35": {
+    "first": "Michael",
+    "last": "Harrington",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Dawg Pound",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b36": {
+    "first": "Joe",
+    "last": "Kelso",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Dawg Pound",
+        "avg": 159,
+        "captain": false
+      }
+    ]
+  },
+  "b37": {
+    "first": "Robert",
+    "last": "Whitman",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Dawg Pound",
+        "avg": 158,
+        "captain": true
+      }
+    ]
+  },
+  "b38": {
+    "first": "Brian",
+    "last": "Kneuker",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pilsner Penguins",
+        "avg": 160,
+        "captain": false
+      }
+    ]
+  },
+  "b39": {
+    "first": "David",
+    "last": "Caldera",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pilsner Penguins",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b40": {
+    "first": "Charles",
+    "last": "Reader",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pilsner Penguins",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b41": {
+    "first": "Bryan",
+    "last": "Hoff",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pilsner Penguins",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b42": {
+    "first": "Darryl",
+    "last": "Lee",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Pilsner Penguins",
+        "avg": 0,
+        "captain": true
+      }
+    ]
+  },
+  "b43": {
+    "first": "Raymond",
+    "last": "Evans",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Taste The Rainbow",
+        "avg": 141,
+        "captain": false
+      }
+    ]
+  },
+  "b44": {
+    "first": "Don",
+    "last": "Corbiell",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Taste The Rainbow",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b45": {
+    "first": "Samuel",
+    "last": "Kohler",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Taste The Rainbow",
+        "avg": 128,
+        "captain": false
+      }
+    ]
+  },
+  "b46": {
+    "first": "Allison",
+    "last": "Laureano",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Taste The Rainbow",
+        "avg": 145,
+        "captain": true
+      },
+      {
+        "league": "Gay Games (Sundays)",
+        "team": "Holes and Poles",
+        "avg": null,
+        "captain": false,
+        "note": "Illustrative \u2014 Gay Games isn't loaded into the system yet"
+      }
+    ]
+  },
+  "b47": {
+    "first": "John",
+    "last": "Riccuito",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wood Whackers",
+        "avg": 163,
+        "captain": false
+      }
+    ]
+  },
+  "b48": {
+    "first": "Rodney",
+    "last": "Duncan",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wood Whackers",
+        "avg": 106,
+        "captain": false
+      }
+    ]
+  },
+  "b49": {
+    "first": "Jerry",
+    "last": "Cox",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wood Whackers",
+        "avg": 110,
+        "captain": false
+      }
+    ]
+  },
+  "b50": {
+    "first": "Ron",
+    "last": "Jury",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Wood Whackers",
+        "avg": 124,
+        "captain": true
+      }
+    ]
+  },
+  "b51": {
+    "first": "Erric",
+    "last": "White",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "StrikeForce",
+        "avg": 166,
+        "captain": false
+      }
+    ]
+  },
+  "b52": {
+    "first": "Todd",
+    "last": "Barrett",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "StrikeForce",
+        "avg": 156,
+        "captain": false
+      }
+    ]
+  },
+  "b53": {
+    "first": "Andrei",
+    "last": "Cobbs II",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "StrikeForce",
+        "avg": 153,
+        "captain": false
+      }
+    ]
+  },
+  "b54": {
+    "first": "Kevin",
+    "last": "Ahart",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "StrikeForce",
+        "avg": 183,
+        "captain": true
+      }
+    ]
+  },
+  "b55": {
+    "first": "Ray",
+    "last": "Aquino",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b56": {
+    "first": "Bryn",
+    "last": "Barone",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b57": {
+    "first": "Ryan",
+    "last": "Behrens",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b58": {
+    "first": "Jonathan",
+    "last": "Chow",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b59": {
+    "first": "Paul",
+    "last": "Chung",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b60": {
+    "first": "Alex",
+    "last": "Dohrmann",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b61": {
+    "first": "Joe",
+    "last": "Dolen",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b62": {
+    "first": "Allister",
+    "last": "Fong",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b63": {
+    "first": "Gregg",
+    "last": "Gaubatz",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b64": {
+    "first": "Jeff",
+    "last": "Goldenberg",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b65": {
+    "first": "Brandon",
+    "last": "Holroyd",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b66": {
+    "first": "Thomas",
+    "last": "Ligouri",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b67": {
+    "first": "Douglas",
+    "last": "Litwin",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b68": {
+    "first": "David",
+    "last": "Marks",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 186,
+        "captain": false
+      }
+    ]
+  },
+  "b69": {
+    "first": "Alfredo",
+    "last": "Martinez",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b70": {
+    "first": "Rich",
+    "last": "Martini",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b71": {
+    "first": "Michael",
+    "last": "Masterson",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b72": {
+    "first": "Ken",
+    "last": "Mitchell",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b73": {
+    "first": "Sean",
+    "last": "Pappas",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b74": {
+    "first": "Reagan",
+    "last": "Peralta",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b75": {
+    "first": "Jorge",
+    "last": "Pinero",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b76": {
+    "first": "Jesse",
+    "last": "Pugach",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b77": {
+    "first": "Dave",
+    "last": "Savoni",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b78": {
+    "first": "YuPing",
+    "last": "Toh",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  },
+  "b79": {
+    "first": "Linda",
+    "last": "Wright",
+    "leagues": [
+      {
+        "league": "LGBT Wednesday Community",
+        "team": "Substitute (not assigned to a team)",
+        "avg": 0,
+        "captain": false
+      }
+    ]
+  }
+};
+
+function openBowler(id) {
+  const b = bowlers[id];
+  document.getElementById('modalName').textContent = b.first + ' ' + b.last;
+  document.getElementById('modalFirst').textContent = b.first;
+  document.getElementById('modalLast').textContent = b.last;
+
+  const leaguesDiv = document.getElementById('modalLeagues');
+  leaguesDiv.innerHTML = '';
+  b.leagues.forEach((l, i) => {
+    const avgText = l.avg ? l.avg : 'Not yet established';
+    const noteHtml = l.note ? '<div class="lnote">' + l.note + '</div>' : '';
+    const checkedAttr = l.captain ? 'checked' : '';
+    leaguesDiv.innerHTML += '<div class="league-block"><div class="lname">' + l.league + '</div><div class="lteam">' + l.team + '</div><div class="lavg">Real average: ' + avgText + '</div>' + noteHtml + '<label class="cap-checkbox"><input type="checkbox" ' + checkedAttr + ' disabled> Team Captain</label></div>';
+  });
+
+  document.getElementById('bowlerModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('bowlerModal').classList.remove('open');
+}
+</script>
+
+</body>
+</html>
