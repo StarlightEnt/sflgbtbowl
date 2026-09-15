@@ -1,0 +1,32 @@
+.stripeBar {
+  height: 5px;
+  display: flex;
+
+  span {
+    flex: 1;
+  }
+}
+
+.s1 {
+  background: var(--sflgbtbowl-red);
+}
+
+.s2 {
+  background: var(--sflgbtbowl-orange);
+}
+
+.s3 {
+  background: var(--sflgbtbowl-yellow);
+}
+
+.s4 {
+  background: var(--sflgbtbowl-green);
+}
+
+.s5 {
+  background: var(--sflgbtbowl-blue);
+}
+
+.s6 {
+  background: var(--sflgbtbowl-purple);
+}

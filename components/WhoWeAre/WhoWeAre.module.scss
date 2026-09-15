@@ -1,0 +1,38 @@
+.who {
+  background: var(--sflgbtbowl-bg-mid);
+}
+
+.whoInner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 72px 24px;
+
+  p {
+    max-width: 68ch;
+    font-size: 1.02rem;
+    color: var(--sflgbtbowl-ink-dim);
+    margin-bottom: 18px;
+  }
+}
+
+.heading {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  margin-bottom: 22px;
+  color: var(--sflgbtbowl-ink);
+}
+
+.scoreboard {
+  margin-top: 32px;
+  border: 1px solid rgba(184, 116, 255, 0.4);
+  border-radius: 14px;
+  padding: 22px 26px;
+  background: rgba(244, 241, 251, 0.03);
+
+  p {
+    font-family: "Bungee", cursive;
+    font-size: 1.05rem;
+    color: var(--sflgbtbowl-ink);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
