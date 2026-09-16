@@ -2,7 +2,7 @@ import Link from "next/link";
 import StripeBar from "./StripeBar";
 import styles from "./Navigation.module.scss";
 
-export default function Navigation({ authState = "guest" }) {
+export default function Navigation({ isAdminUser = false, isMemberUser = false }) {
   return (
     <>
       <nav className={styles.nav}>
@@ -24,17 +24,19 @@ export default function Navigation({ authState = "guest" }) {
                 <span className={styles.badgeSoon}>Coming soon</span>
               </span>
             </li>
-            {authState === "guest" && (
+            {!isMemberUser && !isAdminUser && (
               <li>
                 <Link href="/signin">Member Login</Link>
               </li>
             )}
-            {authState === "member" && (
+            {isMemberUser && (
               <li>
-                <span className={styles.memberPill}>Member</span>
+                <Link href="/member/roster" className={styles.memberPill}>
+                  Member
+                </Link>
               </li>
             )}
-            {authState === "admin" && (
+            {isAdminUser && (
               <li>
                 <Link href="/admin/season-setup" className={styles.adminPill}>
                   Admin

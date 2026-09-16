@@ -17,13 +17,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const email = session?.user?.email ?? null;
 
   const admin = email ? await isAdmin(email) : false;
-  const member = !admin && email ? await isMember(email) : false;
-  const authState = admin ? "admin" : member ? "member" : "guest";
+  // isMember() already treats admins as members too (a superset), so
+  // this is true for every admin regardless of whether they also have
+  // a linked bowler row — both pills can show at once.
+  const member = email ? await isMember(email) : false;
 
   return (
     <html lang="en">
       <body>
-        <Navigation authState={authState} />
+        <Navigation isAdminUser={admin} isMemberUser={member} />
         {children}
         <StripeBar />
         <Footer />
