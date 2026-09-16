@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { isAdmin, isMember } from "@/lib/auth-helpers";
 import { sql } from "@/lib/db";
+import { getCurrentSeason } from "@/lib/currentSeason";
+import { canViewContactInfo } from "@/lib/canViewContactInfo";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -8,6 +10,18 @@ async function getViewerContext(email) {
   const admin = await isAdmin(email);
   const rows = await sql`SELECT id FROM bowlers WHERE email = ${email}`;
   return { isAdminViewer: admin, viewerBowlerId: rows[0]?.id ?? null };
+}
+
+// { teamId, isCaptain } for this bowler's league_membership in the
+// given season, or null if they have none.
+async function getMembership(bowlerId, seasonId) {
+  if (!bowlerId || !seasonId) return null;
+  const rows = await sql`
+    SELECT team_id, is_captain FROM league_memberships
+    WHERE bowler_id = ${bowlerId} AND season_id = ${seasonId}
+  `;
+  if (rows.length === 0) return null;
+  return { teamId: rows[0].team_id, isCaptain: rows[0].is_captain };
 }
 
 async function loadLeagues(bowlerId) {
@@ -28,10 +42,10 @@ async function loadLeagues(bowlerId) {
   }));
 }
 
-// This route, not the modal's own read-only rendering, is the real
-// privacy boundary — email/phone/usbc_id are only ever included in the
-// response for your own card or an admin's view of anyone's, never
-// present at all for a different member's card.
+// This route, not the modal's own rendering, is the real privacy
+// boundary — email/phone/usbc_id are only ever included in the
+// response when canViewContactInfo() says so (see lib/canViewContactInfo.js
+// for the tiered rule), never present at all otherwise.
 export async function GET(req, { params }) {
   const session = await auth();
   const email = session?.user?.email ?? null;
@@ -55,8 +69,21 @@ export async function GET(req, { params }) {
   const bowler = bowlerRows[0];
 
   const { isAdminViewer, viewerBowlerId } = await getViewerContext(email);
-  const editable = isAdminViewer || viewerBowlerId === bowlerId;
+  const isOwnCard = viewerBowlerId === bowlerId;
+  const editable = isAdminViewer || isOwnCard;
   const leagues = await loadLeagues(bowlerId);
+
+  const season = await getCurrentSeason();
+  const [viewerMembership, targetMembership] = await Promise.all([
+    getMembership(viewerBowlerId, season?.id),
+    getMembership(bowlerId, season?.id),
+  ]);
+  const canViewContact = canViewContactInfo({
+    isAdmin: isAdminViewer,
+    isOwnCard,
+    viewerMembership,
+    targetMembership,
+  });
 
   const base = {
     id: bowler.id,
@@ -64,10 +91,11 @@ export async function GET(req, { params }) {
     lastName: bowler.last_name,
     nickname: bowler.nickname,
     editable,
+    canViewContact,
     leagues,
   };
 
-  if (!editable) {
+  if (!canViewContact) {
     return Response.json(base);
   }
   return Response.json({ ...base, email: bowler.email, phone: bowler.phone, usbcId: bowler.usbc_id });

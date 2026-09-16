@@ -160,6 +160,22 @@ function BowlerModal({ bowlerId, onClose }) {
                     <div className={styles.value}>{data.nickname}</div>
                   </div>
                 )}
+                {data.canViewContact && (
+                  <>
+                    <div className={styles.modalField}>
+                      <label>Email</label>
+                      <div className={styles.value}>{data.email || "—"}</div>
+                    </div>
+                    <div className={styles.modalField}>
+                      <label>Phone number</label>
+                      <div className={styles.value}>{data.phone || "—"}</div>
+                    </div>
+                    <div className={styles.modalField}>
+                      <label>USBC ID number</label>
+                      <div className={styles.value}>{data.usbcId || "—"}</div>
+                    </div>
+                  </>
+                )}
               </>
             )}
 
