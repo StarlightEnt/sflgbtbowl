@@ -38,6 +38,10 @@ yarn-error.log*
 # is also already public somewhere.
 /test-fixtures/Contact List.pdf
 
+# Even more sensitive than the Contact List — also prints a home
+# address on every page. No exceptions.
+/test-fixtures/Sanction.pdf
+
 # vercel
 .vercel
 
