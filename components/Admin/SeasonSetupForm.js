@@ -140,144 +140,125 @@ export default function SeasonSetupForm() {
 
   if (saveStatus === "done") {
     return (
-      <div className={styles.shell}>
-        <div className={styles.main}>
-          <h1 className={`display ${styles.heading}`}>Season saved</h1>
-          <p className={styles.sub}>
-            {seasonName} is set up — {standingsData.counts.teams} teams,{" "}
-            {standingsData.counts.bowlers} bowlers, {standingsData.counts.subs} substitutes, and{" "}
-            {scheduleData.counts.weeks} weeks of schedule.
-          </p>
-          <Link href="/" className="btn">
-            ← Back to site
-          </Link>
-        </div>
-      </div>
+      <>
+        <h1 className={`display ${styles.heading}`}>Season saved</h1>
+        <p className={styles.sub}>
+          {seasonName} is set up — {standingsData.counts.teams} teams,{" "}
+          {standingsData.counts.bowlers} bowlers, {standingsData.counts.subs} substitutes, and{" "}
+          {scheduleData.counts.weeks} weeks of schedule.
+        </p>
+        <Link href="/" className="btn">
+          ← Back to site
+        </Link>
+      </>
     );
   }
 
   return (
-    <div className={styles.shell}>
-      <aside className={styles.sidebar}>
-        <div className={styles.label}>LGBT Wednesday Community</div>
-        <span className={`${styles.sidebarLink} ${styles.active}`}>Season Setup</span>
-        <Link href="/admin/weekly" className={styles.sidebarLink}>
-          Weekly Standing Sheet
-        </Link>
-        <span className={styles.sidebarLink}>Schedule</span>
-        <div className={styles.dividerLine} />
-        <div className={styles.label}>Site-wide</div>
-        <span className={styles.sidebarLink}>Admin Settings</span>
-        <Link href="/" className={styles.sidebarLink}>
-          ← Back to site
-        </Link>
-      </aside>
+    <>
+      <h1 className={`display ${styles.heading}`}>Season Setup</h1>
+      <p className={styles.sub}>
+        Upload the League Standings and Schedule PDFs to set up a new season for LGBT Wednesday
+        Community.
+      </p>
 
-      <div className={styles.main}>
-        <h1 className={`display ${styles.heading}`}>Season Setup</h1>
-        <p className={styles.sub}>
-          Upload the League Standings and Schedule PDFs to set up a new season for LGBT Wednesday
-          Community.
-        </p>
-
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label htmlFor="seasonName">Season name</label>
-            <input
-              type="text"
-              id="seasonName"
-              value={seasonName}
-              onChange={(e) => setSeasonName(e.target.value)}
-            />
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="startYear">Start year</label>
-            <input
-              type="text"
-              id="startYear"
-              value={startYear}
-              onChange={(e) => setStartYear(e.target.value)}
-            />
-          </div>
+      <div className={styles.fieldRow}>
+        <div className={styles.field}>
+          <label htmlFor="seasonName">Season name</label>
+          <input
+            type="text"
+            id="seasonName"
+            value={seasonName}
+            onChange={(e) => setSeasonName(e.target.value)}
+          />
         </div>
-
-        <UploadCard
-          title="Step 1 — League Standings PDF"
-          sub="Imports teams, bowlers, and substitutes from the current week's League Standings sheet."
-          status={standingsStatus}
-          counts={
-            standingsData
-              ? `Found ${standingsData.counts.teams} teams (${
-                  standingsData.counts.teams - 1
-                } rostered + BYE), ${standingsData.counts.bowlers} bowlers, ${
-                  standingsData.counts.subs
-                } substitutes.`
-              : ""
-          }
-          fileName={standingsData?.fileName}
-          error={standingsError}
-          onFile={handleStandingsFile}
-        />
-
-        <UploadCard
-          title="Step 2 — Schedule PDF"
-          sub="Imports lane assignments for every week of the season."
-          status={scheduleStatus}
-          counts={scheduleData ? `Found ${scheduleData.counts.weeks} weeks.` : ""}
-          fileName={scheduleData?.fileName}
-          error={scheduleError}
-          onFile={handleScheduleFile}
-        />
-
-        {standingsData && (
-          <div className={styles.card}>
-            <div className={styles.cardTitle}>Review teams &amp; abbreviations</div>
-            <div className={styles.cardSub}>
-              Auto-suggested from team names — edit any of these before saving. Used across the
-              dashboard and results scoreboard.
-            </div>
-            <table className={styles.review}>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Team name</th>
-                  <th>Abbreviation</th>
-                </tr>
-              </thead>
-              <tbody>
-                {standingsData.result.teams.map((team) => (
-                  <tr key={team.team_number}>
-                    <td className={styles.num}>{team.team_number}</td>
-                    <td>{team.team_name}</td>
-                    <td>
-                      <input
-                        className={styles.abbr}
-                        value={abbreviations[team.team_number] ?? ""}
-                        onChange={(e) => handleAbbrChange(team.team_number, e.target.value)}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {hasDuplicateAbbr && (
-              <div className={styles.statusError}>
-                ✕ Abbreviations must be unique (case-insensitive).
-              </div>
-            )}
-          </div>
-        )}
-
-        {saveStatus === "error" && <div className={styles.statusError}>✕ {saveError}</div>}
-
-        <button
-          className={`btn ${styles.btnSave}`}
-          disabled={!readyToSave || !allAbbrFilled || hasDuplicateAbbr || saveStatus === "saving"}
-          onClick={handleSave}
-        >
-          {saveStatus === "saving" ? "Saving…" : "Save season setup"}
-        </button>
+        <div className={styles.field}>
+          <label htmlFor="startYear">Start year</label>
+          <input
+            type="text"
+            id="startYear"
+            value={startYear}
+            onChange={(e) => setStartYear(e.target.value)}
+          />
+        </div>
       </div>
-    </div>
+
+      <UploadCard
+        title="Step 1 — League Standings PDF"
+        sub="Imports teams, bowlers, and substitutes from the current week's League Standings sheet."
+        status={standingsStatus}
+        counts={
+          standingsData
+            ? `Found ${standingsData.counts.teams} teams (${
+                standingsData.counts.teams - 1
+              } rostered + BYE), ${standingsData.counts.bowlers} bowlers, ${
+                standingsData.counts.subs
+              } substitutes.`
+            : ""
+        }
+        fileName={standingsData?.fileName}
+        error={standingsError}
+        onFile={handleStandingsFile}
+      />
+
+      <UploadCard
+        title="Step 2 — Schedule PDF"
+        sub="Imports lane assignments for every week of the season."
+        status={scheduleStatus}
+        counts={scheduleData ? `Found ${scheduleData.counts.weeks} weeks.` : ""}
+        fileName={scheduleData?.fileName}
+        error={scheduleError}
+        onFile={handleScheduleFile}
+      />
+
+      {standingsData && (
+        <div className={styles.card}>
+          <div className={styles.cardTitle}>Review teams &amp; abbreviations</div>
+          <div className={styles.cardSub}>
+            Auto-suggested from team names — edit any of these before saving. Used across the
+            dashboard and results scoreboard.
+          </div>
+          <table className={styles.review}>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Team name</th>
+                <th>Abbreviation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {standingsData.result.teams.map((team) => (
+                <tr key={team.team_number}>
+                  <td className={styles.num}>{team.team_number}</td>
+                  <td>{team.team_name}</td>
+                  <td>
+                    <input
+                      className={styles.abbr}
+                      value={abbreviations[team.team_number] ?? ""}
+                      onChange={(e) => handleAbbrChange(team.team_number, e.target.value)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {hasDuplicateAbbr && (
+            <div className={styles.statusError}>
+              ✕ Abbreviations must be unique (case-insensitive).
+            </div>
+          )}
+        </div>
+      )}
+
+      {saveStatus === "error" && <div className={styles.statusError}>✕ {saveError}</div>}
+
+      <button
+        className={`btn ${styles.btnSave}`}
+        disabled={!readyToSave || !allAbbrFilled || hasDuplicateAbbr || saveStatus === "saving"}
+        onClick={handleSave}
+      >
+        {saveStatus === "saving" ? "Saving…" : "Save season setup"}
+      </button>
+    </>
   );
 }

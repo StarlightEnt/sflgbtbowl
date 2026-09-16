@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { formatPoints } from "@/lib/formatPoints";
 import styles from "./WeeklyStandingSheetForm.module.scss";
 
@@ -176,35 +175,17 @@ export default function WeeklyStandingSheetForm({ seasonId, history }) {
   }
 
   return (
-    <div className={styles.shell}>
-      <aside className={styles.sidebar}>
-        <div className={styles.label}>LGBT Wednesday Community</div>
-        <Link href="/admin/season-setup" className={styles.sidebarLink}>
-          Season Setup
-        </Link>
-        <span className={`${styles.sidebarLink} ${styles.active}`}>Weekly Standing Sheet</span>
-        <span className={styles.sidebarLink}>Schedule</span>
-        <div className={styles.dividerLine} />
-        <div className={styles.label}>Site-wide</div>
-        <span className={styles.sidebarLink}>Admin Settings</span>
-        <Link href="/leagues/lgbt-wednesday-community" className={styles.sidebarLink}>
-          ← Back to dashboard
-        </Link>
-      </aside>
+    <>
+      <h1 className={`display ${styles.heading}`}>Weekly Standing Sheet</h1>
+      <p className={styles.sub}>
+        Upload this week&apos;s League Standings PDF to update the dashboard — standings, last
+        week&apos;s results, and bowler averages.
+      </p>
 
-      <div className={styles.main}>
-        <h1 className={`display ${styles.heading}`}>Weekly Standing Sheet</h1>
-        <p className={styles.sub}>
-          Upload this week&apos;s League Standings PDF to update the dashboard — standings, last
-          week&apos;s results, and bowler averages.
-        </p>
-
-        {!seasonId ? (
-          <div className={styles.statusError}>
-            No season is set up yet — run Season Setup first.
-          </div>
-        ) : (
-          <>
+      {!seasonId ? (
+        <div className={styles.statusError}>No season is set up yet — run Season Setup first.</div>
+      ) : (
+        <>
             <div className={styles.card}>
               <div className={styles.cardTitle}>Upload standing sheet</div>
               <div className={styles.cardSub}>
@@ -501,7 +482,6 @@ export default function WeeklyStandingSheetForm({ seasonId, history }) {
             )}
           </>
         )}
-      </div>
-    </div>
+    </>
   );
 }

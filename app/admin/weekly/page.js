@@ -1,20 +1,9 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
 import { sql } from "@/lib/db";
 import { getCurrentSeason } from "@/lib/currentSeason";
 import WeeklyStandingSheetForm from "@/components/Admin/WeeklyStandingSheetForm";
 
-// This page-level check is a convenience, not the security boundary —
-// the API routes it calls (app/api/admin/weekly/*) gate themselves
-// independently with the same isAdmin check.
+// isAdmin is gated in app/admin/layout.js, shared by every admin page.
 export default async function WeeklyStandingSheetPage() {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    redirect("/signin");
-  }
-
   const season = await getCurrentSeason();
   const history = season
     ? await sql`

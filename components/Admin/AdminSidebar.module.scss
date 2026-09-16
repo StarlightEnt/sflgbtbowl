@@ -1,0 +1,42 @@
+.sidebar {
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 10px;
+  padding: 18px;
+  position: sticky;
+  top: 24px;
+}
+
+.label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sflgbtbowl-ink-dim);
+  margin-bottom: 10px;
+}
+
+.sidebarLink {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--sflgbtbowl-ink-dim);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+
+  &:hover {
+    color: var(--sflgbtbowl-ink);
+  }
+
+  &.active {
+    background: rgba(184, 116, 255, 0.14);
+    color: var(--sflgbtbowl-purple);
+    font-weight: 600;
+  }
+}
+
+.dividerLine {
+  height: 1px;
+  background: rgba(244, 241, 251, 0.1);
+  margin: 12px 0;
+}
