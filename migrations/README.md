@@ -20,3 +20,4 @@ node --use-system-ca --env-file=.env.local migrations/YYYYMMDD-description.mjs
 | 2026-09-15 | 20260915-add-week-number-to-scheduling-requests.mjs | Add NOT NULL week_number to scheduling_requests — the week the pre-bowl/makeup request is for, distinct from target_date (when they'll actually bowl it) |
 | 2026-09-15 | 20260915-add-nickname-to-bowlers.mjs | Add nullable nickname to bowlers — person-level identity field, same group as name/email/phone/USBC ID |
 | 2026-09-15 | 20260915-add-nickname-display-flag-to-bowlers.mjs | Add NOT NULL nickname_use_in_display (default false) to bowlers — opt-in to showing "Nickname Lastname" instead of "Firstname Lastname" wherever a combined display name is shown |
+| 2026-09-15 | 20260915-create-bylaws-revisions.mjs | Create bylaws_revisions — season-scoped, versioned By-Laws PDF uploads; DB-enforced (partial unique index) that at most one revision per season is current at a time |

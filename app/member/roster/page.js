@@ -81,5 +81,12 @@ export default async function MemberRosterPage() {
     members: membersByTeam.get(t.id) ?? [],
   }));
 
-  return <MemberRoster teams={teams} subs={subs} />;
+  const currentBylawsRows = await sql`
+    SELECT revision_label, file_url, uploaded_at
+    FROM bylaws_revisions
+    WHERE season_id = ${season.id} AND is_current = true
+  `;
+  const currentBylaws = currentBylawsRows[0] ?? null;
+
+  return <MemberRoster teams={teams} subs={subs} currentBylaws={currentBylaws} />;
 }

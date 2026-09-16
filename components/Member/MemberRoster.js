@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { bowlerDisplayName } from "@/lib/displayName";
+import BylawsCard from "./BylawsCard";
 import styles from "./MemberRoster.module.scss";
 
 function formatAvg(n) {
@@ -220,7 +221,7 @@ function BowlerModal({ bowlerId, onClose }) {
   );
 }
 
-export default function MemberRoster({ teams, subs }) {
+export default function MemberRoster({ teams, subs, currentBylaws }) {
   const [openBowlerId, setOpenBowlerId] = useState(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -321,6 +322,8 @@ export default function MemberRoster({ teams, subs }) {
           </div>
         </div>
       </section>
+
+      <BylawsCard current={currentBylaws} />
 
       <section className={styles.section}>
         <h2>Message the officers</h2>
