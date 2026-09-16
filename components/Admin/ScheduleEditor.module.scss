@@ -204,6 +204,26 @@ th.laneCol {
   }
 }
 
+.btnCancel {
+  display: inline-block;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--sflgbtbowl-ink-dim);
+  background: rgba(244, 241, 251, 0.06);
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  padding: 10px 20px;
+  border-radius: 999px;
+  margin-top: 10px;
+  margin-left: 10px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 @media (max-width: 800px) {
   table.sched {
     font-size: 0.76rem;

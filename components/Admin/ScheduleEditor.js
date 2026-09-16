@@ -105,6 +105,14 @@ export default function ScheduleEditor({ seasonId, teams, weeks, rankedTeamNumbe
     }
   }
 
+  function handleCancel() {
+    setEditingWeek(null);
+    setLaneForm(emptyLaneForm());
+    setUsedAutoSuggest(false);
+    setSaveStatus("idle");
+    setSaveError("");
+  }
+
   const editingWeekData = weeks.find((w) => w.week_number === editingWeek);
   const teamOptions = teams
     .filter((t) => !t.is_bye)
@@ -274,6 +282,14 @@ export default function ScheduleEditor({ seasonId, teams, weeks, rankedTeamNumbe
             onClick={handleSave}
           >
             {saveStatus === "saving" ? "Saving…" : `Save Week ${editingWeekData.week_number} lane assignments`}
+          </button>
+          <button
+            type="button"
+            className={styles.btnCancel}
+            disabled={saveStatus === "saving"}
+            onClick={handleCancel}
+          >
+            Cancel
           </button>
         </div>
       )}
