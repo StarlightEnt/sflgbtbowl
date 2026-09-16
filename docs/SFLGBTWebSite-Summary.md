@@ -304,3 +304,101 @@ cache — from that point on, `next build` was deliberately skipped for both
 bowler-identity changes described in §11. Actual verification for this section
 was `eslint` plus the pure-function regression tests and live database checks
 described above; no full production build was run for either change.
+
+---
+
+## 12. League By-Laws (versioned, season-scoped)
+
+**Session date:** September 16, 2026
+
+New feature, designed this session and handed to Claude Code as a focused
+`TASK.md` (this project's standing one-feature-at-a-time convention — see §2).
+**Confirmed shipped and live on `main`** — verified directly against the real
+repo source (`raw.githubusercontent.com`), not assumed: `bylaws_revisions`
+migration is in `migrations/README.md`'s history table, and
+`lib/pdf/publishBylawsRevision.js`, `lib/pdf/deleteBylawsRevision.js`,
+`app/admin/bylaws/page.js`, `app/api/admin/bylaws/upload/route.js`,
+`app/api/admin/bylaws/delete/route.js`, `components/Admin/BylawsForm.js`,
+and `components/Member/BylawsCard.js` all exist and match the design below.
+
+**The problem:** the League's official By-Laws are a PDF approved by the board
+(officers + captains). Ideally one upload at the start of a season is the only
+one needed ("Revision A"), but mid-season votes can amend them, and the League
+wants a real history — every past revision kept and admin-downloadable, never
+silently overwritten, with only the newest version shown to members as current.
+
+**Scoping decision:** revisions are scoped **per season** (`season_id`), the
+same pattern already used for `standing_sheets` — not per league. Confirmed
+explicitly with Alli rather than assumed, because it changes the schema
+materially: per-season means revision lettering restarts at "A" each new
+season; the alternative (per-league, carrying across season boundaries) was
+considered and rejected.
+
+**Schema — new table `bylaws_revisions`:**
+
+| Column | Purpose |
+|---|---|
+| `season_id` | FK to `seasons`, `ON DELETE CASCADE` |
+| `revision_label` | "A", "B", "C"... unique per season |
+| `file_url` / `file_name` | Vercel Blob location, same store as standing sheets, under a `bylaws/` prefix |
+| `uploaded_by` / `uploaded_at` | audit trail |
+| `is_current` | which revision is the official one |
+
+A **partial unique index** (`UNIQUE ... WHERE is_current`) enforces at the
+database level that only one revision per season can ever be current —
+the same "let the database catch what the UI shouldn't have to" instinct
+already used elsewhere in this schema. Recorded in `migrations/README.md`'s
+history table as `20260915-create-bylaws-revisions.mjs` — filed under the
+2026-09-15 date already used for that day's other schema work rather than
+the 09-16 design-session date, worth knowing if the filename/date pairing
+is ever cross-referenced later.
+
+**Upload/archive behavior — deliberately not a delete-and-replace:**
+publishing a new revision demotes the previous current row to archived
+(`is_current = false`) inside the same transaction that inserts the new one;
+the old PDF is *never* deleted from Blob storage on a normal upload. Archived
+revisions stay fully downloadable by admin, listed with a "View PDF" link,
+same as current. Revision label auto-suggests the next letter (A→B→...→Z→AA)
+but is admin-editable at upload time. **Confirmed detail beyond the original
+spec:** if the insert transaction fails for any reason (including a genuine
+label collision, caught and surfaced as `ConflictError`), the just-uploaded
+Blob file is also cleaned up (`del(blob.url)`, best-effort) — so a failed
+publish doesn't leave an orphaned PDF in storage with nothing pointing to it.
+
+**Deletion is intentionally restricted:** the Danger Zone delete (same
+type-to-confirm pattern as the Weekly Standing Sheet's, e.g. "type REVISION B
+to confirm") can only remove an *archived* revision — the API route itself
+rejects deleting the current one, not just the UI. The stated recovery path
+for a bad upload is publishing a corrected revision, not deleting the current
+one out from under the League.
+
+**Where it lives, following existing conventions exactly:**
+- `lib/pdf/publishBylawsRevision.js` / `deleteBylawsRevision.js` — same
+  Pool + explicit transaction shape as `publishWeeklyStandingSheet.js` /
+  `deleteWeeklyStandingSheet.js`.
+- `app/api/admin/bylaws/upload/route.js` / `delete/route.js` — same
+  `isAdmin(email)` boundary at the route (not the page), and season is
+  resolved server-side via `getCurrentSeason()` rather than trusting a
+  client-supplied `seasonId`, matching `weekly/publish` and `weekly/delete`.
+- `app/admin/bylaws/page.js` + `components/Admin/BylawsForm.js` — a new
+  sibling under `AdminSidebar`, positioned after Schedule; reuses
+  `WeeklyStandingSheetForm`'s existing card/table/Danger-Zone styling rather
+  than introducing new classes.
+- `components/Member/BylawsCard.js` — the member-facing download card,
+  positioned **directly under the Substitutes section and above
+  Demographics/Message-the-Officers** in the Member area (§6.5) — Alli's
+  explicit placement instruction. Shows the current revision's label and
+  upload date with a Download PDF link; shows an empty state if no By-Laws
+  have been posted yet for the season. Not tiered/gated beyond ordinary
+  member login — every logged-in member sees the same current version.
+
+**Source document confirmed:** Alli supplied the actual 2026-27 Winter season
+By-Laws PDF as a real example (IGBO-affiliated, USBC-rule-book-adapted,
+13 regular teams + BYE, 29-week schedule with two position rounds and a
+closing sweeper). Noted in passing, not actioned: the by-laws document's own
+"SCHEDULE" section duplicates dates/position-week info that also lives in the
+site's separately-parsed Schedule PDF/`schedule` table — two independent
+sources of truth for the same facts, worth knowing about but not something
+this feature builds guardrails around.
+
+---
