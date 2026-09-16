@@ -77,6 +77,25 @@
   vertical-align: middle;
 }
 
+.logoutLink {
+  background: none;
+  border: none;
+  padding: 0 0 4px;
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  color: var(--sflgbtbowl-ink-dim);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    border-color: var(--sflgbtbowl-red);
+    color: var(--sflgbtbowl-red);
+  }
+}
+
 .pill {
   display: inline-flex;
   align-items: center;

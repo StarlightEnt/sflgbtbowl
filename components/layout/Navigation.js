@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { logout } from "@/app/actions/auth";
 import StripeBar from "./StripeBar";
 import styles from "./Navigation.module.scss";
 
@@ -41,6 +42,15 @@ export default function Navigation({ isAdminUser = false, isMemberUser = false }
                 <Link href="/admin/season-setup" className={styles.adminPill}>
                   Admin
                 </Link>
+              </li>
+            )}
+            {(isMemberUser || isAdminUser) && (
+              <li>
+                <form action={logout}>
+                  <button type="submit" className={styles.logoutLink}>
+                    Log out
+                  </button>
+                </form>
               </li>
             )}
           </ul>

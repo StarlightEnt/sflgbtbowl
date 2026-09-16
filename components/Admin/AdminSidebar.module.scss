@@ -40,3 +40,17 @@
   background: rgba(244, 241, 251, 0.1);
   margin: 12px 0;
 }
+
+.logoutButton {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sflgbtbowl-red);
+  }
+}

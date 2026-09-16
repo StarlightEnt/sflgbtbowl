@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/app/actions/auth";
 import styles from "./AdminSidebar.module.scss";
 
 function NavLink({ href, children }) {
@@ -27,6 +28,12 @@ export default function AdminSidebar() {
       <Link href="/leagues/lgbt-wednesday-community" className={styles.sidebarLink}>
         ← Back to dashboard
       </Link>
+      <div className={styles.dividerLine} />
+      <form action={logout}>
+        <button type="submit" className={`${styles.sidebarLink} ${styles.logoutButton}`}>
+          Log out
+        </button>
+      </form>
     </aside>
   );
 }
