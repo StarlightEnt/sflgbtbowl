@@ -52,6 +52,7 @@ export default function SeasonSetupForm() {
   const [scheduleData, setScheduleData] = useState(null);
 
   const [abbreviations, setAbbreviations] = useState({});
+  const [matchDecisions, setMatchDecisions] = useState({});
   const [saveStatus, setSaveStatus] = useState("idle");
   const [saveError, setSaveError] = useState("");
 
@@ -69,6 +70,7 @@ export default function SeasonSetupForm() {
       if (!res.ok) throw new Error(data.error || "Parse failed");
 
       setStandingsData(data);
+      setMatchDecisions({});
       const suggested = {};
       for (const team of data.result.teams) {
         suggested[team.team_number] = suggestAbbreviation(team.team_name);
@@ -109,6 +111,37 @@ export default function SeasonSetupForm() {
     setSaveStatus("saving");
     setSaveError("");
     try {
+      const matchedBowlers = [
+        ...standingsData.matchedExact,
+        ...standingsData.possibleMatches
+          .filter((m) => matchDecisions[m.tempId] === "yes")
+          .map((m) => ({
+            bowlerId: m.existingBowlerId,
+            teamNumber: m.teamNumber,
+            realAverage: m.realAverage,
+            isCaptain: m.isCaptain,
+          })),
+      ];
+
+      const newBowlers = [
+        ...standingsData.newBowlers.map(({ firstName, lastName, teamNumber, realAverage, isCaptain }) => ({
+          firstName,
+          lastName,
+          teamNumber,
+          realAverage,
+          isCaptain,
+        })),
+        ...standingsData.possibleMatches
+          .filter((m) => matchDecisions[m.tempId] === "no")
+          .map(({ firstName, lastName, teamNumber, realAverage, isCaptain }) => ({
+            firstName,
+            lastName,
+            teamNumber,
+            realAverage,
+            isCaptain,
+          })),
+      ];
+
       const res = await fetch("/api/admin/season-setup/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -119,6 +152,8 @@ export default function SeasonSetupForm() {
           standingsFileUrl: standingsData.fileUrl,
           schedule: scheduleData.weeks,
           abbreviations,
+          matchedBowlers,
+          newBowlers,
         }),
       });
       const data = await res.json();
@@ -130,7 +165,9 @@ export default function SeasonSetupForm() {
     }
   }
 
-  const readyToSave = standingsStatus === "done" && scheduleStatus === "done";
+  const matchesResolved =
+    !standingsData || standingsData.possibleMatches.every((m) => matchDecisions[m.tempId]);
+  const readyToSave = standingsStatus === "done" && scheduleStatus === "done" && matchesResolved;
   const abbrValues = Object.values(abbreviations)
     .map((v) => v.trim().toLowerCase())
     .filter(Boolean);
@@ -246,6 +283,66 @@ export default function SeasonSetupForm() {
             <div className={styles.statusError}>
               ✕ Abbreviations must be unique (case-insensitive).
             </div>
+          )}
+        </div>
+      )}
+
+      {standingsData && (
+        <div className={styles.card}>
+          <div className={styles.cardTitle}>Bowler identity</div>
+          <div className={styles.cardSub}>
+            {standingsData.matchedExact.length} name{standingsData.matchedExact.length === 1 ? "" : "s"}{" "}
+            matched an existing bowler automatically
+            {standingsData.newBowlers.length > 0 &&
+              `, ${standingsData.newBowlers.length} ${
+                standingsData.newBowlers.length === 1 ? "is" : "are"
+              } brand new`}
+            .
+          </div>
+
+          {standingsData.possibleMatches.length > 0 && (
+            <>
+              <div className={styles.reviewLabel}>Possible name matches</div>
+              {standingsData.possibleMatches.map((m) => (
+                <div key={m.tempId} className={`${styles.rosterChangeRow} ${styles.fuzzy}`}>
+                  <div className={styles.rosterChangeText}>
+                    🔍 <strong>
+                      &quot;{m.firstName} {m.lastName}&quot;
+                    </strong>{" "}
+                    (on this sheet) <span className={styles.arrow}>↔</span>{" "}
+                    <strong>
+                      {m.existingFirstName} {m.existingLastName}
+                    </strong>
+                    {m.existingNickname && ` (nickname: ${m.existingNickname})`} (existing) — same
+                    person?
+                  </div>
+                  <div className={styles.rosterChangeActions}>
+                    <button
+                      type="button"
+                      className={`${styles.btnAccept} ${
+                        matchDecisions[m.tempId] === "yes" ? styles.selected : ""
+                      }`}
+                      onClick={() => setMatchDecisions((prev) => ({ ...prev, [m.tempId]: "yes" }))}
+                    >
+                      Yes, same person
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.btnIgnore} ${
+                        matchDecisions[m.tempId] === "no" ? styles.selected : ""
+                      }`}
+                      onClick={() => setMatchDecisions((prev) => ({ ...prev, [m.tempId]: "no" }))}
+                    >
+                      No, create new bowler
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <p className={styles.helpNote}>
+                Each name needs a decision before saving — an unresolved match could otherwise
+                silently drop someone&apos;s history, or wrongly merge two different people.
+              </p>
+            </>
           )}
         </div>
       )}

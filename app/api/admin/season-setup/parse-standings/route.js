@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { isAdmin } from "@/lib/auth-helpers";
+import { sql } from "@/lib/db";
 import { parseLeagueStandingsPDF } from "@/lib/pdf/parseLeagueStandings";
+import { matchSeasonBowlers } from "@/lib/pdf/matchSeasonBowlers";
 import { put } from "@vercel/blob";
 
 // This route, not the page it's used from, is the real security
@@ -53,5 +55,24 @@ export async function POST(req) {
       result.subs.filter((s) => s.is_captain).length,
   };
 
-  return Response.json({ result, counts, fileUrl: blob.url, fileName: file.name });
+  // Matched globally against the whole bowler database (every season,
+  // every league) — not scoped to any one season — so a returning
+  // bowler keeps the same bowlers.id instead of getting a fresh row
+  // every time a new season is set up. See matchSeasonBowlers.js.
+  const existingBowlers = await sql`SELECT id, first_name, last_name, nickname FROM bowlers`;
+  const diff = matchSeasonBowlers({
+    parsedTeams: result.teams,
+    parsedSubs: result.subs,
+    existingBowlers,
+  });
+
+  return Response.json({
+    result,
+    counts,
+    fileUrl: blob.url,
+    fileName: file.name,
+    matchedExact: diff.matchedExact,
+    possibleMatches: diff.possibleMatches,
+    newBowlers: diff.newBowlers,
+  });
 }

@@ -50,7 +50,7 @@ export async function POST(req) {
     sql`SELECT id, team_number, team_name, abbreviation, is_bye FROM teams WHERE season_id = ${season.id}`,
     sql`SELECT MAX(week_number) AS total_weeks FROM schedule WHERE season_id = ${season.id}`,
     sql`
-      SELECT lm.bowler_id, lm.team_id, b.first_name, b.last_name
+      SELECT lm.bowler_id, lm.team_id, b.first_name, b.last_name, b.nickname
       FROM league_memberships lm
       JOIN bowlers b ON b.id = lm.bowler_id
       WHERE lm.season_id = ${season.id}
@@ -64,6 +64,7 @@ export async function POST(req) {
     teamId: r.team_id,
     first_name: r.first_name,
     last_name: r.last_name,
+    nickname: r.nickname,
   }));
 
   const diff = matchWeeklyBowlers({

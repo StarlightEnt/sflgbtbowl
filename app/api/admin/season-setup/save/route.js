@@ -12,7 +12,15 @@ export async function POST(req) {
   }
 
   const body = await req.json();
-  const { seasonName, standings, standingsFileUrl, schedule, abbreviations } = body;
+  const {
+    seasonName,
+    standings,
+    standingsFileUrl,
+    schedule,
+    abbreviations,
+    matchedBowlers,
+    newBowlers,
+  } = body;
 
   if (!seasonName || !standings || !schedule || !abbreviations) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -25,6 +33,8 @@ export async function POST(req) {
       standingsFileUrl,
       schedule,
       abbreviations,
+      matchedBowlers: matchedBowlers ?? [],
+      newBowlers: newBowlers ?? [],
       uploadedBy: email,
     });
     return Response.json({ ok: true, seasonId });

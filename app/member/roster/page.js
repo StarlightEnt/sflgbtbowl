@@ -46,7 +46,8 @@ export default async function MemberRosterPage() {
     ORDER BY team_number
   `;
   const memberRows = await sql`
-    SELECT lm.bowler_id, lm.team_id, lm.real_average, lm.is_captain, b.first_name, b.last_name
+    SELECT lm.bowler_id, lm.team_id, lm.real_average, lm.is_captain,
+           b.first_name, b.last_name, b.nickname, b.nickname_use_in_display
     FROM league_memberships lm
     JOIN bowlers b ON b.id = lm.bowler_id
     WHERE lm.season_id = ${season.id}
@@ -60,6 +61,8 @@ export default async function MemberRosterPage() {
       bowlerId: m.bowler_id,
       firstName: m.first_name,
       lastName: m.last_name,
+      nickname: m.nickname,
+      nicknameUseInDisplay: m.nickname_use_in_display,
       realAverage: Number(m.real_average),
       isCaptain: m.is_captain,
     };

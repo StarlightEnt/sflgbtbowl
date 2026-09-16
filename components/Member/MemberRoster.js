@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { bowlerDisplayName } from "@/lib/displayName";
 import styles from "./MemberRoster.module.scss";
 
 function formatAvg(n) {
@@ -27,6 +28,7 @@ function BowlerModal({ bowlerId, onClose }) {
           firstName: json.firstName ?? "",
           lastName: json.lastName ?? "",
           nickname: json.nickname ?? "",
+          nicknameUseInDisplay: json.nicknameUseInDisplay ?? false,
           email: json.email ?? "",
           phone: json.phone ?? "",
           usbcId: json.usbcId ?? "",
@@ -78,9 +80,7 @@ function BowlerModal({ bowlerId, onClose }) {
 
         {status === "ready" && data && (
           <>
-            <h3>
-              {data.firstName} {data.lastName}
-            </h3>
+            <h3>{bowlerDisplayName(data)}</h3>
 
             {data.editable ? (
               <>
@@ -105,6 +105,23 @@ function BowlerModal({ bowlerId, onClose }) {
                     placeholder="Not yet provided — add yours"
                     onChange={(e) => setForm((f) => ({ ...f, nickname: e.target.value }))}
                   />
+                  <label className={styles.capCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={form.nicknameUseInDisplay}
+                      disabled={!form.nickname}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, nicknameUseInDisplay: e.target.checked }))
+                      }
+                    />{" "}
+                    Use in Display Name
+                  </label>
+                  {form.nicknameUseInDisplay && form.nickname && (
+                    <div className={styles.helpNote}>
+                      Will show as &quot;{form.nickname} {form.lastName}&quot; on the roster and
+                      your bowler card.
+                    </div>
+                  )}
                 </div>
                 <div className={styles.modalField}>
                   <label>Email</label>
@@ -258,7 +275,7 @@ export default function MemberRoster({ teams, subs }) {
                   onClick={() => setOpenBowlerId(m.bowlerId)}
                 >
                   <span className={styles.bname}>
-                    {m.firstName} {m.lastName}
+                    {bowlerDisplayName(m)}
                     {m.isCaptain && (
                       <span className={styles.capStar} title="Team Captain">
                         {" "}
@@ -290,7 +307,7 @@ export default function MemberRoster({ teams, subs }) {
                 onClick={() => setOpenBowlerId(m.bowlerId)}
               >
                 <span className={styles.bname}>
-                  {m.firstName} {m.lastName}
+                  {bowlerDisplayName(m)}
                   {m.isCaptain && (
                     <span className={styles.capStar} title="Team Captain">
                       {" "}

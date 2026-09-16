@@ -60,7 +60,7 @@ export async function GET(req, { params }) {
   }
 
   const bowlerRows = await sql`
-    SELECT id, first_name, last_name, nickname, email, phone, usbc_id
+    SELECT id, first_name, last_name, nickname, nickname_use_in_display, email, phone, usbc_id
     FROM bowlers WHERE id = ${bowlerId}
   `;
   if (bowlerRows.length === 0) {
@@ -90,6 +90,7 @@ export async function GET(req, { params }) {
     firstName: bowler.first_name,
     lastName: bowler.last_name,
     nickname: bowler.nickname,
+    nicknameUseInDisplay: bowler.nickname_use_in_display,
     editable,
     canViewContact,
     leagues,
@@ -126,6 +127,10 @@ export async function PUT(req, { params }) {
   const firstName = (body.firstName ?? "").trim();
   const lastName = (body.lastName ?? "").trim();
   const nickname = (body.nickname ?? "").trim() || null;
+  // Ignored (not persisted) unless a nickname is actually on file —
+  // matches bowlerDisplayName()'s own fallback in lib/displayName.js,
+  // so the stored flag never claims a display behavior that isn't real.
+  const nicknameUseInDisplay = Boolean(body.nicknameUseInDisplay) && Boolean(nickname);
   const newEmail = (body.email ?? "").trim() || null;
   const phone = (body.phone ?? "").trim() || null;
   const usbcId = (body.usbcId ?? "").trim() || null;
@@ -143,6 +148,7 @@ export async function PUT(req, { params }) {
       SET first_name = ${firstName},
           last_name = ${lastName},
           nickname = ${nickname},
+          nickname_use_in_display = ${nicknameUseInDisplay},
           email = ${newEmail},
           phone = ${phone},
           usbc_id = ${usbcId}

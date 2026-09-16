@@ -135,6 +135,87 @@ table.review {
   color: var(--sflgbtbowl-ink);
 }
 
+.reviewLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sflgbtbowl-ink-dim);
+  margin: 18px 0 10px;
+}
+
+.helpNote {
+  font-size: 0.72rem;
+  color: var(--sflgbtbowl-ink-dim);
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.rosterChangeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: rgba(184, 116, 255, 0.06);
+  border: 1px solid rgba(184, 116, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+
+  &.fuzzy {
+    background: rgba(255, 213, 74, 0.06);
+    border-color: rgba(255, 213, 74, 0.25);
+  }
+}
+
+.rosterChangeText {
+  font-size: 0.88rem;
+
+  .arrow {
+    color: var(--sflgbtbowl-purple);
+    margin: 0 4px;
+  }
+}
+
+.rosterChangeActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btnAccept {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--sflgbtbowl-green);
+  background: rgba(53, 214, 143, 0.1);
+  border: 1px solid rgba(53, 214, 143, 0.35);
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &.selected {
+    background: var(--sflgbtbowl-green);
+    color: #0a1f14;
+  }
+}
+
+.btnIgnore {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--sflgbtbowl-ink-dim);
+  background: transparent;
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &.selected {
+    background: rgba(244, 241, 251, 0.14);
+    color: var(--sflgbtbowl-ink);
+  }
+}
+
 .btnSave {
   margin-top: 8px;
 }
