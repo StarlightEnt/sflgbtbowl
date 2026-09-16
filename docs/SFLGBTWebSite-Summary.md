@@ -296,3 +296,11 @@ The Season Setup change was additionally dry-run against the real production
 database before landing on `main`: a real returning bowler (Mark Bertelsen) kept
 the same `bowlers.id` across a second, temporary test season; the test season was
 fully cleaned up and independently confirmed clean via direct query afterward.
+
+**Correction (added after review):** the "full `next build`" part of the line
+above doesn't hold for this section. An earlier `next build` run elsewhere in this
+session, done while the dev server was live, corrupted the project's `.next`
+cache — from that point on, `next build` was deliberately skipped for both
+bowler-identity changes described in §11. Actual verification for this section
+was `eslint` plus the pure-function regression tests and live database checks
+described above; no full production build was run for either change.
