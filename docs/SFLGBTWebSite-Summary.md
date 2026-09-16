@@ -190,6 +190,8 @@ permanent admin features):
 
 - Teaching the Weekly Standing Sheet bowler-matcher to check `nickname`, resolving
   the acknowledged "Bob"/"Robert" limitation now that real nickname data exists.
+  **RESOLVED — see §11.** Also extended to the whole bowler-matching system (Season
+  Setup included), not just the Weekly matcher.
 - Self-service "claim your bowler profile" flow for members without a linked email.
 - Broader phone-number visibility policy — pending a conversation with the
   league's other officers; current tiered model is a deliberately conservative
@@ -201,3 +203,96 @@ permanent admin features):
 - The half-point text format in standing sheet PDFs is still unverified — every
   real example seen so far has been whole numbers. The parser only handles the
   whole-number case; extending it needs a real half-point example first.
+
+---
+
+## 9. Landing page: hero background swap
+
+Replaced the animated SVG lane-scene illustration in the hero with a real looping
+GIF of a bowling strike (Alli's own footage), as a full-bleed background behind the
+hero text rather than a side illustration — `public/hero-strike.gif`, with a dark
+gradient overlay for text legibility over busy footage.
+
+**Known follow-up (not blocking):** the GIF is 640×358 and ~1.5MB — may look soft
+stretched full-width on a large monitor, and adds real page weight for a background
+loop. Not urgent; a higher-resolution export, or converting to a muted/looping
+MP4/WebM, would be sharper and lighter if it becomes noticeable live.
+
+## 10. Session/admin: logout control
+
+Added a logout button in two places: the main site nav (visible sitewide, since the
+nav is sticky — reachable from any page, including deep in `/admin/*`) and the
+bottom of `AdminSidebar` (redundant, admin-specific, next to "← Back to dashboard").
+
+Implemented as one shared server action (`app/actions/auth.js`, wrapping
+`signOut()`) rather than an inline action — `AdminSidebar` is a Client Component
+(`usePathname()`), and an inline `async () => { "use server"; ... }` closure only
+works inside a Server Component. A named export from its own `"use server"` module
+works from either, same pattern `SignInCard.js` already used for `signIn()`.
+
+## 11. Bowler identity hardening
+
+Three related gaps, discussed and confirmed with Alli before building:
+
+1. The Weekly Standing Sheet matcher only checked first/last name, not `nickname`,
+   so a nickname substitution ("Bob"/"Robert") — or a different league's software
+   printing a nickname as someone's "first name" (Gay Games and LGBT Wednesday run
+   separate, non-shared databases) — could silently split one person into two
+   `bowlers` records.
+2. Season Setup blindly inserted a brand-new `bowlers` row for every parsed name,
+   every season, with zero cross-season identity — a returning bowler never kept
+   the same `id` year over year.
+3. No way for a bowler to display as a nickname (e.g. "JF Unson") instead of their
+   full legal first name on the roster/demographics card.
+
+**Shared identity classifier** (`lib/pdf/matchBowlerIdentity.js`): checks a parsed
+first name against *both* `first_name` and `nickname` on the existing record
+(either counts) and last name against `last_name`; requires both sides to relate
+(exact or fuzzy) or it's treated as a different person — matches the confirmed
+real-world rule that a bowler's demographics essentially never change, and on the
+rare occasion something does, only one field is ever different at a time.
+
+- **Weekly matcher** (`matchWeeklyBowlers.js`) now delegates to this shared
+  classifier instead of its own inline logic; `nickname` is now selected and
+  passed through at parse time.
+- **Season Setup now persists bowler identity across seasons and leagues:** a new
+  global matcher (`lib/pdf/matchSeasonBowlers.js`) searches the entire `bowlers`
+  table (every season, every league) instead of inserting fresh rows
+  unconditionally. Season Setup's review flow was extended to match Weekly's
+  existing accept/reject pattern — a new "Bowler identity" card with the same
+  "possible match, same person?" decisions, gating Save until every fuzzy case is
+  resolved (Alli's explicit choice, to mirror Weekly's UX rather than auto-matching
+  silently).
+- **Nickname "Use in Display Name" toggle:** new `nickname_use_in_display` column
+  on `bowlers` (migration run and confirmed live: boolean, `NOT NULL`, default
+  `false`). A shared `lib/displayName.js` helper (`bowlerDisplayName()`) decides
+  "Nickname Lastname" vs. "Firstname Lastname" wherever the site shows a bowler's
+  combined name (Member Roster rows, the bowler card header) — the separate
+  First/Last/Nickname fields in the edit form always show the real underlying
+  values regardless of this setting. A checkbox next to Nickname in the edit form
+  controls it, disabled until a nickname is actually entered.
+- **Follow-on fix — multi-word first names:** re-parsing the real Week 1 fixture
+  after the above landed surfaced a real gap: John Francis Unson (first name "John
+  Francis", correctly split on file) got flagged as a new bowler on re-parse,
+  because the PDF parser's own name-splitter (`splitFirstLast()`) always treats the
+  first whitespace token as the first name — "John Francis Unson" parses to
+  `first: "John", last: "Francis Unson"` every time, which will never relate
+  closely enough to the correct "John Francis"/"Unson" split for any fuzzy
+  tolerance to bridge. Not a bug in the identity classifier itself — a general
+  limitation for anyone with a multi-word first name. Fixed by also comparing the
+  whole un-split name (now carried through as `full_name`) against the existing
+  record's first+last concatenated, ignoring exactly where either side puts the
+  space. No data fix was needed — his record was already correct; this was purely
+  a matching-logic gap. Confirmed both real-world variants now resolve to the same
+  `bowlers.id`: the LGBT Wednesday sheet's full legal name ("John Francis Unson,"
+  mis-split by the parser) and Gay Games' nickname-as-first-name convention
+  ("JF Unson").
+
+**Verification:** shipped via full `next build`/`eslint` passes plus targeted
+pure-function regression tests (the matching logic has no DB dependency) covering
+every scenario above — nickname-as-first-name in both directions, the multi-word
+mis-split case, and confirmation that unrelated people never false-positive match.
+The Season Setup change was additionally dry-run against the real production
+database before landing on `main`: a real returning bowler (Mark Bertelsen) kept
+the same `bowlers.id` across a second, temporary test season; the test season was
+fully cleaned up and independently confirmed clean via direct query afterward.
