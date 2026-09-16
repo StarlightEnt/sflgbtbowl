@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Contains every bowler's personal phone/email — not public like the
+# standings/schedule fixtures. Revisit only if confirmed this document
+# is also already public somewhere.
+/test-fixtures/Contact List.pdf
+
 # vercel
 .vercel
 
