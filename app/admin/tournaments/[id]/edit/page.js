@@ -1,9 +1,13 @@
 import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
+import { requireAdminPage } from "@/lib/requireAdminPage";
 import TournamentForm from "@/components/Admin/TournamentForm";
 import styles from "../../page.module.scss";
 
+// Admin-only — officers are admitted to /admin for Bowler
+// Demographics/Announcements, but not this.
 export default async function EditTournamentPage({ params }) {
+  await requireAdminPage();
   const { id } = await params;
   const rows = await sql`SELECT * FROM tournaments WHERE id = ${Number(id)}`;
   const tournament = rows[0];

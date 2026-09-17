@@ -1,15 +1,17 @@
 import { auth } from "@/lib/auth";
-import { isAdmin, isMember } from "@/lib/auth-helpers";
+import { isAdmin, isMember, isOfficer } from "@/lib/auth-helpers";
 import { sql } from "@/lib/db";
 import { getCurrentSeason } from "@/lib/currentSeason";
 import { canViewContactInfo } from "@/lib/canViewContactInfo";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// One source of truth for the viewer's role, used by both GET and PUT
+// so neither has to call isOfficer/isAdmin a second time.
 async function getViewerContext(email) {
-  const admin = await isAdmin(email);
+  const [admin, officer] = await Promise.all([isAdmin(email), isOfficer(email)]);
   const rows = await sql`SELECT id FROM bowlers WHERE email = ${email}`;
-  return { isAdminViewer: admin, viewerBowlerId: rows[0]?.id ?? null };
+  return { isAdminViewer: admin, isOfficerViewer: officer, viewerBowlerId: rows[0]?.id ?? null };
 }
 
 // { teamId, isCaptain } for this bowler's league_membership in the
@@ -68,9 +70,9 @@ export async function GET(req, { params }) {
   }
   const bowler = bowlerRows[0];
 
-  const { isAdminViewer, viewerBowlerId } = await getViewerContext(email);
+  const { isAdminViewer, isOfficerViewer, viewerBowlerId } = await getViewerContext(email);
   const isOwnCard = viewerBowlerId === bowlerId;
-  const editable = isAdminViewer || isOwnCard;
+  const editable = isAdminViewer || isOfficerViewer || isOwnCard;
   const leagues = await loadLeagues(bowlerId);
 
   const season = await getCurrentSeason();
@@ -80,6 +82,7 @@ export async function GET(req, { params }) {
   ]);
   const canViewContact = canViewContactInfo({
     isAdmin: isAdminViewer,
+    isOfficer: isOfficerViewer,
     isOwnCard,
     viewerMembership,
     targetMembership,
@@ -118,8 +121,8 @@ export async function PUT(req, { params }) {
     return Response.json({ error: "Invalid bowler id" }, { status: 400 });
   }
 
-  const { isAdminViewer, viewerBowlerId } = await getViewerContext(email);
-  if (!isAdminViewer && viewerBowlerId !== bowlerId) {
+  const { isAdminViewer, isOfficerViewer, viewerBowlerId } = await getViewerContext(email);
+  if (!isAdminViewer && !isOfficerViewer && viewerBowlerId !== bowlerId) {
     return Response.json({ error: "You can only edit your own card" }, { status: 403 });
   }
 

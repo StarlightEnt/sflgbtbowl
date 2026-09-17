@@ -219,6 +219,47 @@
   font-size: 0.92rem;
 }
 
+.announceList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.announceTop {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.pinBadge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--sflgbtbowl-bg);
+  background: var(--sflgbtbowl-yellow);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.announceTitle {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--sflgbtbowl-ink);
+  flex: 1;
+}
+
+.announceDate {
+  font-size: 0.78rem;
+  color: var(--sflgbtbowl-ink-dim);
+  white-space: nowrap;
+}
+
+.announceBody {
+  white-space: pre-wrap;
+}
+
 @media (max-width: 860px) {
   .twoCol {
     grid-template-columns: 1fr;

@@ -3,7 +3,7 @@ import { logout } from "@/app/actions/auth";
 import StripeBar from "./StripeBar";
 import styles from "./Navigation.module.scss";
 
-export default function Navigation({ isAdminUser = false, isMemberUser = false }) {
+export default function Navigation({ isAdminUser = false, isMemberUser = false, isOfficerUser = false }) {
   return (
     <>
       <nav className={styles.nav}>
@@ -38,6 +38,13 @@ export default function Navigation({ isAdminUser = false, isMemberUser = false }
               <li>
                 <Link href="/admin/season-setup" className={styles.adminPill}>
                   Admin
+                </Link>
+              </li>
+            )}
+            {isOfficerUser && !isAdminUser && (
+              <li>
+                <Link href="/admin/announcements" className={styles.adminPill}>
+                  Officer
                 </Link>
               </li>
             )}

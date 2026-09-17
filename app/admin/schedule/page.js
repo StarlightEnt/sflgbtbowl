@@ -1,9 +1,12 @@
 import { sql } from "@/lib/db";
 import { getCurrentSeason } from "@/lib/currentSeason";
+import { requireAdminPage } from "@/lib/requireAdminPage";
 import ScheduleEditor from "@/components/Admin/ScheduleEditor";
 
-// isAdmin is gated in app/admin/layout.js, shared by every admin page.
+// Admin-only — officers are admitted to /admin for Bowler
+// Demographics/Announcements, but not this.
 export default async function SchedulePage() {
+  await requireAdminPage();
   const season = await getCurrentSeason();
   if (!season) {
     return (

@@ -1,0 +1,133 @@
+.heading {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+
+.sub {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.92rem;
+  max-width: 68ch;
+  margin-bottom: 28px;
+}
+
+.card {
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.cardSub {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.85rem;
+  margin-bottom: 18px;
+}
+
+.officerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: rgba(244, 241, 251, 0.02);
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.email {
+  font-size: 0.82rem;
+  color: var(--sflgbtbowl-ink-dim);
+}
+
+.meta {
+  font-size: 0.72rem;
+  color: var(--sflgbtbowl-ink-dim);
+}
+
+.removeBtn {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  background: transparent;
+  border: 1px solid rgba(255, 77, 94, 0.4);
+  color: var(--sflgbtbowl-red);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.addRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.picker {
+  flex: 1;
+  font-family: "Inter", sans-serif;
+  font-size: 0.92rem;
+  padding: 10px 12px;
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  border-radius: 8px;
+  background: rgba(11, 10, 20, 0.6);
+  color: var(--sflgbtbowl-ink);
+}
+
+.btnAdd {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #1a0a0a;
+  background: linear-gradient(90deg, var(--sflgbtbowl-orange), var(--sflgbtbowl-red));
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.statusError {
+  margin-top: 14px;
+  background: rgba(255, 77, 94, 0.1);
+  border: 1px solid rgba(255, 77, 94, 0.3);
+  color: var(--sflgbtbowl-red);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 700px) {
+  .addRow {
+    flex-direction: column;
+  }
+}

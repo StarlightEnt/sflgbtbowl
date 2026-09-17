@@ -72,6 +72,16 @@ export default async function LeagueDashboardPage({ params }) {
     `,
   ]);
 
+  // Not season-scoped (announcements table has no FK) — same query
+  // shape as GET /api/announcements, read directly here rather than
+  // self-fetching that route, matching how every other section of
+  // this server component reads its data.
+  const announcements = await sql`
+    SELECT id, title, body, is_pinned, created_at
+    FROM announcements
+    ORDER BY is_pinned DESC, created_at DESC
+  `;
+
   const totalWeeks = totalWeeksRows[0]?.total_weeks ?? null;
   const thisWeekSchedule = thisWeekScheduleRows[0] ?? null;
   const standingsRows = teamStandings.filter((row) => !teamsById.get(row.team_id)?.is_bye);
@@ -245,7 +255,28 @@ export default async function LeagueDashboardPage({ params }) {
 
       <section className={styles.section}>
         <h2>Announcements</h2>
-        <div className={styles.announceCard}>No announcements posted yet. Check back soon.</div>
+        {announcements.length === 0 ? (
+          <div className={styles.announceCard}>No announcements posted yet. Check back soon.</div>
+        ) : (
+          <div className={styles.announceList}>
+            {announcements.map((a) => (
+              <div key={a.id} className={styles.announceCard}>
+                <div className={styles.announceTop}>
+                  {a.is_pinned && <span className={styles.pinBadge}>📌 Pinned</span>}
+                  <span className={styles.announceTitle}>{a.title}</span>
+                  <span className={styles.announceDate}>
+                    {new Date(a.created_at).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <p className={styles.announceBody}>{a.body}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </>
   );

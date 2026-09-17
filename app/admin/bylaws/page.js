@@ -1,8 +1,12 @@
 import { sql } from "@/lib/db";
 import { getCurrentSeason } from "@/lib/currentSeason";
+import { requireAdminPage } from "@/lib/requireAdminPage";
 import BylawsForm from "@/components/Admin/BylawsForm";
 
+// Admin-only — officers are admitted to /admin for Bowler
+// Demographics/Announcements, but not this.
 export default async function BylawsPage() {
+  await requireAdminPage();
   const season = await getCurrentSeason();
   const revisions = season
     ? await sql`

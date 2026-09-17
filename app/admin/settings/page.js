@@ -1,9 +1,12 @@
 import { auth } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { requireAdminPage } from "@/lib/requireAdminPage";
 import AdminSettingsForm from "@/components/Admin/AdminSettingsForm";
 
-// isAdmin is gated in app/admin/layout.js, shared by every admin page.
+// Admin-only — officers are admitted to /admin for Bowler
+// Demographics/Announcements, but not this.
 export default async function AdminSettingsPage() {
+  await requireAdminPage();
   const session = await auth();
   const currentEmail = session?.user?.email ?? null;
 

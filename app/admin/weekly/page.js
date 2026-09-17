@@ -1,9 +1,12 @@
 import { sql } from "@/lib/db";
 import { getCurrentSeason } from "@/lib/currentSeason";
+import { requireAdminPage } from "@/lib/requireAdminPage";
 import WeeklyStandingSheetForm from "@/components/Admin/WeeklyStandingSheetForm";
 
-// isAdmin is gated in app/admin/layout.js, shared by every admin page.
+// Admin-only — officers are admitted to /admin for Bowler
+// Demographics/Announcements, but not this.
 export default async function WeeklyStandingSheetPage() {
+  await requireAdminPage();
   const season = await getCurrentSeason();
   const history = season
     ? await sql`
