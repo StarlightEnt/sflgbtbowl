@@ -1,0 +1,71 @@
+/* PATH: components/Admin/RichTextEditor.css
+   Restyles the default Quill "snow" theme with the site's
+   --sflgbtbowl-* custom properties — plain global CSS (not a CSS
+   Module) since Quill applies its own unscoped .ql-* classnames. */
+
+.ql-toolbar.ql-snow {
+  background: rgba(11, 10, 20, 0.6);
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  border-radius: 8px 8px 0 0;
+}
+
+.ql-toolbar.ql-snow .ql-stroke {
+  stroke: var(--sflgbtbowl-ink-dim);
+}
+
+.ql-toolbar.ql-snow .ql-fill {
+  fill: var(--sflgbtbowl-ink-dim);
+}
+
+.ql-toolbar.ql-snow .ql-picker {
+  color: var(--sflgbtbowl-ink-dim);
+}
+
+.ql-toolbar.ql-snow button:hover .ql-stroke,
+.ql-toolbar.ql-snow button.ql-active .ql-stroke {
+  stroke: var(--sflgbtbowl-purple);
+}
+
+.ql-toolbar.ql-snow button:hover .ql-fill,
+.ql-toolbar.ql-snow button.ql-active .ql-fill {
+  fill: var(--sflgbtbowl-purple);
+}
+
+.ql-container.ql-snow {
+  background: rgba(11, 10, 20, 0.6);
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.92rem;
+  color: var(--sflgbtbowl-ink);
+  min-height: 160px;
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--sflgbtbowl-ink-dim);
+  font-style: normal;
+}
+
+.ql-snow .ql-picker-options {
+  background: var(--sflgbtbowl-bg-mid);
+  border-color: rgba(244, 241, 251, 0.16) !important;
+}
+
+.ql-snow .ql-picker-item,
+.ql-snow .ql-picker-label {
+  color: var(--sflgbtbowl-ink-dim);
+}
+
+.ql-snow .ql-tooltip {
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  color: var(--sflgbtbowl-ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.ql-snow .ql-tooltip input[type="text"] {
+  background: rgba(11, 10, 20, 0.6);
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  color: var(--sflgbtbowl-ink);
+}

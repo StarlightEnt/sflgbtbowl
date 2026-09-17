@@ -23,6 +23,7 @@ export default function AdminSidebar() {
       <NavLink href="/admin/weekly">Weekly Standing Sheet</NavLink>
       <NavLink href="/admin/schedule">Schedule</NavLink>
       <NavLink href="/admin/bylaws">By-Laws</NavLink>
+      <NavLink href="/admin/tournaments">Tournaments</NavLink>
       <div className={styles.dividerLine} />
       <div className={styles.label}>Site-wide</div>
       <NavLink href="/admin/settings">Admin Settings</NavLink>

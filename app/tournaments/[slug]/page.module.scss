@@ -1,0 +1,188 @@
+.banner {
+  background: linear-gradient(120deg, var(--sflgbtbowl-bg-deep2), var(--sflgbtbowl-bg-mid));
+  border-bottom: 1px solid rgba(244, 241, 251, 0.08);
+  padding: 48px 24px 36px;
+}
+
+.bannerInner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.dateBadge {
+  display: inline-block;
+  font-family: "Bungee", cursive;
+  font-size: 0.72rem;
+  color: var(--sflgbtbowl-bg);
+  background: var(--sflgbtbowl-yellow);
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.heading {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin-bottom: 8px;
+}
+
+.category {
+  color: var(--sflgbtbowl-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 24px 80px;
+}
+
+.backLink {
+  display: inline-block;
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.88rem;
+  text-decoration: none;
+  margin-bottom: 20px;
+
+  &:hover {
+    color: var(--sflgbtbowl-purple);
+  }
+}
+
+.featuredImage {
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(244, 241, 251, 0.1);
+}
+
+.websiteBtn {
+  margin-bottom: 24px;
+}
+
+.body {
+  font-size: 0.98rem;
+  line-height: 1.7;
+  margin-bottom: 32px;
+
+  h1,
+  h2,
+  h3 {
+    margin: 20px 0 10px;
+  }
+
+  p {
+    margin-bottom: 12px;
+  }
+
+  a {
+    color: var(--sflgbtbowl-blue);
+  }
+
+  ul,
+  ol {
+    margin: 0 0 12px 22px;
+  }
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 10px;
+  padding: 22px;
+
+  h2 {
+    font-size: 1.05rem;
+    margin-bottom: 14px;
+  }
+}
+
+.detailList {
+  dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--sflgbtbowl-ink-dim);
+    margin-top: 10px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  dd {
+    font-size: 0.92rem;
+    margin: 2px 0 0;
+  }
+}
+
+.organizerList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  li {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.organizerName {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.organizerEmail {
+  color: var(--sflgbtbowl-blue);
+  font-size: 0.85rem;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.venueName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.venueLine {
+  font-size: 0.88rem;
+  color: var(--sflgbtbowl-ink-dim);
+  margin-bottom: 6px;
+
+  a {
+    color: var(--sflgbtbowl-blue);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.mapsLink {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sflgbtbowl-green);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

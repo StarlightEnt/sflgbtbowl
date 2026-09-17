@@ -21,3 +21,4 @@ node --use-system-ca --env-file=.env.local migrations/YYYYMMDD-description.mjs
 | 2026-09-15 | 20260915-add-nickname-to-bowlers.mjs | Add nullable nickname to bowlers — person-level identity field, same group as name/email/phone/USBC ID |
 | 2026-09-15 | 20260915-add-nickname-display-flag-to-bowlers.mjs | Add NOT NULL nickname_use_in_display (default false) to bowlers — opt-in to showing "Nickname Lastname" instead of "Firstname Lastname" wherever a combined display name is shown |
 | 2026-09-15 | 20260915-create-bylaws-revisions.mjs | Create bylaws_revisions — season-scoped, versioned By-Laws PDF uploads; DB-enforced (partial unique index) that at most one revision per season is current at a time |
+| 2026-09-16 | 20260916-create-tournaments.mjs | Create tournaments — standalone (no FK), plain CRUD directory table for the public /tournaments page and /admin/tournaments; partial index on (end_date) WHERE is_active matches the public listing query shape |

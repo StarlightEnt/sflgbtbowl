@@ -1,0 +1,116 @@
+.pageHead {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.heading {
+  font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  margin-bottom: 8px;
+}
+
+.sub {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+}
+
+.emptyNote {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.95rem;
+}
+
+.monthGroup {
+  margin-bottom: 36px;
+
+  h2 {
+    font-family: "Bungee", cursive;
+    font-size: 1.05rem;
+    color: var(--sflgbtbowl-purple);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(244, 241, 251, 0.12);
+  }
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(244, 241, 251, 0.06);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.thumb {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  border: 1px solid rgba(244, 241, 251, 0.1);
+}
+
+.rowMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.rowTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.rowDate {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--sflgbtbowl-yellow);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.rowCost {
+  font-size: 0.78rem;
+  color: var(--sflgbtbowl-ink-dim);
+}
+
+.rowName {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--sflgbtbowl-ink);
+  text-decoration: none;
+  margin-bottom: 4px;
+
+  &:hover {
+    color: var(--sflgbtbowl-purple);
+  }
+}
+
+.rowVenue {
+  font-size: 0.85rem;
+  color: var(--sflgbtbowl-ink-dim);
+  margin-bottom: 6px;
+}
+
+.rowPreview {
+  font-size: 0.88rem;
+  color: var(--sflgbtbowl-ink-dim);
+  margin-bottom: 6px;
+}
+
+.rowWebsite {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sflgbtbowl-blue);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

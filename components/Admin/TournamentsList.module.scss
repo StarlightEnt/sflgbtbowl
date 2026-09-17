@@ -1,0 +1,90 @@
+.emptyNote {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.9rem;
+}
+
+.statusError {
+  margin-bottom: 16px;
+  background: rgba(255, 77, 94, 0.1);
+  border: 1px solid rgba(255, 77, 94, 0.3);
+  color: var(--sflgbtbowl-red);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+.list {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th {
+    text-align: left;
+    color: var(--sflgbtbowl-ink-dim);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(244, 241, 251, 0.14);
+  }
+
+  td {
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(244, 241, 251, 0.06);
+  }
+}
+
+.badgeActive {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sflgbtbowl-green);
+  background: rgba(53, 214, 143, 0.12);
+  border: 1px solid rgba(53, 214, 143, 0.3);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.badgeInactive {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sflgbtbowl-ink-dim);
+  background: rgba(244, 241, 251, 0.06);
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.actionsCell {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.actionLink {
+  color: var(--sflgbtbowl-purple);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.actionLinkDanger {
+  color: var(--sflgbtbowl-red);
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

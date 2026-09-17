@@ -56,26 +56,6 @@
   }
 }
 
-.disabled {
-  display: inline-block;
-  opacity: 0.75;
-  color: var(--sflgbtbowl-ink);
-  font-weight: 500;
-  font-size: 0.95rem;
-  cursor: default;
-}
-
-.badgeSoon {
-  display: inline-block;
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: var(--sflgbtbowl-bg);
-  background: var(--sflgbtbowl-ink-dim);
-  border-radius: 999px;
-  padding: 2px 8px;
-  margin-left: 6px;
-  vertical-align: middle;
-}
 
 .logoutLink {
   background: none;

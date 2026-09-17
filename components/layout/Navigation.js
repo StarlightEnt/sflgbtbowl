@@ -20,10 +20,7 @@ export default function Navigation({ isAdminUser = false, isMemberUser = false }
               <Link href="/leagues/lgbt-wednesday-community">Leagues</Link>
             </li>
             <li>
-              <span className={styles.disabled}>
-                Tournaments
-                <span className={styles.badgeSoon}>Coming soon</span>
-              </span>
+              <Link href="/tournaments">Tournaments</Link>
             </li>
             {!isMemberUser && !isAdminUser && (
               <li>
