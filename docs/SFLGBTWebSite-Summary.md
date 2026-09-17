@@ -495,50 +495,134 @@ images and confirmed the table was empty and the blobs gone afterward.
 
 **Session date:** September 17, 2026
 
-New role tier, handed to Claude Code as `Task.md`. Officers sit between
-`isMember` and `isAdmin`: existing bowlers (matched by login email) granted
-extra rights via a new `officers` table — not a separate email allowlist like
-`admin_emails`, so officer status always ties back to a real bowler identity.
-Officers can view/edit any bowler's demographics (including contact info,
-the same bypass admins already got in `canViewContactInfo`) and manage a
-brand-new Announcements feature; they cannot manage other officers or reach
-Season Setup, Weekly, Schedule, By-Laws, Tournaments, or Admin Settings.
+New role tier, designed this session and handed to Claude Code as a focused
+`TASK.md` (this project's standing one-feature-at-a-time convention — see
+§2). **Confirmed shipped and live on `main`** — verified directly against
+the real repo source (`raw.githubusercontent.com` / a full tarball pull via
+`codeload.github.com`), not assumed: every file/route named below was read
+in full and matches the design described here.
 
-**Schema:** `officers` (`bowler_id` UNIQUE — a bowler is either an officer or
-not, no duplicate rows; `added_by`/`added_at` for the audit trail) and
-`announcements` (hard-delete, no revision history/soft-delete — this isn't a
-legal document trail like `bylaws_revisions`; `posted_by_bowler_id` nullable
-in case an admin who isn't also a bowler posts one, `posted_by_email` always
-populated as the real audit trail).
+**The problem:** the League needed a role below full admin that could
+handle day-to-day member-facing work — keeping bowler contact info current
+and posting news — without touching Season Setup, standings, Schedule,
+By-Laws, or Tournaments. Officers sit between `isMember` and `isAdmin`:
+existing bowlers (matched by login email) granted extra rights via a new
+`officers` table, not a separate email allowlist like `admin_emails` — so
+officer status always ties back to a real bowler identity, never a bare
+email. Officers can view/edit any bowler's demographics (**full bypass on
+contact info, the same tier admins already get in `canViewContactInfo`** —
+an explicit design decision, not a partial "names only" view) and fully
+manage Announcements (create/edit/pin/delete); they cannot manage other
+officers, and cannot reach Season Setup, Weekly, Schedule, By-Laws,
+Tournaments, or Admin Settings.
 
-**A real architectural consequence, not explicit in the original task text
-but required by it:** loosening `app/admin/layout.js`'s gate from
-admin-only to `isAdmin || isOfficer` (so officers can reach Bowler
-Demographics/Announcements) meant every *existing* admin page — Season
-Setup, Weekly, Schedule, By-Laws, Tournaments (list/new/edit), Admin
-Settings — had silently relied on that layout check as its only access
-control; none had their own page-level `isAdmin` check. Added a shared
-`lib/requireAdminPage.js` (redirects to `/admin/announcements` if not admin)
-and called it from all six/eight of those pages so officers landing on any
-of them get redirected, not an accidental view of admin-only data. The
-mutating API routes underneath were already independently `isAdmin`-gated
-and needed no change.
+**Schema — two new tables, migration `20260917-create-officers-and-announcements.mjs`:**
 
-**Bowler Demographics has no new page** — the task only changed API
-permissions (`app/api/member/bowler/[id]/route.js`, `canViewContactInfo`),
-not UI. The existing `/member/roster` page already has the full bowler
-grid + edit modal; officers already pass `isMember` (they're bowlers with a
-linked email, required for officer creation) so they already reach it — the
-sidebar's "Bowler Demographics" link just points there instead of
-duplicating that UI under `/admin`.
+| Table | Column | Purpose |
+|---|---|---|
+| `officers` | `bowler_id` | `UNIQUE REFERENCES bowlers(id)` — a bowler is either an officer or not, no duplicate rows |
+| | `added_by` / `added_at` | audit trail (admin email + timestamp) |
+| `announcements` | `title` | `CHECK (char_length <= 120)` |
+| | `body` | plain text, no rich-text/HTML |
+| | `posted_by_bowler_id` | nullable — an admin who isn't also a bowler can still post |
+| | `posted_by_email` | always populated — the real audit trail if a display name is ever needed later |
+| | `is_pinned` | boolean, default false |
+| | `created_at` / `updated_at` | timestamps |
 
-**Announcements is read directly from the DB on the League Dashboard**,
-not via a self-fetch to `GET /api/announcements` — that public route exists
-because the task asked for it (and is what the officer/admin manager and any
-future consumer use), but the dashboard page queries the table directly,
-matching how every other section of that server component already reads
-its data (team standings, schedule, etc.) rather than adding a network
-round-trip to itself.
+`announcements` is a **hard-delete table, deliberately not versioned** like
+`bylaws_revisions` — this isn't a legal document trail, so there's no
+soft-delete/archive concept. A supporting index,
+`idx_announcements_listing ON announcements (is_pinned DESC, created_at DESC)`,
+matches the real query shape both the public feed and the admin/officer
+manager use — same "index matches the query" instinct as `bylaws_revisions`'
+partial unique index and `tournaments`' partial index on `end_date`.
+
+**`isOfficer(email)`** (`lib/auth-helpers.js`) sits alongside `isAdmin`/
+`isMember`: joins `officers` to `bowlers` on email, so role membership is
+always derived fresh, never cached. `isAdmin` is treated as a superset
+everywhere — every officer-gated check in the codebase is written
+`isAdmin(email) || isOfficer(email)`, never both required, and an admin is
+never also inserted into the `officers` table itself.
+
+**`canViewContactInfo`** (`lib/canViewContactInfo.js`) gained an `isOfficer`
+parameter that short-circuits to `true` immediately after the `isAdmin`
+check, with an explicit code comment marking it a deliberate expansion of
+the existing tiered-visibility rule (§6.5), not an accidental widening. The
+one call site (`app/api/member/bowler/[id]/route.js`) now passes
+`isOfficer` alongside `isAdmin`, and the same route's edit check
+(`PUT`) and `editable` flag (`GET`) were extended the same way — officers
+get full edit rights on any bowler's card, exactly like admins.
+
+**A real architectural gap Claude Code found and fixed, not spelled out in
+the task text:** loosening `app/admin/layout.js`'s gate from admin-only to
+`isAdmin || isOfficer` (so officers can reach Bowler Demographics/
+Announcements) meant every *other* existing page under `/admin` — Season
+Setup, Weekly, Schedule, By-Laws, Tournaments (list, new, and edit — three
+separate page files), and Admin Settings — had been silently relying on
+that layout check as its **only** access control; none had a page-level
+`isAdmin` check of its own. Fixed with a new shared helper,
+`lib/requireAdminPage.js` (redirects to `/admin/announcements` if the
+viewer isn't a full admin), called at the top of all **nine** of those page
+files (Season Setup, Weekly, Schedule, By-Laws, the three Tournaments pages,
+Officers, and Admin Settings). The mutating API routes underneath every one
+of those pages were already independently `isAdmin`-gated and needed no
+change — this was purely a page-level convenience-check gap, never a real
+data-access hole.
+
+**Officers management (`/admin/officers`, admin-only):** `OfficersPage`
+loads current officers (joined to `bowlers` for name/email) and a list of
+*eligible* bowlers — `email IS NOT NULL AND NOT EXISTS (... already an
+officer)` — and hands both to `components/Admin/OfficersManager.js`, a
+client component with a dropdown of eligible bowlers ("Firstname Lastname
+(email)") and a "Make officer" button, plus a per-row "Remove" button
+(`window.confirm("Remove {name} as an officer?")`, no typed-confirmation
+Danger Zone treatment — removing officer status isn't destructive to data).
+Backed by `GET`/`POST /api/admin/officers` and
+`DELETE /api/admin/officers/[bowlerId]`, all independently `isAdmin`-gated
+(officer management is the one thing officers can never do to each other).
+`POST` re-validates the target bowler has a login email server-side and
+returns a specific error — *"This bowler has no login email on file
+yet — add one before making them an officer"* — rather than trusting the
+page's own filtered dropdown. `DELETE` only removes the `officers` row,
+confirmed never touching the underlying `bowlers` record.
+
+**Bowler Demographics has no new page.** The feature only changed API
+permissions and the shared `canViewContactInfo` rule, not UI — the existing
+`/member/roster` page already has the full bowler grid + edit modal, and
+officers already pass `isMember` (they're bowlers with a linked email,
+required for officer creation in the first place) so they already reach it.
+The sidebar's "Bowler Demographics" link (both admin and officer views)
+just points there instead of duplicating that UI under `/admin`.
+
+**Announcements — public feed + admin/officer CRUD:**
+- `GET /api/announcements` — public, no auth, `ORDER BY is_pinned DESC,
+  created_at DESC`, no pagination at this scale.
+- `POST /api/admin/announcements`, `PUT`/`DELETE /api/admin/announcements/[id]`,
+  `PATCH /api/admin/announcements/[id]/pin` — every one of these
+  independently checks `isAdmin(email) || isOfficer(email)` inline, not a
+  shared middleware, matching this codebase's "every route gates itself"
+  convention. Title is capped at 120 characters server-side (matching the
+  DB `CHECK`) with a specific error message on overflow; both title and
+  body are required and trimmed.
+- `/admin/announcements` (reachable by both admin and officer) +
+  `components/Admin/AnnouncementsManager.js`: inline create/edit form
+  (Title input, Body textarea, no rich text), a list of existing
+  announcements with a visual 📌 badge on pinned ones, and per-row
+  Pin/Unpin, Edit, and Delete (`window.confirm` using the announcement's
+  title) actions.
+- **Public display is read directly from the DB** on the League Dashboard
+  (`app/leagues/[slug]/page.js` — a dynamic route keyed on `leagues.slug`,
+  not a hardcoded per-league page as §6.2's URL might suggest) rather than
+  self-fetching `GET /api/announcements` — the code comment there says why
+  explicitly: matches how every other section of that server component
+  (standings, schedule, standing sheets) already reads its own data,
+  avoiding a needless network round-trip to itself. Same sort order
+  (pinned first, then newest) and the same 📌 badge as the admin view.
+- **Known scope note, not a bug:** `announcements` has no foreign key to
+  `leagues` or `seasons` — it's genuinely site-wide, the same feed shows on
+  every league's dashboard. Fine today with only one real league live; worth
+  revisiting if/when Gay Games (§8) becomes a second real, loaded league and
+  per-league announcements turn out to matter.
 
 **Verification — every item from the task's checklist confirmed live**
 against the dev server, not just read from the code: created a real
@@ -560,5 +644,177 @@ deleted afterward and confirmed clean.
 bowler-identity work) — `next dev` was stopped first, `.next` removed, a
 full `next build` ran clean (all new routes compiled, TypeScript passed),
 then `next dev` was restarted so the local environment was left as found.
+
+---
+
+## 15. Full-codebase code review & fixes
+
+**Session date:** September 17, 2026
+**Commit:** `33ed04e` — "Fix security/data-integrity findings from full-codebase review"
+
+A full, non-diff code review across `app/`, `components/`, `lib/`, and `migrations/`
+— not scoped to recent changes, the whole codebase as it stood — looking for both
+correctness bugs and reuse/simplification/efficiency cleanups. Ten findings came
+back, each independently verified against the actual source before being reported.
+All ten were fixed: three treated as priority (real security/data-integrity
+issues), the rest batched as one cleanup pass.
+
+### Priority fixes
+
+**Bowler email collision — no DB-level uniqueness.** Six separate call sites
+(`lib/auth-helpers.js`, this route's own `getViewerContext`,
+`scheduling-requests`, `message-officers`, the Announcements POST route, the
+League Dashboard) each resolved "the bowler for this login email" via
+`SELECT id FROM bowlers WHERE email = ${email}` and took `rows[0]` —
+with no uniqueness constraint on `bowlers.email`, a member editing their own
+card (self-edit is allowed, email is only format-checked) could set their email
+to another real bowler's login email and have those lookups nondeterministically
+resolve to the wrong person, misattributing edit rights, contact-info visibility,
+and message/request authorship. Fixed with a new migration
+(`migrations/20260917-add-unique-index-bowlers-email.mjs`) adding a unique index
+on `bowlers.email`, confirmed against production first for existing duplicates
+(none found). `app/api/member/bowler/[id]/route.js`'s PUT handler now
+distinguishes the new constraint from the existing `usbc_id` one via
+`err.constraint` and returns a clean, field-specific 400 instead of a generic
+500. Verified live: the exact collision now returns
+`{"error":"That email is already in use by another bowler"}` at 400, not a crash.
+
+**Tournament image upload trusted the client-declared MIME type.**
+`lib/tournaments/createTournament.js`/`updateTournament.js` passed
+`imageFile.type` straight through as the Vercel Blob object's served
+Content-Type; the API routes only checked `image.type.startsWith("image/")`,
+which lets `image/svg+xml` through — a real stored-XSS vector, since an SVG can
+carry an inline `<script>` that executes when the blob URL is opened directly.
+The PDF upload routes had already avoided this by hardcoding their
+`contentType`. Fixed with a new shared allowlist
+(`lib/tournaments/allowedImageType.js`: JPEG/PNG/GIF/WebP only), applied in both
+`app/api/admin/tournaments/route.js` and `[id]/route.js`, plus a tightened
+client `<input accept>` for a consistent UX signal. Verified live: a real SVG
+with an inline `<script>`, declared as `image/svg+xml`, is rejected with a
+clean 400; a real PNG still uploads successfully.
+
+**Silent write failure in the Weekly Standing Sheet publish path.**
+`lib/pdf/publishWeeklyStandingSheet.js`'s per-row `UPDATE league_memberships`
+for matched bowlers never checked `rowCount` — a bowler classified "matched" at
+parse time but with no existing `league_memberships` row by publish time
+(membership deleted, or a parse/publish classification mismatch) would
+silently update zero rows while the whole publish still reported `{ ok: true }`,
+dropping that bowler's week with no error. Fixed by checking `rowCount === 0`
+and throwing a new `InconsistentDataError` inside the transaction, rolling back
+the entire publish (not just that row) and surfacing a specific, actionable
+message via the route (`app/api/admin/weekly/publish/route.js`, mapped to a
+409). Verified live against the real database: simulated the exact scenario (a
+real bowler with no membership row for the season) and confirmed the publish
+throws with the correct message, leaving zero orphaned
+`standing_sheets`/`team_standings` rows behind — a real rollback, not just a
+caught error.
+
+### Batch fixes (correctness + simplification)
+
+- **Hyphenated-surname truncation in the PDF parser.**
+  `lib/pdf/parseLeagueStandings.js`'s `extractCaptainAndCleanName` used
+  `/^(.+?)-(\*)?[A-Za-z]*$/` to strip a trailing "-\*" captain marker
+  (optionally followed by an officer-title abbreviation like "Pres"/"Sec"/
+  "VP"/"Tr") — but `[A-Za-z]*` matches a real hyphenated surname's second half
+  just as well as a title abbreviation, so "John Garcia-Lopez" (no marker at
+  all) silently lost "Lopez". Fixed by restricting the suffix to an explicit,
+  extensible list of known title abbreviations (`TITLE_ABBREVIATIONS`) instead
+  of an arbitrary letter run — an unmatched suffix now stays attached to the
+  name (visible, correctable) rather than silently deleting a real name
+  segment. Verified against real and edge-case names: plain hyphenated
+  surnames, starred captains with and without a title, and a hyphenated
+  surname *and* a captain marker together.
+- **Ambiguous team-name prefix matching.** The same file's `resolveTeamNumber`
+  fell back to a `startsWith` prefix scan when an exact team-name match failed
+  (needed because some PDF sections truncate team names), returning the
+  *first* match in insertion order — silently corrupting one team's data if
+  two team names in the same season share a prefix (e.g. "Pity Party" /
+  "Pity Party II"). Fixed to return `undefined` (the existing "skip this row"
+  convention already used for a pure miss) when more than one team matches
+  the prefix, rather than guessing.
+- **Uncaught throw in the Schedule editor.**
+  `components/Admin/ScheduleEditor.js`'s `handleEdit` only checked
+  `rankedTeamNumbers` for truthiness before calling
+  `suggestPositionRoundPairings`, which is hardcoded to a 14-lane structure
+  (13 real teams + BYE) and throws synchronously for any other length — with
+  no try/catch around the call. Nothing enforces exactly 14 teams at Season
+  Setup, so a season with a different team count would throw an uncaught
+  error out of the `onClick` handler when an admin tried to edit a Position
+  Round/Roll-Off week. Fixed with a `hasValidRankedTeams` guard (truthy *and*
+  length === 14) used both for the auto-suggest call and the UI's "nothing to
+  auto-suggest from" messaging, which now distinguishes "no completed weeks
+  yet" from "wrong team count" for the admin.
+- **Timezone-unpinned date formatting in Announcements.** Both
+  `components/Admin/AnnouncementsManager.js` and the League Dashboard
+  (`app/leagues/[slug]/page.js`) formatted `announcements.created_at` (a
+  `TIMESTAMPTZ`) via `toLocaleDateString` with no `timeZone` pinned,
+  reintroducing the same class of day-shift display bug already found and
+  fixed in the Tournaments feature's date formatter (§13). Worse in the admin
+  manager specifically, since it's a `"use client"` component: an unpinned
+  timezone means the server's first render (in whatever zone that process
+  runs in) and the client's hydration render (in the viewer's local zone) can
+  disagree, risking a React hydration-mismatch warning on top of the wrong
+  displayed date. Fixed by pinning `timeZone: "UTC"` in both places, matching
+  the site's existing convention (`lib/formatWeekDate.js`,
+  `lib/tournaments/formatDateRange.js`).
+- **Duplicated league-slug literal.** `"lgbt-wednesday-community"` was
+  hardcoded in four separate places (`lib/currentSeason.js`,
+  `lib/pdf/saveSeasonSetup.js`, `components/layout/Navigation.js`,
+  `components/Admin/AdminSidebar.js`) with no single source of truth — a real
+  risk given `saveSeasonSetup.js`'s own upsert already anticipates a league
+  *name* change (`ON CONFLICT (slug) DO UPDATE SET name`). A slug change
+  would have had to be applied in four places by hand, or two hardcoded nav
+  links would silently point at a dead slug while `getCurrentSeason()`'s
+  query silently stopped matching. Consolidated into a single new
+  `lib/leagueSlug.js` (`LGBT_WEDNESDAY_LEAGUE_SLUG`), imported everywhere it
+  was previously duplicated.
+- **Missing input validation on the tournaments `[id]` route.**
+  `app/api/admin/tournaments/[id]/route.js`'s PUT/DELETE passed `Number(id)`
+  straight through with no `Number.isInteger` check, unlike the Officers and
+  Announcements `[id]` routes, which both validate and return a clean 400. A
+  non-numeric id (e.g. `/api/admin/tournaments/abc`) produced `NaN`, which
+  reached the SQL layer and surfaced as an unhelpful 500 instead of the same
+  clean 400 the rest of the admin API returns for the identical mistake.
+  Fixed to match the existing convention.
+- **21 copy-pasted admin-auth-check blocks.** The same 3-line
+  `session → email → isAdmin(email) ? 403` block (and, for Announcements, a
+  4-line `isAdmin || isOfficer` variant, duplicated three different ways
+  across three files, including one with its own tiny local helper function)
+  was pasted verbatim across every mutating admin API route in the repo — 18
+  files, 21 occurrences total. Consolidated into a new
+  `lib/requireAdminApi.js` exporting `requireAdminApi()` (admin-only) and
+  `requireAdminOrOfficerApi()` (Announcements' admin-or-officer variant),
+  each returning `{ email, forbidden }` — callers do
+  `const { email, forbidden } = await requireAdminApi(); if (forbidden) return forbidden;`.
+  Applied to all 18 files. This is a pure dedupe, not a design change — the
+  route itself is still the real security boundary, same as always; there's
+  just one place now to audit and change that boundary's behavior instead of
+  18.
+
+**Verification:** every fix was verified live against the local dev server
+and, for the database-level changes, the real production database — not just
+read from the code. Specifically: ran the new unique-index migration against
+production after confirming no existing duplicate emails; attempted the exact
+email-collision scenario end-to-end via a real authenticated session and
+confirmed the clean error; uploaded a real malicious SVG (with an inline
+`<script>`) through the actual tournament image upload endpoint and confirmed
+rejection, then confirmed a real PNG still uploads; simulated the exact
+"matched bowler with no membership row" scenario against the real database
+and confirmed both the thrown error and a full rollback with zero orphaned
+rows; unit-verified the parser regex fixes against a set of real and
+adversarial names/team-name pairs; smoke-tested every refactored admin route
+both unauthenticated (still 403/307) and authenticated as the real admin
+(announcement creation, self-removal guard), confirming `email` still flows
+correctly through the new shared helper everywhere it's needed downstream
+(`posted_by_email`, `uploadedBy`, `added_by`, the self-removal check). All
+test data (bowlers, sessions, users, announcements, tournaments) created for
+verification was deleted afterward and confirmed clean.
+
+**`next build` + `eslint`:** both ran clean (0 errors) after every fix —
+`next dev` was stopped before building and restarted after, per this
+project's established rule (§11) that running both together corrupts the
+`.next` cache. Pushed to `main` and confirmed the production deploy went
+`Ready` and served the expected responses (public pages 200, admin routes
+redirecting unauthenticated visitors) before considering this done.
 
 ---
