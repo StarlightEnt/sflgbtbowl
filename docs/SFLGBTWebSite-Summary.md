@@ -490,3 +490,75 @@ responses and rendered HTML, then deleted all test rows and their Blob
 images and confirmed the table was empty and the blobs gone afterward.
 
 ---
+
+## 14. Officer role + Announcements
+
+**Session date:** September 17, 2026
+
+New role tier, handed to Claude Code as `Task.md`. Officers sit between
+`isMember` and `isAdmin`: existing bowlers (matched by login email) granted
+extra rights via a new `officers` table — not a separate email allowlist like
+`admin_emails`, so officer status always ties back to a real bowler identity.
+Officers can view/edit any bowler's demographics (including contact info,
+the same bypass admins already got in `canViewContactInfo`) and manage a
+brand-new Announcements feature; they cannot manage other officers or reach
+Season Setup, Weekly, Schedule, By-Laws, Tournaments, or Admin Settings.
+
+**Schema:** `officers` (`bowler_id` UNIQUE — a bowler is either an officer or
+not, no duplicate rows; `added_by`/`added_at` for the audit trail) and
+`announcements` (hard-delete, no revision history/soft-delete — this isn't a
+legal document trail like `bylaws_revisions`; `posted_by_bowler_id` nullable
+in case an admin who isn't also a bowler posts one, `posted_by_email` always
+populated as the real audit trail).
+
+**A real architectural consequence, not explicit in the original task text
+but required by it:** loosening `app/admin/layout.js`'s gate from
+admin-only to `isAdmin || isOfficer` (so officers can reach Bowler
+Demographics/Announcements) meant every *existing* admin page — Season
+Setup, Weekly, Schedule, By-Laws, Tournaments (list/new/edit), Admin
+Settings — had silently relied on that layout check as its only access
+control; none had their own page-level `isAdmin` check. Added a shared
+`lib/requireAdminPage.js` (redirects to `/admin/announcements` if not admin)
+and called it from all six/eight of those pages so officers landing on any
+of them get redirected, not an accidental view of admin-only data. The
+mutating API routes underneath were already independently `isAdmin`-gated
+and needed no change.
+
+**Bowler Demographics has no new page** — the task only changed API
+permissions (`app/api/member/bowler/[id]/route.js`, `canViewContactInfo`),
+not UI. The existing `/member/roster` page already has the full bowler
+grid + edit modal; officers already pass `isMember` (they're bowlers with a
+linked email, required for officer creation) so they already reach it — the
+sidebar's "Bowler Demographics" link just points there instead of
+duplicating that UI under `/admin`.
+
+**Announcements is read directly from the DB on the League Dashboard**,
+not via a self-fetch to `GET /api/announcements` — that public route exists
+because the task asked for it (and is what the officer/admin manager and any
+future consumer use), but the dashboard page queries the table directly,
+matching how every other section of that server component already reads
+its data (team standings, schedule, etc.) rather than adding a network
+round-trip to itself.
+
+**Verification — every item from the task's checklist confirmed live**
+against the dev server, not just read from the code: created a real
+`officers`-eligible test bowler (rejected for officer status with no email
+on file, confirmed 400), added/removed officer status via the real API with
+a real admin session; confirmed as the officer session that contact info
+and edit rights extend to another bowler's card and that the edit persists;
+full announcement create/edit/pin/delete cycle, confirmed live on the
+public dashboard (pinned-first) and via `GET /api/announcements`; confirmed
+officers get 403 on officer-management routes and a 307 redirect (not a
+raw 403 page) on every admin-only `/admin/*` page while `/admin/announcements`
+still renders; confirmed a plain non-officer member is 403'd on every one of
+those and sees no contact info; confirmed officer removal is immediate
+(re-checked access right after) and never touches the underlying `bowlers`
+row. All test fixtures (bowlers, sessions, users, officers, announcements)
+deleted afterward and confirmed clean.
+
+**`next build` + `eslint`:** both run clean this time (unlike §11's
+bowler-identity work) — `next dev` was stopped first, `.next` removed, a
+full `next build` ran clean (all new routes compiled, TypeScript passed),
+then `next dev` was restarted so the local environment was left as found.
+
+---
