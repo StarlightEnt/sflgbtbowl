@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 
 // This route, not the mockup's disabled button, is the real
@@ -7,11 +6,8 @@ import { sql } from "@/lib/db";
 // button is a courtesy, never the security boundary. Checked here
 // independent of whatever a client sends.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { email, forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const { email: targetEmail } = await req.json();
   const trimmed = (targetEmail ?? "").trim().toLowerCase();

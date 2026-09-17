@@ -8,8 +8,21 @@ function emptyDraft() {
   return { title: "", body: "" };
 }
 
+// timeZone: "UTC" is load-bearing, not decorative (see
+// lib/tournaments/formatDateRange.js's note on the same issue) — this
+// is a "use client" component, so it renders once on the server (in
+// whatever timezone that process runs in) and again on the client (in
+// the viewer's local timezone) during hydration. Leaving timeZone
+// unset lets those two renders disagree, which both displays the
+// wrong date for some viewers and can trigger a React hydration
+// mismatch warning.
 function formatDate(d) {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 export default function AnnouncementsManager({ announcements }) {

@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { getCurrentSeason } from "@/lib/currentSeason";
 import {
   deleteBylawsRevision,
@@ -12,11 +11,8 @@ import {
 // misclicks, not an access control. Re-checked here anyway as a cheap
 // second guard against a buggy/bypassed client.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const season = await getCurrentSeason();
   if (!season) {

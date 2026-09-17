@@ -1,15 +1,11 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 
 // Removing officer status never touches the underlying bowlers row —
 // only this table.
 export async function DELETE(req, { params }) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const { bowlerId } = await params;
   const id = Number(bowlerId);

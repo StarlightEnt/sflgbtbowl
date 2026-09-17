@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions/auth";
+import { LGBT_WEDNESDAY_LEAGUE_SLUG } from "@/lib/leagueSlug";
 import styles from "./AdminSidebar.module.scss";
 
 function NavLink({ href, children }) {
@@ -40,7 +41,7 @@ export default function AdminSidebar({ isAdminUser = false, isOfficerUser = fals
           <NavLink href="/admin/announcements">Announcements</NavLink>
         </>
       ) : null}
-      <Link href="/leagues/lgbt-wednesday-community" className={styles.sidebarLink}>
+      <Link href={`/leagues/${LGBT_WEDNESDAY_LEAGUE_SLUG}`} className={styles.sidebarLink}>
         ← Back to dashboard
       </Link>
       <div className={styles.dividerLine} />

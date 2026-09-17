@@ -1,17 +1,14 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { createTournament, ValidationError } from "@/lib/tournaments/createTournament";
+import { ALLOWED_IMAGE_TYPES } from "@/lib/tournaments/allowedImageType";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 // This route, not the admin page, is the real security boundary —
 // same rule as every other admin route in this repo.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const formData = await req.formData();
   const input = JSON.parse(formData.get("input") ?? "{}");
@@ -19,8 +16,8 @@ export async function POST(req) {
 
   let imageFile = null;
   if (image && typeof image !== "string") {
-    if (!image.type.startsWith("image/")) {
-      return Response.json({ error: "Image must be an image file" }, { status: 400 });
+    if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
+      return Response.json({ error: "Image must be a JPEG, PNG, GIF, or WebP file" }, { status: 400 });
     }
     if (image.size > MAX_IMAGE_BYTES) {
       return Response.json({ error: "Image must be 8MB or smaller" }, { status: 400 });

@@ -1,13 +1,9 @@
-import { auth } from "@/lib/auth";
-import { isAdmin, isOfficer } from "@/lib/auth-helpers";
+import { requireAdminOrOfficerApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 
 export async function PATCH(req, { params }) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || (!(await isAdmin(email)) && !(await isOfficer(email)))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminOrOfficerApi();
+  if (forbidden) return forbidden;
 
   const { id } = await params;
   const announcementId = Number(id);

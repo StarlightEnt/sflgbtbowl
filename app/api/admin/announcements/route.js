@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin, isOfficer } from "@/lib/auth-helpers";
+import { requireAdminOrOfficerApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 
 const MAX_TITLE_LEN = 120;
@@ -8,11 +7,8 @@ const MAX_TITLE_LEN = 120;
 // isAdmin || isOfficer, same rule the task spells out for every
 // Announcements route.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || (!(await isAdmin(email)) && !(await isOfficer(email)))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { email, forbidden } = await requireAdminOrOfficerApi();
+  if (forbidden) return forbidden;
 
   const { title, body } = await req.json();
   const trimmedTitle = (title ?? "").trim();

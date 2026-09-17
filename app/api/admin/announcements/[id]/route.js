@@ -1,20 +1,11 @@
-import { auth } from "@/lib/auth";
-import { isAdmin, isOfficer } from "@/lib/auth-helpers";
+import { requireAdminOrOfficerApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 
 const MAX_TITLE_LEN = 120;
 
-async function canManageAnnouncements(email) {
-  if (!email) return false;
-  return (await isAdmin(email)) || (await isOfficer(email));
-}
-
 export async function PUT(req, { params }) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!(await canManageAnnouncements(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminOrOfficerApi();
+  if (forbidden) return forbidden;
 
   const { id } = await params;
   const announcementId = Number(id);
@@ -50,11 +41,8 @@ export async function PUT(req, { params }) {
 // Hard delete — no revision history/audit trail needed for
 // announcements, unlike bylaws_revisions.
 export async function DELETE(req, { params }) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!(await canManageAnnouncements(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminOrOfficerApi();
+  if (forbidden) return forbidden;
 
   const { id } = await params;
   const announcementId = Number(id);

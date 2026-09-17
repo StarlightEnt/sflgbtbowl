@@ -288,7 +288,7 @@ export default function TournamentForm({ tournament }) {
         <label className={styles.uploadArea}>
           <div className={styles.icon}>🖼️</div>
           <div className={styles.text}>{imageFile ? imageFile.name : "Click to browse for an image"}</div>
-          <input type="file" accept="image/*" hidden onChange={handleImageChange} />
+          <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" hidden onChange={handleImageChange} />
         </label>
       </div>
 

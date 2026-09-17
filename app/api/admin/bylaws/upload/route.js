@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { getCurrentSeason } from "@/lib/currentSeason";
 import {
   publishBylawsRevision,
@@ -10,11 +9,8 @@ import {
 // This route, not the admin page, is the real security boundary — a
 // hidden page is never enough on its own.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { email, forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const season = await getCurrentSeason();
   if (!season) {

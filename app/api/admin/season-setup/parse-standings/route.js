@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 import { parseLeagueStandingsPDF } from "@/lib/pdf/parseLeagueStandings";
 import { matchSeasonBowlers } from "@/lib/pdf/matchSeasonBowlers";
@@ -8,11 +7,8 @@ import { put } from "@vercel/blob";
 // This route, not the page it's used from, is the real security
 // boundary — a hidden page is never enough on its own.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const formData = await req.formData();
   const file = formData.get("file");

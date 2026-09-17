@@ -24,6 +24,10 @@ function emptyLaneForm() {
 export default function ScheduleEditor({ seasonId, teams, weeks, rankedTeamNumbers, lastRankedWeek }) {
   const router = useRouter();
   const teamsById = new Map(teams.map((t) => [t.id, t]));
+  // suggestPositionRoundPairings is hardcoded to a 14-lane structure
+  // (13 real teams + BYE) — it throws for any other length, so this
+  // must be checked before calling it, not just truthiness.
+  const hasValidRankedTeams = Boolean(rankedTeamNumbers) && rankedTeamNumbers.length === 14;
 
   const [editingWeek, setEditingWeek] = useState(null);
   const [laneForm, setLaneForm] = useState(emptyLaneForm());
@@ -62,7 +66,7 @@ export default function ScheduleEditor({ seasonId, teams, weeks, rankedTeamNumbe
     if (week.lane_positions) {
       setLaneForm(laneNumbersFromPositions(week.lane_positions));
       setUsedAutoSuggest(false);
-    } else if ((week.is_position_round || week.is_roll_off) && rankedTeamNumbers) {
+    } else if ((week.is_position_round || week.is_roll_off) && hasValidRankedTeams) {
       setLaneForm(laneNumbersFromSuggestion());
       setUsedAutoSuggest(true);
     } else {
@@ -224,10 +228,13 @@ export default function ScheduleEditor({ seasonId, teams, weeks, rankedTeamNumbe
             </div>
           )}
           {(editingWeekData.is_position_round || editingWeekData.is_roll_off) &&
-            !rankedTeamNumbers &&
+            !hasValidRankedTeams &&
             !editingWeekData.lane_positions && (
               <div className={styles.autoNote}>
-                No completed weeks yet — nothing to auto-suggest from. Assign manually below.
+                {rankedTeamNumbers
+                  ? "Standings don't have the expected 13 teams + BYE — nothing to auto-suggest from."
+                  : "No completed weeks yet — nothing to auto-suggest from."}{" "}
+                Assign manually below.
               </div>
             )}
 

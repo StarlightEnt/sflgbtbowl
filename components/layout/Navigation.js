@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
+import { LGBT_WEDNESDAY_LEAGUE_SLUG } from "@/lib/leagueSlug";
 import StripeBar from "./StripeBar";
 import styles from "./Navigation.module.scss";
 
@@ -17,7 +18,7 @@ export default function Navigation({ isAdminUser = false, isMemberUser = false, 
               <Link href="/">Home</Link>
             </li>
             <li>
-              <Link href="/leagues/lgbt-wednesday-community">Leagues</Link>
+              <Link href={`/leagues/${LGBT_WEDNESDAY_LEAGUE_SLUG}`}>Leagues</Link>
             </li>
             <li>
               <Link href="/tournaments">Tournaments</Link>

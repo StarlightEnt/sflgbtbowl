@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 
 // This route, not the admin page, is the real security boundary — a
@@ -7,11 +6,8 @@ import { sql } from "@/lib/db";
 // admin-only, unlike Announcements below (which officers can also
 // reach) — officers can never manage other officers.
 export async function GET() {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const officers = await sql`
     SELECT o.bowler_id, o.added_by, o.added_at, b.first_name, b.last_name, b.email
@@ -23,11 +19,8 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { email, forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const { bowlerId } = await req.json();
   const id = Number(bowlerId);

@@ -1,10 +1,10 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { getCurrentSeason } from "@/lib/currentSeason";
 import {
   publishWeeklyStandingSheet,
   ValidationError,
   ConflictError,
+  InconsistentDataError,
 } from "@/lib/pdf/publishWeeklyStandingSheet";
 
 // This route, not the review page, is the real security boundary — a
@@ -12,11 +12,8 @@ import {
 // numbers (the admin reviewed them on-screen before publishing), same
 // precedent as Season Setup's /save route.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { email, forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const season = await getCurrentSeason();
   if (!season) {
@@ -58,6 +55,9 @@ export async function POST(req) {
       return Response.json({ error: err.message }, { status: 400 });
     }
     if (err instanceof ConflictError) {
+      return Response.json({ error: err.message }, { status: 409 });
+    }
+    if (err instanceof InconsistentDataError) {
       return Response.json({ error: err.message }, { status: 409 });
     }
     console.error("weekly publish failed:", err);

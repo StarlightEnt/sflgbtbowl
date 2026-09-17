@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 
 const LANE_ORDER = ["1-2", "3-4", "5-6", "7-8", "9-10", "11-12", "13-14"];
@@ -8,11 +7,8 @@ const LANE_ORDER = ["1-2", "3-4", "5-6", "7-8", "9-10", "11-12", "13-14"];
 // every week stays editable per the original ask, but only an admin
 // can actually save one.
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const { seasonId, weekNumber, lanePositions } = await req.json();
   if (!seasonId || !Number.isInteger(weekNumber) || !Array.isArray(lanePositions)) {

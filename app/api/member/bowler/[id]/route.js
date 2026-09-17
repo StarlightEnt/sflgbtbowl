@@ -159,6 +159,9 @@ export async function PUT(req, { params }) {
     `;
   } catch (err) {
     if (err.code === "23505") {
+      if (err.constraint === "idx_bowlers_email_unique") {
+        return Response.json({ error: "That email is already in use by another bowler" }, { status: 400 });
+      }
       return Response.json({ error: "That USBC ID is already in use by another bowler" }, { status: 400 });
     }
     console.error("bowler update failed:", err);

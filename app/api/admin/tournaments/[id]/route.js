@@ -1,18 +1,19 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { updateTournament, ValidationError, NotFoundError } from "@/lib/tournaments/updateTournament";
 import { deleteTournament, NotFoundError as DeleteNotFoundError } from "@/lib/tournaments/deleteTournament";
+import { ALLOWED_IMAGE_TYPES } from "@/lib/tournaments/allowedImageType";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 export async function PUT(req, { params }) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const { id } = await params;
+  const tournamentId = Number(id);
+  if (!Number.isInteger(tournamentId)) {
+    return Response.json({ error: "Invalid tournament id" }, { status: 400 });
+  }
 
   const formData = await req.formData();
   const input = JSON.parse(formData.get("input") ?? "{}");
@@ -20,8 +21,8 @@ export async function PUT(req, { params }) {
 
   let imageFile = null;
   if (image && typeof image !== "string") {
-    if (!image.type.startsWith("image/")) {
-      return Response.json({ error: "Image must be an image file" }, { status: 400 });
+    if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
+      return Response.json({ error: "Image must be a JPEG, PNG, GIF, or WebP file" }, { status: 400 });
     }
     if (image.size > MAX_IMAGE_BYTES) {
       return Response.json({ error: "Image must be 8MB or smaller" }, { status: 400 });
@@ -30,7 +31,7 @@ export async function PUT(req, { params }) {
   }
 
   try {
-    const { slug } = await updateTournament({ id: Number(id), input, imageFile });
+    const { slug } = await updateTournament({ id: tournamentId, input, imageFile });
     return Response.json({ ok: true, slug });
   } catch (err) {
     if (err instanceof ValidationError) {
@@ -45,16 +46,17 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const { id } = await params;
+  const tournamentId = Number(id);
+  if (!Number.isInteger(tournamentId)) {
+    return Response.json({ error: "Invalid tournament id" }, { status: 400 });
+  }
 
   try {
-    await deleteTournament(Number(id));
+    await deleteTournament(tournamentId);
     return Response.json({ ok: true });
   } catch (err) {
     if (err instanceof DeleteNotFoundError) {

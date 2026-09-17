@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/auth-helpers";
+import { requireAdminApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
 import { getCurrentSeason } from "@/lib/currentSeason";
 import { parseLeagueStandingsPDF } from "@/lib/pdf/parseLeagueStandings";
@@ -10,11 +9,8 @@ import { matchWeeklyBowlers } from "@/lib/pdf/matchWeeklyBowlers";
 // to the database — parse-only, so an admin can discard the upload
 // with zero side effects (see Publish for the actual writes).
 export async function POST(req) {
-  const session = await auth();
-  const email = session?.user?.email ?? null;
-  if (!email || !(await isAdmin(email))) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { forbidden } = await requireAdminApi();
+  if (forbidden) return forbidden;
 
   const season = await getCurrentSeason();
   if (!season) {
