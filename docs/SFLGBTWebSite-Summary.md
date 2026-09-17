@@ -198,8 +198,9 @@ permanent admin features):
   default, not a final decision.
 - An admin-facing view of submitted `scheduling_requests` (currently email-only,
   by design — "keep it simple, it's manual anyway").
-- Tournaments section and the multi-league "Leagues" hub page (deferred until
-  Gay Games becomes a real, loaded league rather than illustrative).
+- The multi-league "Leagues" hub page (deferred until Gay Games becomes a
+  real, loaded league rather than illustrative). The Tournaments directory
+  itself is no longer deferred — **see §13.**
 - The half-point text format in standing sheet PDFs is still unverified — every
   real example seen so far has been whole numbers. The parser only handles the
   whole-number case; extending it needs a real half-point example first.
@@ -400,5 +401,92 @@ closing sweeper). Noted in passing, not actioned: the by-laws document's own
 site's separately-parsed Schedule PDF/`schedule` table — two independent
 sources of truth for the same facts, worth knowing about but not something
 this feature builds guardrails around.
+
+---
+
+## 13. Tournaments directory
+
+**Session date:** September 16, 2026
+
+New feature, handed to Claude Code as `TASK-tournaments.md` (this project's
+standing one-feature-at-a-time convention). Replaces the "Tournaments (Coming
+soon)" nav placeholder with a live `/tournaments` public directory and an
+`/admin/tournaments` CRUD admin page. Modeled in look/feel/function after
+IGBO's own tournaments pages (screenshots supplied to the developer, not
+this session) — grouped list, banner detail page, plain admin form — restyled
+to sflgbtbowl's deep-purple theme rather than copied pixel-for-pixel.
+
+**Schema — new standalone table `tournaments`:** no foreign keys, unlike
+every other content table in this schema — not scoped to a season or league,
+since tournaments aren't part of any one league's season. `organizers` is a
+JSONB array of `{name, email}` (no separate table — explicitly out of scope
+per the task). A partial index on `(end_date) WHERE is_active` matches the
+public listing query's real shape, same "index matches the query" instinct
+used elsewhere (e.g. `bylaws_revisions`' one-current partial unique index).
+
+**Deliberately not a revision-history feature, unlike Weekly Standing Sheet /
+By-Laws:** plain save-on-submit CRUD, confirmed out of scope by the task —
+no draft/publish cycle, no past-tournament archive (expired entries just stop
+appearing on the public list; nothing is auto-deleted), no embedded map (a
+"View on Google Maps" search-query link built from the address string
+instead), no separate venues/organizers/categories tables.
+
+**Public pages:**
+- `/tournaments` — `WHERE is_active AND end_date >= CURRENT_DATE`, grouped by
+  month/year. List-preview text is derived from `body` at render time
+  (strip tags, truncate ~150 chars) — not stored separately, per spec.
+- `/tournaments/[slug]` — 404s on an unknown slug or `is_active = false`, but
+  deliberately **still renders after `end_date` has passed** — only the list
+  page date-filters, so a bookmarked link never 404s just because the event
+  is over. Confirmed live: a past-dated test tournament loaded its detail
+  page directly while absent from the list; an inactive one 404'd on both.
+
+**Admin page (`/admin/tournaments`):** list (all tournaments, including
+past/inactive) plus `/admin/tournaments/new` and `/admin/tournaments/[id]/edit`
+using one shared `TournamentForm` component. Delete uses a plain `confirm()`
+dialog, not the stricter type-to-confirm Danger Zone pattern used for standing
+sheets/by-laws — no cascading data or audit-trail value at stake here, per
+the task's explicit scoping.
+
+**Rich text — substituted `react-quill-new` for the task's suggested
+`react-quill`:** confirmed against the npm registry before installing —
+`react-quill`'s peer dependencies cap at React 18, and this project runs
+React 19.2.8. `react-quill-new` is a maintained fork with an identical API
+and real React 19 support; installed with zero peer-dependency warnings.
+Body HTML is sanitized server-side on write (`sanitize-html`, an explicit
+tag/attribute allowlist, links forced to `target="_blank" rel="noopener
+noreferrer"`) — confirmed live that a `<script>` tag survives round-trip as
+stripped while bold/link markup passes through intact — so the public pages
+render the stored HTML directly with no separate sanitize-on-read step.
+
+**Images:** same Blob store as standing sheets/by-laws, new `tournaments/`
+prefix. Unlike By-Laws' "never delete on upload," editing a tournament's
+image deletes the old Blob object once the new one's upload succeeds — no
+history requirement for tournament images. Confirmed live via a direct
+Blob `head()` check: the old object was gone immediately after a replace,
+and a deleted tournament's image was gone immediately after the row delete.
+
+**Real bug caught during verification, not by the task spec:** the initial
+date-range formatter didn't pin `Intl.DateTimeFormat`'s `timeZone` to UTC.
+Postgres `DATE` columns come back from the Neon driver as JS `Date` objects
+at UTC midnight; formatting them in the server's local zone (Pacific)
+silently shifted every displayed date back by one day (a tournament starting
+"2027-06-04" rendered as "Jun 3"). Caught by rendering a real test tournament
+against the live dev server and reading the actual output, not by inspecting
+the code — fixed by pinning `timeZone: "UTC"` on both formatters in
+`lib/tournaments/formatDateRange.js`.
+
+**Verification:** `eslint` clean (0 errors; pre-existing `<img>`-vs-
+`next/image` warnings only, consistent with the rest of the codebase, which
+uses no `next/image` anywhere). `next build` was skipped — `next dev` was
+live at the time, and an earlier session already confirmed running `next
+build` alongside a live dev server corrupts the `.next` cache (see §11's
+correction) — verification instead ran directly against the live dev server
+on `localhost:3000`. Created real tournaments via `createTournament()`
+against the production database (2+ organizers, an image, rich body with
+bold + a link, a past-dated entry, an inactive entry), confirmed every
+scenario in the task's verification checklist by reading actual HTTP
+responses and rendered HTML, then deleted all test rows and their Blob
+images and confirmed the table was empty and the blobs gone afterward.
 
 ---
