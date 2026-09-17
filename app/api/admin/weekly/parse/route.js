@@ -93,7 +93,7 @@ export async function POST(req) {
       return {
         teamId,
         teamNumber: row.team_number,
-        teamName: team.team_name,
+        teamName: row.team_name,
         abbreviation: team.abbreviation,
         pointsWon: row.points_won,
         pointsLost: row.points_lost,
