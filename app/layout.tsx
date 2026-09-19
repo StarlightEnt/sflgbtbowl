@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { auth } from "@/lib/auth";
 import { isAdmin, isMember, isOfficer } from "@/lib/auth-helpers";
@@ -27,10 +28,21 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   // Smart Member-pill default: a bowler in exactly one league's
   // current season skips the /leagues picker and goes straight to
   // their roster; a bowler in two or more (e.g. active in both LWC
-  // and GG) goes to /leagues to choose, same as a signed-out visitor.
+  // and GG) goes to /leagues to choose, same as a signed-out visitor —
+  // UNLESS they've already picked a league (leagueContext cookie, set
+  // by proxy.js whenever a /leagues/{slug}... page is visited),
+  // in which case that's what "their" league means and we skip the
+  // picker regardless of how many leagues they belong to.
   const memberLeagueSlugs = member ? await getMemberLeagueSlugs(email) : [];
-  const memberHref =
-    memberLeagueSlugs.length === 1 ? `/leagues/${memberLeagueSlugs[0]}/roster` : "/leagues";
+  const cookieStore = await cookies();
+  const leagueContext = cookieStore.get("leagueContext")?.value ?? null;
+  const contextSlug =
+    leagueContext && memberLeagueSlugs.includes(leagueContext) ? leagueContext : null;
+  const memberHref = contextSlug
+    ? `/leagues/${contextSlug}/roster`
+    : memberLeagueSlugs.length === 1
+      ? `/leagues/${memberLeagueSlugs[0]}/roster`
+      : "/leagues";
 
   return (
     <html lang="en">

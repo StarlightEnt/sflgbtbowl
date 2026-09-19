@@ -1,9 +1,17 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { sql } from "@/lib/db";
 import styles from "./page.module.scss";
 
 export default async function LeaguesHubPage() {
   const leagues = await sql`SELECT * FROM leagues ORDER BY id ASC`;
+
+  // A signed-in member with no leagueContext cookie yet lands here from
+  // the Member pill (see app/layout.tsx's memberHref fallback) — this
+  // note is what tells them why, instead of the picker just appearing
+  // silently. Cookie is set by proxy.js the moment they pick one.
+  const cookieStore = await cookies();
+  const hasContext = Boolean(cookieStore.get("leagueContext")?.value);
 
   const cards = await Promise.all(
     leagues.map(async (league) => {
@@ -39,6 +47,9 @@ export default async function LeaguesHubPage() {
         Standings, schedules, rosters and results for each of our leagues — pick one to see the
         current season.
       </p>
+      {!hasContext && (
+        <p className={styles.contextNote}>Select a league below to get started.</p>
+      )}
 
       <div className={styles.grid}>
         {cards.map(({ league, season, totalWeeks, teamCount, byeCount }) => (
