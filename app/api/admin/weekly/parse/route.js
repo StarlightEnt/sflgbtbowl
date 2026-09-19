@@ -28,18 +28,15 @@ export async function POST(req) {
     return Response.json({ error: "Missing file" }, { status: 400 });
   }
 
-  const pdfParse = (await import("pdf-parse")).default;
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  let text;
+  let result;
   try {
-    const data = await pdfParse(buffer);
-    text = data.text;
+    result = await parseLeagueStandingsPDF(buffer);
   } catch {
     return Response.json({ error: "Could not read PDF" }, { status: 400 });
   }
 
-  const result = parseLeagueStandingsPDF(text);
   if (!result.week_number || result.teams.length === 0) {
     return Response.json(
       { error: "Could not find a Team Rosters section — is this a League Standings PDF?" },
@@ -128,6 +125,7 @@ export async function POST(req) {
     weekDateRaw: result.week_date,
     totalWeeks: total_weeks,
     fileName: file.name,
+    capturesCaptainData: result.capturesCaptainData,
     counts: {
       teamRecords: teamStandings.length,
       matchups: weeklyResults.length,

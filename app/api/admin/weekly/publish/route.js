@@ -39,7 +39,8 @@ export async function POST(req) {
     return Response.json({ error: "Malformed request data" }, { status: 400 });
   }
 
-  const { weekNumber, teamStandings, weeklyResults, matchedBowlers, newBowlers } = payload;
+  const { weekNumber, teamStandings, weeklyResults, matchedBowlers, newBowlers, capturesCaptainData } =
+    payload;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
@@ -53,6 +54,13 @@ export async function POST(req) {
       weeklyResults: weeklyResults ?? [],
       matchedBowlers: matchedBowlers ?? [],
       newBowlers: newBowlers ?? [],
+      // Client-reported flag carried through from the parse step
+      // (Parser-Redesign-Standing-Sheets.md §6): Gay Games' PDF format
+      // has no captain marker anywhere in the document, so a GG weekly
+      // publish must never overwrite admin-set is_captain flags with
+      // the parser's always-false values. Defaults to false (safest —
+      // skip the overwrite) if the client didn't send it.
+      capturesCaptainData: Boolean(capturesCaptainData),
     });
     return Response.json({ ok: true, standingSheetId });
   } catch (err) {

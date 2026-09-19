@@ -133,6 +133,7 @@ export default function WeeklyStandingSheetForm({ seasonId, history, leagueSlug,
         ),
         matchedBowlers,
         newBowlers,
+        capturesCaptainData: parseData.capturesCaptainData,
       };
 
       const formData = new FormData();
