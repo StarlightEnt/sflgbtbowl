@@ -226,11 +226,7 @@ export default function SeasonSetupForm({ leagueId, leagueName }) {
         status={standingsStatus}
         counts={
           standingsData
-            ? `Found ${standingsData.counts.teams} teams (${
-                standingsData.counts.teams - 1
-              } rostered + BYE), ${standingsData.counts.bowlers} bowlers, ${
-                standingsData.counts.subs
-              } substitutes.`
+            ? `Found ${standingsData.counts.teams} teams, ${standingsData.counts.bowlers} bowlers, ${standingsData.counts.subs} substitutes.`
             : ""
         }
         fileName={standingsData?.fileName}
