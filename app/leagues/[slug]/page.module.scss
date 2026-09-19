@@ -265,3 +265,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+// --- League History card (Multi-League-Season-Architecture.md §2, §6) ---
+// Additive only — reuses .card above, never modifies it.
+
+.historyCard {
+  border-color: rgba(184, 116, 255, 0.35);
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--sflgbtbowl-bg);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.historyLabel {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.historyId {
+  font-size: 0.95rem;
+  color: var(--sflgbtbowl-yellow);
+}

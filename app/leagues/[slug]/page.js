@@ -249,6 +249,27 @@ export default async function LeagueDashboardPage({ params }) {
               </p>
               <StandingSheetsDownload sheets={standingSheets} />
             </div>
+
+            {league.bowl_com_lss_id && (
+              <div className={`${styles.card} ${styles.historyCard}`}>
+                <h2>League History</h2>
+                <p className={styles.cardSub}>
+                  Looking for a past season? Full results for {league.name} live on bowl.com.
+                </p>
+                <div className={styles.historyRow}>
+                  <span className={styles.historyLabel}>League Standing Sheet #</span>
+                  <span className={`display ${styles.historyId}`}>{league.bowl_com_lss_id}</span>
+                </div>
+                <a
+                  href={`https://lss.bowl.com/leagueStandingSheets/ViewSearchLeagueServlet?ssid=${league.bowl_com_lss_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                >
+                  View on bowl.com ↗
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -1,0 +1,66 @@
+.pageWrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 56px 24px 60px;
+}
+
+.heading {
+  font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+  margin-bottom: 14px;
+}
+
+.intro {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 1rem;
+  max-width: 640px;
+  margin-bottom: 40px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.card {
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 14px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dayTag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--sflgbtbowl-purple);
+  text-transform: uppercase;
+}
+
+.leagueName {
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  line-height: 1.25;
+}
+
+.venue {
+  color: var(--sflgbtbowl-ink);
+  font-size: 0.92rem;
+}
+
+.meta {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.85rem;
+}
+
+.viewLink {
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

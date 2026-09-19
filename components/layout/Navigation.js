@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
-import { LGBT_WEDNESDAY_LEAGUE_SLUG } from "@/lib/leagueSlug";
 import StripeBar from "./StripeBar";
 import styles from "./Navigation.module.scss";
 
@@ -11,14 +10,14 @@ export default function Navigation({ isAdminUser = false, isMemberUser = false, 
         <div className={styles.navInner}>
           <Link href="/" className={`${styles.wordmark} display`}>
             SF LGBT BOWLERS
-            <small>WEDNESDAY COMMUNITY BOWLING</small>
+            <small>WEEKLY LEAGUE BOWLING COMMUNITY</small>
           </Link>
           <ul className={styles.navLinks}>
             <li>
               <Link href="/">Home</Link>
             </li>
             <li>
-              <Link href={`/leagues/${LGBT_WEDNESDAY_LEAGUE_SLUG}`}>Leagues</Link>
+              <Link href="/leagues">Leagues</Link>
             </li>
             <li>
               <Link href="/tournaments">Tournaments</Link>
