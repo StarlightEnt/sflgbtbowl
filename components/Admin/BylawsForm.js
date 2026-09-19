@@ -24,7 +24,7 @@ function nextRevisionLabel(label) {
   return chars.join("");
 }
 
-export default function BylawsForm({ seasonId, revisions }) {
+export default function BylawsForm({ seasonId, revisions, leagueSlug, leagueName }) {
   const router = useRouter();
 
   const [file, setFile] = useState(null);
@@ -49,6 +49,7 @@ export default function BylawsForm({ seasonId, revisions }) {
       const formData = new FormData();
       formData.append("file", file);
       if (revisionLabelInput.trim()) formData.append("revisionLabel", revisionLabelInput.trim());
+      formData.append("leagueSlug", leagueSlug);
       const res = await fetch("/api/admin/bylaws/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
@@ -74,7 +75,7 @@ export default function BylawsForm({ seasonId, revisions }) {
       const res = await fetch("/api/admin/bylaws/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ revisionLabel: effectiveDeleteLabel, confirmText }),
+        body: JSON.stringify({ revisionLabel: effectiveDeleteLabel, confirmText, leagueSlug }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Delete failed");
@@ -91,8 +92,9 @@ export default function BylawsForm({ seasonId, revisions }) {
     <>
       <h1 className={`display ${styles.heading}`}>By-Laws</h1>
       <p className={styles.sub}>
-        Upload each season&apos;s officer/captain-approved By-Laws PDF. The newest upload is the
-        official current version — older ones stay archived and admin-downloadable.
+        {leagueName ? `For ${leagueName}. ` : ""}Upload each season&apos;s officer/captain-approved
+        By-Laws PDF. The newest upload is the official current version — older ones stay archived
+        and admin-downloadable.
       </p>
 
       {!seasonId ? (

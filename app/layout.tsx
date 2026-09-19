@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { auth } from "@/lib/auth";
 import { isAdmin, isMember, isOfficer } from "@/lib/auth-helpers";
+import { getMemberLeagueSlugs } from "@/lib/getMemberLeagueSlugs";
 import Navigation from "@/components/layout/Navigation";
 import StripeBar from "@/components/layout/StripeBar";
 import Footer from "@/components/layout/Footer";
@@ -23,10 +24,23 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const member = email ? await isMember(email) : false;
   const officer = !admin && email ? await isOfficer(email) : false;
 
+  // Smart Member-pill default: a bowler in exactly one league's
+  // current season skips the /leagues picker and goes straight to
+  // their roster; a bowler in two or more (e.g. active in both LWC
+  // and GG) goes to /leagues to choose, same as a signed-out visitor.
+  const memberLeagueSlugs = member ? await getMemberLeagueSlugs(email) : [];
+  const memberHref =
+    memberLeagueSlugs.length === 1 ? `/leagues/${memberLeagueSlugs[0]}/roster` : "/leagues";
+
   return (
     <html lang="en">
       <body>
-        <Navigation isAdminUser={admin} isMemberUser={member} isOfficerUser={officer} />
+        <Navigation
+          isAdminUser={admin}
+          isMemberUser={member}
+          isOfficerUser={officer}
+          memberHref={memberHref}
+        />
         {children}
         <StripeBar />
         <Footer />

@@ -1,0 +1,111 @@
+import { redirect, notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { isMember } from "@/lib/auth-helpers";
+import { sql } from "@/lib/db";
+import { getCurrentSeason } from "@/lib/currentSeason";
+import MemberRoster from "@/components/Member/MemberRoster";
+import styles from "@/components/Member/MemberRoster.module.scss";
+
+// This page-level check is a convenience, not the security boundary —
+// the API routes it calls (app/api/member/*) gate themselves
+// independently with the same isMember check (and, for the bowler
+// detail/edit route, real per-bowler scoping on top of that).
+//
+// Context comes entirely from the URL slug, same as the public
+// /leagues/[slug] dashboard — there's no separate stored "current
+// league" for a signed-in member. A bowler in two leagues switches by
+// going back to /leagues and picking the other one.
+export default async function LeagueRosterPage({ params }) {
+  const { slug } = await params;
+
+  const leagueRows = await sql`SELECT * FROM leagues WHERE slug = ${slug}`;
+  const league = leagueRows[0];
+  if (!league) notFound();
+
+  const session = await auth();
+  const email = session?.user?.email ?? null;
+  if (!email) {
+    redirect("/signin");
+  }
+
+  const member = await isMember(email);
+  if (!member) {
+    return (
+      <div className={styles.pageHead}>
+        <h1 className="display">Member Area</h1>
+        <p>
+          We don&apos;t recognize this account yet — contact an officer to get your bowler
+          record linked to your sign-in email.
+        </p>
+      </div>
+    );
+  }
+
+  const season = await getCurrentSeason(slug);
+  if (!season) {
+    return (
+      <div className={styles.pageHead}>
+        <h1 className="display">Member Area — {league.name}</h1>
+        <p>No season is set up yet — check back soon.</p>
+      </div>
+    );
+  }
+
+  const teamRows = await sql`
+    SELECT id, team_number, team_name FROM teams
+    WHERE season_id = ${season.id} AND is_bye = false
+    ORDER BY team_number
+  `;
+  const memberRows = await sql`
+    SELECT lm.bowler_id, lm.team_id, lm.real_average, lm.is_captain,
+           b.first_name, b.last_name, b.nickname, b.nickname_use_in_display
+    FROM league_memberships lm
+    JOIN bowlers b ON b.id = lm.bowler_id
+    WHERE lm.season_id = ${season.id}
+    ORDER BY b.first_name, b.last_name
+  `;
+
+  const membersByTeam = new Map();
+  const subs = [];
+  for (const m of memberRows) {
+    const entry = {
+      bowlerId: m.bowler_id,
+      firstName: m.first_name,
+      lastName: m.last_name,
+      nickname: m.nickname,
+      nicknameUseInDisplay: m.nickname_use_in_display,
+      realAverage: Number(m.real_average),
+      isCaptain: m.is_captain,
+    };
+    if (m.team_id) {
+      if (!membersByTeam.has(m.team_id)) membersByTeam.set(m.team_id, []);
+      membersByTeam.get(m.team_id).push(entry);
+    } else {
+      subs.push(entry);
+    }
+  }
+
+  const teams = teamRows.map((t) => ({
+    id: t.id,
+    teamNumber: t.team_number,
+    teamName: t.team_name,
+    members: membersByTeam.get(t.id) ?? [],
+  }));
+
+  const currentBylawsRows = await sql`
+    SELECT revision_label, file_url, uploaded_at
+    FROM bylaws_revisions
+    WHERE season_id = ${season.id} AND is_current = true
+  `;
+  const currentBylaws = currentBylawsRows[0] ?? null;
+
+  return (
+    <MemberRoster
+      teams={teams}
+      subs={subs}
+      currentBylaws={currentBylaws}
+      leagueSlug={slug}
+      leagueName={league.name}
+    />
+  );
+}

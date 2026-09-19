@@ -15,12 +15,17 @@ export async function POST(req) {
   const { email, forbidden } = await requireAdminApi();
   if (forbidden) return forbidden;
 
-  const season = await getCurrentSeason();
+  const formData = await req.formData();
+  const leagueSlug = formData.get("leagueSlug");
+  if (typeof leagueSlug !== "string" || !leagueSlug) {
+    return Response.json({ error: "Missing leagueSlug" }, { status: 400 });
+  }
+
+  const season = await getCurrentSeason(leagueSlug);
   if (!season) {
     return Response.json({ error: "No season is set up yet" }, { status: 400 });
   }
 
-  const formData = await req.formData();
   const file = formData.get("file");
   const dataField = formData.get("data");
   if (!file || typeof file === "string" || typeof dataField !== "string") {

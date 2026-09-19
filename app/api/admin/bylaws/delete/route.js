@@ -14,12 +14,16 @@ export async function POST(req) {
   const { forbidden } = await requireAdminApi();
   if (forbidden) return forbidden;
 
-  const season = await getCurrentSeason();
+  const { revisionLabel, confirmText, leagueSlug } = await req.json();
+  if (typeof leagueSlug !== "string" || !leagueSlug) {
+    return Response.json({ error: "Missing leagueSlug" }, { status: 400 });
+  }
+
+  const season = await getCurrentSeason(leagueSlug);
   if (!season) {
     return Response.json({ error: "No season is set up yet" }, { status: 400 });
   }
 
-  const { revisionLabel, confirmText } = await req.json();
   if (!revisionLabel) {
     return Response.json({ error: "A revision label is required" }, { status: 400 });
   }

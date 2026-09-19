@@ -3,7 +3,12 @@ import { logout } from "@/app/actions/auth";
 import StripeBar from "./StripeBar";
 import styles from "./Navigation.module.scss";
 
-export default function Navigation({ isAdminUser = false, isMemberUser = false, isOfficerUser = false }) {
+export default function Navigation({
+  isAdminUser = false,
+  isMemberUser = false,
+  isOfficerUser = false,
+  memberHref = "/leagues",
+}) {
   return (
     <>
       <nav className={styles.nav}>
@@ -29,7 +34,7 @@ export default function Navigation({ isAdminUser = false, isMemberUser = false, 
             )}
             {isMemberUser && (
               <li>
-                <Link href="/member/roster" className={styles.memberPill}>
+                <Link href={memberHref} className={styles.memberPill}>
                   Member
                 </Link>
               </li>

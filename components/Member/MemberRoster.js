@@ -9,7 +9,7 @@ function formatAvg(n) {
   return n > 0 ? String(Math.round(n)) : null;
 }
 
-function BowlerModal({ bowlerId, onClose }) {
+function BowlerModal({ bowlerId, leagueSlug, onClose }) {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState("loading");
   const [loadError, setLoadError] = useState("");
@@ -19,7 +19,7 @@ function BowlerModal({ bowlerId, onClose }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/member/bowler/${bowlerId}`)
+    fetch(`/api/member/bowler/${bowlerId}?leagueSlug=${encodeURIComponent(leagueSlug)}`)
       .then(async (res) => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Failed to load");
@@ -44,7 +44,7 @@ function BowlerModal({ bowlerId, onClose }) {
     return () => {
       cancelled = true;
     };
-  }, [bowlerId]);
+  }, [bowlerId, leagueSlug]);
 
   async function handleSave() {
     setSaveStatus("saving");
@@ -221,7 +221,7 @@ function BowlerModal({ bowlerId, onClose }) {
   );
 }
 
-export default function MemberRoster({ teams, subs, currentBylaws }) {
+export default function MemberRoster({ teams, subs, currentBylaws, leagueSlug, leagueName }) {
   const [openBowlerId, setOpenBowlerId] = useState(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -252,7 +252,7 @@ export default function MemberRoster({ teams, subs, currentBylaws }) {
   return (
     <>
       <div className={styles.pageHead}>
-        <h1 className="display">Member Area</h1>
+        <h1 className="display">Member Area{leagueName ? ` — ${leagueName}` : ""}</h1>
         <p>Team rosters, bowler info, and a direct line to the officers.</p>
       </div>
 
@@ -369,7 +369,13 @@ export default function MemberRoster({ teams, subs, currentBylaws }) {
         </div>
       </section>
 
-      {openBowlerId && <BowlerModal bowlerId={openBowlerId} onClose={() => setOpenBowlerId(null)} />}
+      {openBowlerId && (
+        <BowlerModal
+          bowlerId={openBowlerId}
+          leagueSlug={leagueSlug}
+          onClose={() => setOpenBowlerId(null)}
+        />
+      )}
     </>
   );
 }

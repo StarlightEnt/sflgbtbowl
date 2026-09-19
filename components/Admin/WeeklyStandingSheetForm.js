@@ -16,7 +16,7 @@ function resetReviewState(setters) {
   setters.setPublishError("");
 }
 
-export default function WeeklyStandingSheetForm({ seasonId, history }) {
+export default function WeeklyStandingSheetForm({ seasonId, history, leagueSlug, leagueName }) {
   const router = useRouter();
 
   const [file, setFile] = useState(null);
@@ -51,6 +51,7 @@ export default function WeeklyStandingSheetForm({ seasonId, history }) {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
+      formData.append("leagueSlug", leagueSlug);
       const res = await fetch("/api/admin/weekly/parse", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Parse failed");
@@ -137,6 +138,7 @@ export default function WeeklyStandingSheetForm({ seasonId, history }) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("data", JSON.stringify(payload));
+      formData.append("leagueSlug", leagueSlug);
 
       const res = await fetch("/api/admin/weekly/publish", { method: "POST", body: formData });
       const data = await res.json();
@@ -161,7 +163,7 @@ export default function WeeklyStandingSheetForm({ seasonId, history }) {
       const res = await fetch("/api/admin/weekly/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ weekNumber: effectiveDeleteWeek, confirmText }),
+        body: JSON.stringify({ weekNumber: effectiveDeleteWeek, confirmText, leagueSlug }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Delete failed");
@@ -178,8 +180,8 @@ export default function WeeklyStandingSheetForm({ seasonId, history }) {
     <>
       <h1 className={`display ${styles.heading}`}>Weekly Standing Sheet</h1>
       <p className={styles.sub}>
-        Upload this week&apos;s League Standings PDF to update the dashboard — standings, last
-        week&apos;s results, and bowler averages.
+        {leagueName ? `For ${leagueName}. ` : ""}Upload this week&apos;s League Standings PDF to
+        update the dashboard — standings, last week&apos;s results, and bowler averages.
       </p>
 
       {!seasonId ? (

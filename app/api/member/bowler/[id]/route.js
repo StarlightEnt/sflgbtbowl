@@ -61,6 +61,12 @@ export async function GET(req, { params }) {
     return Response.json({ error: "Invalid bowler id" }, { status: 400 });
   }
 
+  const { searchParams } = new URL(req.url);
+  const leagueSlug = searchParams.get("leagueSlug");
+  if (!leagueSlug) {
+    return Response.json({ error: "Missing leagueSlug" }, { status: 400 });
+  }
+
   const bowlerRows = await sql`
     SELECT id, first_name, last_name, nickname, nickname_use_in_display, email, phone, usbc_id
     FROM bowlers WHERE id = ${bowlerId}
@@ -75,7 +81,11 @@ export async function GET(req, { params }) {
   const editable = isAdminViewer || isOfficerViewer || isOwnCard;
   const leagues = await loadLeagues(bowlerId);
 
-  const season = await getCurrentSeason();
+  // The viewer's contact-visibility tiering is scoped to whichever
+  // league's roster page this request came from — a shared team in
+  // LWC doesn't grant contact visibility while looking at GG's roster,
+  // and vice versa.
+  const season = await getCurrentSeason(leagueSlug);
   const [viewerMembership, targetMembership] = await Promise.all([
     getMembership(viewerBowlerId, season?.id),
     getMembership(bowlerId, season?.id),

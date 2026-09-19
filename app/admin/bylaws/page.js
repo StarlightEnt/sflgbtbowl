@@ -1,21 +1,16 @@
+import { redirect, notFound } from "next/navigation";
 import { sql } from "@/lib/db";
-import { getCurrentSeason } from "@/lib/currentSeason";
 import { requireAdminPage } from "@/lib/requireAdminPage";
-import BylawsForm from "@/components/Admin/BylawsForm";
 
-// Admin-only — officers are admitted to /admin for Bowler
-// Demographics/Announcements, but not this.
-export default async function BylawsPage() {
+// Convenience only — every real link into By-Laws (the sidebar's
+// per-league sections) already points at /admin/bylaws/[slug]
+// directly. This bare route exists for a stale bookmark or a typed
+// URL; it just picks the first league on file rather than asking.
+export default async function BylawsIndexPage() {
   await requireAdminPage();
-  const season = await getCurrentSeason();
-  const revisions = season
-    ? await sql`
-        SELECT revision_label, file_url, file_name, uploaded_at, is_current
-        FROM bylaws_revisions
-        WHERE season_id = ${season.id}
-        ORDER BY uploaded_at ASC
-      `
-    : [];
 
-  return <BylawsForm seasonId={season?.id ?? null} revisions={revisions} />;
+  const leagues = await sql`SELECT slug FROM leagues ORDER BY id ASC LIMIT 1`;
+  if (leagues.length === 0) notFound();
+
+  redirect(`/admin/bylaws/${leagues[0].slug}`);
 }

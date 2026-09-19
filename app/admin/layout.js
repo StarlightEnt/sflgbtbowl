@@ -19,10 +19,13 @@ export default async function AdminLayout({ children }) {
     redirect("/signin");
   }
 
-  // Sidebar needs the full league list to build Season Setup's
-  // per-league links — cheap, small table, no reason to make it its
-  // own client-side fetch.
-  const leagues = admin ? await sql`SELECT id, name, slug FROM leagues ORDER BY id ASC` : [];
+  // Sidebar needs the full league list to build each page's per-league
+  // links — cheap, small table, no reason to make it its own
+  // client-side fetch. Officers need it too now: their Bowler
+  // Demographics link is per-league (/leagues/[slug]/roster), same as
+  // admin's.
+  const leagues =
+    admin || officer ? await sql`SELECT id, name, slug FROM leagues ORDER BY id ASC` : [];
 
   return (
     <div className={styles.shell}>
