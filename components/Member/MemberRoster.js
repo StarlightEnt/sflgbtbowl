@@ -16,6 +16,13 @@ function BowlerModal({ bowlerId, leagueSlug, onClose }) {
   const [form, setForm] = useState(null);
   const [saveStatus, setSaveStatus] = useState("idle");
   const [saveError, setSaveError] = useState("");
+  // Captain status is saved separately from the identity form below —
+  // it's per league/season (see the route), not per bowler, and
+  // admin-only — so it gets its own status/error state rather than
+  // sharing handleSave's.
+  const [captainDraft, setCaptainDraft] = useState(null);
+  const [captainSaveStatus, setCaptainSaveStatus] = useState("idle");
+  const [captainSaveError, setCaptainSaveError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +41,8 @@ function BowlerModal({ bowlerId, leagueSlug, onClose }) {
           phone: json.phone ?? "",
           usbcId: json.usbcId ?? "",
         });
+        const currentRow = json.leagues.find((l) => l.isCurrentSeason);
+        setCaptainDraft(currentRow ? currentRow.captain : null);
         setStatus("ready");
       })
       .catch((err) => {
@@ -61,6 +70,26 @@ function BowlerModal({ bowlerId, leagueSlug, onClose }) {
     } catch (err) {
       setSaveError(err.message);
       setSaveStatus("error");
+    }
+  }
+
+  async function handleCaptainToggle(checked) {
+    setCaptainDraft(checked);
+    setCaptainSaveStatus("saving");
+    setCaptainSaveError("");
+    try {
+      const res = await fetch(`/api/member/bowler/${bowlerId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leagueSlug, isCaptain: checked }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Save failed");
+      setCaptainSaveStatus("done");
+    } catch (err) {
+      setCaptainDraft(!checked); // revert the optimistic flip
+      setCaptainSaveError(err.message);
+      setCaptainSaveStatus("error");
     }
   }
 
@@ -198,16 +227,31 @@ function BowlerModal({ bowlerId, leagueSlug, onClose }) {
             )}
 
             <div className={styles.leaguesLabel}>Leagues</div>
-            {data.leagues.map((l, i) => (
-              <div key={i} className={styles.leagueBlock}>
-                <div className={styles.lname}>{l.league}</div>
-                <div className={styles.lteam}>{l.team}</div>
-                <div className={styles.lavg}>Real average: {l.avg ?? "Not yet established"}</div>
-                <label className={styles.capCheckbox}>
-                  <input type="checkbox" checked={l.captain} disabled readOnly /> Team Captain
-                </label>
-              </div>
-            ))}
+            {data.leagues.map((l, i) => {
+              const canEditThisRow = data.canEditCaptain && l.isCurrentSeason;
+              return (
+                <div key={i} className={styles.leagueBlock}>
+                  <div className={styles.lname}>{l.league}</div>
+                  <div className={styles.lteam}>{l.team}</div>
+                  <div className={styles.lavg}>Real average: {l.avg ?? "Not yet established"}</div>
+                  <label className={styles.capCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={canEditThisRow ? Boolean(captainDraft) : l.captain}
+                      disabled={!canEditThisRow || captainSaveStatus === "saving"}
+                      readOnly={!canEditThisRow}
+                      onChange={
+                        canEditThisRow ? (e) => handleCaptainToggle(e.target.checked) : undefined
+                      }
+                    />{" "}
+                    Team Captain
+                  </label>
+                  {canEditThisRow && captainSaveStatus === "error" && (
+                    <div className={styles.statusError}>✕ {captainSaveError}</div>
+                  )}
+                </div>
+              );
+            })}
 
             <div className={styles.modalNote}>
               Identity fields (name, email, phone, USBC ID) are shared everywhere. Team Captain is

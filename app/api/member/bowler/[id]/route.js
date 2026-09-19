@@ -26,9 +26,13 @@ async function getMembership(bowlerId, seasonId) {
   return { teamId: rows[0].team_id, isCaptain: rows[0].is_captain };
 }
 
-async function loadLeagues(bowlerId) {
+// currentSeasonId flags which row (if any) is this bowler's membership
+// in the league/season the modal was opened from — that's the only row
+// the Team Captain checkbox is ever editable for, since is_captain
+// lives per league_membership (one per season), not per bowler.
+async function loadLeagues(bowlerId, currentSeasonId) {
   const rows = await sql`
-    SELECT l.name AS league_name, lm.team_id, t.team_name, lm.real_average, lm.is_captain
+    SELECT s.id AS season_id, l.name AS league_name, lm.team_id, t.team_name, lm.real_average, lm.is_captain
     FROM league_memberships lm
     JOIN seasons s ON s.id = lm.season_id
     JOIN leagues l ON l.id = s.league_id
@@ -41,6 +45,7 @@ async function loadLeagues(bowlerId) {
     team: r.team_id ? r.team_name : "Substitute (not assigned to a team)",
     avg: Number(r.real_average) > 0 ? Number(r.real_average) : null,
     captain: r.is_captain,
+    isCurrentSeason: currentSeasonId != null && r.season_id === currentSeasonId,
   }));
 }
 
@@ -79,16 +84,17 @@ export async function GET(req, { params }) {
   const { isAdminViewer, isOfficerViewer, viewerBowlerId } = await getViewerContext(email);
   const isOwnCard = viewerBowlerId === bowlerId;
   const editable = isAdminViewer || isOfficerViewer || isOwnCard;
-  const leagues = await loadLeagues(bowlerId);
 
   // The viewer's contact-visibility tiering is scoped to whichever
   // league's roster page this request came from — a shared team in
   // LWC doesn't grant contact visibility while looking at GG's roster,
-  // and vice versa.
+  // and vice versa. Fetched before loadLeagues so it can flag which of
+  // this bowler's league rows is the one the captain checkbox applies to.
   const season = await getCurrentSeason(leagueSlug);
-  const [viewerMembership, targetMembership] = await Promise.all([
+  const [viewerMembership, targetMembership, leagues] = await Promise.all([
     getMembership(viewerBowlerId, season?.id),
     getMembership(bowlerId, season?.id),
+    loadLeagues(bowlerId, season?.id ?? null),
   ]);
   const canViewContact = canViewContactInfo({
     isAdmin: isAdminViewer,
@@ -105,6 +111,10 @@ export async function GET(req, { params }) {
     nickname: bowler.nickname,
     nicknameUseInDisplay: bowler.nickname_use_in_display,
     editable,
+    // Team Captain is admin-only — narrower than `editable`, which also
+    // covers officers and self-editing identity fields (see the modal's
+    // own copy: "Only admins can change the captain flag").
+    canEditCaptain: isAdminViewer,
     canViewContact,
     leagues,
   };
@@ -137,6 +147,42 @@ export async function PUT(req, { params }) {
   }
 
   const body = await req.json();
+
+  // Team Captain is saved as its own request, separate from the
+  // identity-field form below — it's per league/season
+  // (league_memberships.is_captain), not per bowler, sent with no
+  // firstName/lastName at all, and — per the roster modal's own copy —
+  // admin-only, never officer- or self-editable. Detected by the
+  // presence of `isCaptain` in the body and handled as a complete,
+  // separate branch so it's never blocked by the identity fields'
+  // "First and last name are required" check below. The season is
+  // resolved server-side from leagueSlug, never trusted from the client.
+  if (typeof body.isCaptain === "boolean") {
+    if (!isAdminViewer) {
+      return Response.json({ error: "Only admins can change the captain flag" }, { status: 403 });
+    }
+    if (typeof body.leagueSlug !== "string" || !body.leagueSlug) {
+      return Response.json({ error: "Missing leagueSlug" }, { status: 400 });
+    }
+    const captainSeason = await getCurrentSeason(body.leagueSlug);
+    if (!captainSeason) {
+      return Response.json({ error: "No current season for that league" }, { status: 400 });
+    }
+    const capRows = await sql`
+      UPDATE league_memberships
+      SET is_captain = ${body.isCaptain}
+      WHERE bowler_id = ${bowlerId} AND season_id = ${captainSeason.id}
+      RETURNING bowler_id
+    `;
+    if (capRows.length === 0) {
+      return Response.json(
+        { error: "This bowler has no roster spot in the current season for that league" },
+        { status: 400 }
+      );
+    }
+    return Response.json({ ok: true });
+  }
+
   const firstName = (body.firstName ?? "").trim();
   const lastName = (body.lastName ?? "").trim();
   const nickname = (body.nickname ?? "").trim() || null;
