@@ -16,19 +16,45 @@ function NavLink({ href, children }) {
   );
 }
 
-export default function AdminSidebar({ isAdminUser = false, isOfficerUser = false }) {
+export default function AdminSidebar({ isAdminUser = false, isOfficerUser = false, leagues = [] }) {
+  // The Weekly Standing Sheet / Schedule / By-Laws pages are still
+  // LWC-only (getCurrentSeason() isn't league-aware yet — a separate,
+  // larger task) — keep that whole block exactly as it was, just with
+  // Season Setup's link repointed at LWC's own slug. Any league beyond
+  // LWC only gets a Season Setup link for now, since that's genuinely
+  // all it has today.
+  const lwc = leagues.find((l) => l.slug === LGBT_WEDNESDAY_LEAGUE_SLUG);
+  const otherLeagues = leagues.filter((l) => l.slug !== LGBT_WEDNESDAY_LEAGUE_SLUG);
+
   return (
     <aside className={styles.sidebar}>
       {isAdminUser ? (
         <>
           <div className={styles.label}>LGBT Wednesday Community</div>
-          <NavLink href="/admin/season-setup">Season Setup</NavLink>
+          <NavLink
+            href={`/admin/season-setup/${lwc?.slug ?? LGBT_WEDNESDAY_LEAGUE_SLUG}`}
+          >
+            Season Setup
+          </NavLink>
           <NavLink href="/admin/weekly">Weekly Standing Sheet</NavLink>
           <NavLink href="/admin/schedule">Schedule</NavLink>
           <NavLink href="/admin/bylaws">By-Laws</NavLink>
           <NavLink href="/admin/tournaments">Tournaments</NavLink>
+
+          {otherLeagues.map((league) => (
+            <div key={league.id}>
+              <div className={styles.dividerLine} />
+              <div className={styles.label}>{league.name}</div>
+              <NavLink href={`/admin/season-setup/${league.slug}`}>Season Setup</NavLink>
+              <p className={styles.sidebarNote}>
+                Weekly Standing Sheet, Schedule, and By-Laws for this league are coming soon.
+              </p>
+            </div>
+          ))}
+
           <div className={styles.dividerLine} />
           <div className={styles.label}>Site-wide</div>
+          <NavLink href="/admin/league-setup">League Setup</NavLink>
           <NavLink href="/member/roster">Bowler Demographics</NavLink>
           <NavLink href="/admin/announcements">Announcements</NavLink>
           <NavLink href="/admin/officers">Officers</NavLink>
@@ -41,7 +67,7 @@ export default function AdminSidebar({ isAdminUser = false, isOfficerUser = fals
           <NavLink href="/admin/announcements">Announcements</NavLink>
         </>
       ) : null}
-      <Link href={`/leagues/${LGBT_WEDNESDAY_LEAGUE_SLUG}`} className={styles.sidebarLink}>
+      <Link href="/leagues" className={styles.sidebarLink}>
         ← Back to dashboard
       </Link>
       <div className={styles.dividerLine} />

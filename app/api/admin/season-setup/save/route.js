@@ -9,6 +9,7 @@ export async function POST(req) {
 
   const body = await req.json();
   const {
+    leagueId,
     seasonName,
     standings,
     standingsFileUrl,
@@ -18,12 +19,13 @@ export async function POST(req) {
     newBowlers,
   } = body;
 
-  if (!seasonName || !standings || !schedule || !abbreviations) {
+  if (!leagueId || !seasonName || !standings || !schedule || !abbreviations) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   try {
     const { seasonId } = await saveSeasonSetup({
+      leagueId,
       seasonName,
       standings,
       standingsFileUrl,

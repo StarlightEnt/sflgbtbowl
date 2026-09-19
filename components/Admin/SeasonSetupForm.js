@@ -39,7 +39,7 @@ function UploadCard({ title, sub, status, counts, fileName, error, onFile }) {
   );
 }
 
-export default function SeasonSetupForm() {
+export default function SeasonSetupForm({ leagueId, leagueName }) {
   const [seasonName, setSeasonName] = useState("Fall/Winter '26-'27");
   const [startYear, setStartYear] = useState("2026");
 
@@ -146,6 +146,7 @@ export default function SeasonSetupForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          leagueId,
           seasonName,
           startYear,
           standings: standingsData.result,
@@ -195,8 +196,7 @@ export default function SeasonSetupForm() {
     <>
       <h1 className={`display ${styles.heading}`}>Season Setup</h1>
       <p className={styles.sub}>
-        Upload the League Standings and Schedule PDFs to set up a new season for LGBT Wednesday
-        Community.
+        Upload the League Standings and Schedule PDFs to set up a new season for {leagueName}.
       </p>
 
       <div className={styles.fieldRow}>
