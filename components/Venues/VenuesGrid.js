@@ -66,7 +66,10 @@ export default function VenuesGrid({ venues, initialSlug }) {
     document.addEventListener("keydown", onKeyDown);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    closeBtnRef.current?.focus();
+    // preventScroll: the Close button sits at the bottom of the popup, so a
+    // plain focus() would open a tall popup (long blurb, short screen)
+    // already scrolled to the bottom, hiding the logo, name and blurb.
+    closeBtnRef.current?.focus({ preventScroll: true });
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
