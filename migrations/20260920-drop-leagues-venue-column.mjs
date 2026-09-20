@@ -1,6 +1,6 @@
 // Migration: Drop the old free-text leagues.venue column
-// Run date: (not yet run)
-// Status: NOT YET RUN — run only AFTER the venues code is deployed
+// Run date: 2026-09-20
+// Status: ALREADY RUN — do not run again without checking first
 //
 // Follow-up to 20260920-create-venues.mjs. Once every reader/writer of
 // leagues.venue has been replaced by leagues.venue_id + a join to venues
