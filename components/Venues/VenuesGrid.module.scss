@@ -1,0 +1,200 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.card {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.cardBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+// Fixed-size box with a light backing so any logo color stays legible
+// against the deep-purple theme.
+.logoBox {
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
+  background: #f4f1fb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 6px;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.logoBoxLarge {
+  width: 120px;
+  height: 120px;
+  padding: 10px;
+  margin: 0 auto 16px;
+}
+
+.pin {
+  width: 60%;
+  height: 60%;
+}
+
+// Plain ink text, underlined, with a trailing chevron — purple only on
+// hover/focus, never at rest (confirmed design choice).
+.nameLink {
+  font-family: "Inter", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--sflgbtbowl-ink);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sflgbtbowl-purple);
+  }
+}
+
+.line {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+
+  a {
+    color: var(--sflgbtbowl-ink-dim);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--sflgbtbowl-ink);
+    }
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(11, 10, 20, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.modal {
+  width: 100%;
+  max-width: 460px;
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.14);
+  border-radius: 16px;
+  padding: 28px 24px 24px;
+  text-align: center;
+}
+
+.logoLink {
+  display: block;
+}
+
+.modalName {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.blurb {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.targets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.target {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background: rgba(11, 10, 20, 0.5);
+  border: 1px solid rgba(244, 241, 251, 0.12);
+  border-radius: 10px;
+  color: var(--sflgbtbowl-ink);
+  text-decoration: none;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgba(184, 116, 255, 0.5);
+    color: var(--sflgbtbowl-purple);
+  }
+}
+
+.targetIcon {
+  flex: 0 0 auto;
+}
+
+.closeBtn {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sflgbtbowl-ink);
+  background: rgba(244, 241, 251, 0.08);
+  border: 1px solid rgba(244, 241, 251, 0.2);
+  padding: 11px 32px;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(244, 241, 251, 0.14);
+  }
+}
+
+// On a phone the popup reads as a near-full-height sheet.
+@media (max-width: 600px) {
+  .overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-width: none;
+    min-height: 88vh;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import VenueLink from "@/components/Venues/VenueLink";
 import { sql } from "@/lib/db";
 import styles from "./page.module.scss";
 
 export default async function LeaguesHubPage() {
-  const leagues = await sql`SELECT * FROM leagues ORDER BY id ASC`;
+  const leagues = await sql`
+    SELECT l.*, v.name AS venue_name, v.slug AS venue_slug, v.city AS venue_city,
+           v.state AS venue_state, v.is_visible AS venue_is_visible
+    FROM leagues l
+    LEFT JOIN venues v ON v.id = l.venue_id
+    ORDER BY l.id ASC
+  `;
 
   // A signed-in member with no leagueContext cookie yet lands here from
   // the Member pill (see app/layout.tsx's memberHref fallback) — this
@@ -57,7 +64,9 @@ export default async function LeaguesHubPage() {
             <div className={styles.dayTag}>{league.day_of_week} League</div>
             <div className={`display ${styles.leagueName}`}>{league.name}</div>
             <div className={styles.venue}>
-              {league.day_of_week} · {league.venue}
+              {league.day_of_week}
+              {league.venue_name && " · "}
+              <VenueLink league={league} />
             </div>
             <div className={styles.meta}>
               {season ? (

@@ -1,0 +1,10 @@
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sflgbtbowl-purple);
+  }
+}

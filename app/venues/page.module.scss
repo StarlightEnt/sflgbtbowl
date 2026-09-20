@@ -1,0 +1,21 @@
+.pageWrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 56px 24px 60px;
+}
+
+.heading {
+  font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+  margin-bottom: 14px;
+}
+
+.intro {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 1rem;
+  max-width: 640px;
+  margin-bottom: 40px;
+}
+
+.empty {
+  color: var(--sflgbtbowl-ink-dim);
+}

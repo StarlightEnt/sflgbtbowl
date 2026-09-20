@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import styles from "./LeagueSetupForm.module.scss";
 
 const DAYS_OF_WEEK = [
@@ -22,9 +23,9 @@ function slugify(name) {
     .replace(/-+/g, "-");
 }
 
-const BLANK_FORM = { id: null, name: "", slug: "", dayOfWeek: "", venue: "", bowlComLssId: "" };
+const BLANK_FORM = { id: null, name: "", slug: "", dayOfWeek: "", venueId: "", bowlComLssId: "" };
 
-export default function LeagueSetupForm({ initialLeagues }) {
+export default function LeagueSetupForm({ initialLeagues, venues = [] }) {
   const [leagues, setLeagues] = useState(initialLeagues);
   const [listStatus, setListStatus] = useState("done");
   const [listError, setListError] = useState("");
@@ -65,7 +66,7 @@ export default function LeagueSetupForm({ initialLeagues }) {
       name: league.name,
       slug: league.slug,
       dayOfWeek: league.day_of_week ?? "",
-      venue: league.venue ?? "",
+      venueId: league.venue_id ?? "",
       bowlComLssId: league.bowl_com_lss_id ?? "",
     });
     setSlugTouched(true);
@@ -127,7 +128,7 @@ export default function LeagueSetupForm({ initialLeagues }) {
                   <div className={styles.leagueName}>{league.name}</div>
                   <div className={styles.leagueMeta}>
                     /{league.slug} · {league.day_of_week || "no day set"} ·{" "}
-                    {league.venue || "no venue set"}
+                    {league.venue_name || "no venue set"}
                     {league.bowl_com_lss_id ? ` · LSS #${league.bowl_com_lss_id}` : ""}
                   </div>
                 </div>
@@ -194,12 +195,24 @@ export default function LeagueSetupForm({ initialLeagues }) {
           </div>
           <div className={styles.field}>
             <label htmlFor="leagueVenue">Venue</label>
-            <input
-              id="leagueVenue"
-              type="text"
-              value={form.venue}
-              onChange={(e) => setForm((f) => ({ ...f, venue: e.target.value }))}
-            />
+            {venues.length === 0 ? (
+              <div className={styles.cardSub}>
+                No venues yet — add one in <Link href="/admin/venues">Venue Setup</Link> first.
+              </div>
+            ) : (
+              <select
+                id="leagueVenue"
+                value={form.venueId}
+                onChange={(e) => setForm((f) => ({ ...f, venueId: e.target.value }))}
+              >
+                <option value="">— Select —</option>
+                {venues.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
 

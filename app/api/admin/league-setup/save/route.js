@@ -25,7 +25,7 @@ export async function POST(req) {
   const name = (body.name ?? "").trim();
   const slug = (body.slug ?? "").trim().toLowerCase();
   const dayOfWeek = (body.dayOfWeek ?? "").trim();
-  const venue = (body.venue ?? "").trim();
+  const venueId = body.venueId === "" || body.venueId == null ? null : Number(body.venueId);
   const bowlComLssId = body.bowlComLssId === "" || body.bowlComLssId == null
     ? null
     : Number(body.bowlComLssId);
@@ -42,6 +42,9 @@ export async function POST(req) {
   if (dayOfWeek && !DAYS_OF_WEEK.includes(dayOfWeek)) {
     return Response.json({ error: "Invalid day of week" }, { status: 400 });
   }
+  if (venueId !== null && !Number.isInteger(venueId)) {
+    return Response.json({ error: "Invalid venue" }, { status: 400 });
+  }
   if (bowlComLssId !== null && !Number.isInteger(bowlComLssId)) {
     return Response.json(
       { error: "Bowl.com League Standing Sheet # must be a whole number" },
@@ -56,7 +59,7 @@ export async function POST(req) {
         SET name = ${name},
             slug = ${slug},
             day_of_week = ${dayOfWeek || null},
-            venue = ${venue || null},
+            venue_id = ${venueId},
             bowl_com_lss_id = ${bowlComLssId}
         WHERE id = ${id}
         RETURNING id
@@ -68,12 +71,15 @@ export async function POST(req) {
     }
 
     const rows = await sql`
-      INSERT INTO leagues (name, slug, day_of_week, venue, bowl_com_lss_id)
-      VALUES (${name}, ${slug}, ${dayOfWeek || null}, ${venue || null}, ${bowlComLssId})
+      INSERT INTO leagues (name, slug, day_of_week, venue_id, bowl_com_lss_id)
+      VALUES (${name}, ${slug}, ${dayOfWeek || null}, ${venueId}, ${bowlComLssId})
       RETURNING id
     `;
     return Response.json({ ok: true, id: rows[0].id });
   } catch (err) {
+    if (err.code === "23503") {
+      return Response.json({ error: "That venue no longer exists" }, { status: 400 });
+    }
     if (err.code === "23505") {
       return Response.json(
         { error: `Slug "${slug}" is already in use by another league` },

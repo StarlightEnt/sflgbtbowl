@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { formatPoints, formatRecord } from "@/lib/formatPoints";
+import VenueLink from "@/components/Venues/VenueLink";
 import PrebowlForm from "@/components/Dashboard/PrebowlForm";
 import StandingSheetsDownload from "@/components/Dashboard/StandingSheetsDownload";
 import styles from "./page.module.scss";
@@ -9,7 +10,13 @@ import styles from "./page.module.scss";
 export default async function LeagueDashboardPage({ params }) {
   const { slug } = await params;
 
-  const leagueRows = await sql`SELECT * FROM leagues WHERE slug = ${slug}`;
+  const leagueRows = await sql`
+    SELECT l.*, v.name AS venue_name, v.slug AS venue_slug, v.city AS venue_city,
+           v.state AS venue_state, v.is_visible AS venue_is_visible
+    FROM leagues l
+    LEFT JOIN venues v ON v.id = l.venue_id
+    WHERE l.slug = ${slug}
+  `;
   const league = leagueRows[0];
   if (!league) notFound();
 
@@ -120,7 +127,9 @@ export default async function LeagueDashboardPage({ params }) {
           <h1 className={`display ${styles.heading}`}>{league.name}</h1>
           <p className={styles.seasonName}>{season.name} Season</p>
           <p className={styles.venue}>
-            {league.day_of_week} · {league.venue}
+            {league.day_of_week}
+            {league.venue_name && " · "}
+            <VenueLink league={league} />
           </p>
         </div>
         <div className={styles.weekBadge}>

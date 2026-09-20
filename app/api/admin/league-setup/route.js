@@ -8,6 +8,11 @@ export async function GET() {
   const { forbidden } = await requireAdminApi();
   if (forbidden) return forbidden;
 
-  const leagues = await sql`SELECT * FROM leagues ORDER BY id ASC`;
+  const leagues = await sql`
+    SELECT l.*, v.name AS venue_name
+    FROM leagues l
+    LEFT JOIN venues v ON v.id = l.venue_id
+    ORDER BY l.id ASC
+  `;
   return Response.json({ leagues });
 }
