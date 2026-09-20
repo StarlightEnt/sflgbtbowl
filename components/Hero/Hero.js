@@ -12,10 +12,10 @@ export default function Hero() {
       <div className={styles.overlay} />
       <div className={styles.content}>
         <h1 className={`display ${styles.heading}`}>
-          Wednesday night bowling, for everyone.
+          Wednesday and Sunday night bowling, for everyone.
         </h1>
         <p className={styles.tagline}>
-          San Francisco&apos;s LGBTQ+ community bowling league — beginners
+          San Francisco&apos;s LGBTQ+ community bowling leagues — beginners
           welcome, teams forming now, every lane open to you.
         </p>
         <a href="#contact" className="btn">
