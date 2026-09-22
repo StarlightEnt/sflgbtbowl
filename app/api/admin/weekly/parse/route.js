@@ -33,7 +33,8 @@ export async function POST(req) {
   let result;
   try {
     result = await parseLeagueStandingsPDF(buffer);
-  } catch {
+  } catch (err) {
+    console.error("weekly/parse failed:", err);
     return Response.json({ error: "Could not read PDF" }, { status: 400 });
   }
 
