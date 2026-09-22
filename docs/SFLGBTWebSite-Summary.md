@@ -35,6 +35,15 @@ before moving to the next.
    text and explicitly approved** — added after an initial fix (see §16) was built
    and delivered without that discussion first, which drew an explicit correction
    from Alli. Applies even to small, seemingly obvious fixes.
+   **Clarified (Sept 22, 2026):** this rule covers **any** deviation from a task
+   file's specified approach, not just design/architectural decisions —
+   including implementation details. Where a task file leaves something
+   ambiguous or genuinely underspecified (e.g. an exact tolerance value, an
+   uncertain config syntax), the rule is to stop and confirm before picking an
+   approach, rather than choosing one and explaining it after the fact in the
+   completion report. Alli's stated rationale: getting it right the first time
+   avoids wasted time and tokens re-doing work — confirm-then-build costs less
+   than build-then-correct.
 
 ---
 
@@ -1167,6 +1176,19 @@ grouping key (real line spacing is ~10-11pt in both fixtures, so this has
 huge safety margin against merging distinct rows). Confirmed: all 5
 matchups now parse correctly, including Team 8's.
 
+**Correction (Claude Code's commit-time review, Sept 22, 2026):** the fix
+description above is imprecise about the actual implementation. What
+shipped groups a row's text items by y-coordinate within a **0.01pt
+tolerance**, not exact equality or naive rounding. Naive rounding to a fixed
+decimal (e.g. one decimal place, as described above) was considered but
+rejected during implementation: some real rows sit on values like `x.x5`,
+which can round inconsistently across different items on the same row due
+to floating-point representation — risking splitting a genuine row instead
+of fixing the false split this bug caused. Real line spacing (~10-11pt in
+both fixtures) leaves enormous margin against merging distinct rows at this
+tolerance. The verification claim stands as originally written: all 5
+matchups now parse correctly, including Team 8's.
+
 **Confirmed with Alli:** Team 8 did not show up for Week 2; the game will be
 made up and a replacement standing sheet issued later. This is expected to
 go through the existing Danger Zone delete-and-re-upload flow once that
@@ -1245,5 +1267,20 @@ and every fix was confirmed against the real production deployment and a
 real upload — not just `next build`/lint passing. 18.1 in particular is a
 direct example of why: it could not have been caught by local/dev-server
 testing at all, only by testing the actual deployed function.
+
+**Correction (Claude Code's commit-time review, Sept 22, 2026):** the
+paragraph above overstates what actually happened this session. Each fix
+was verified with local builds and direct comparisons against the real GG
+and LWC fixture PDFs, plus confirming each deployment reached `Ready` on
+Production — not just `next build`/lint passing. The working tree was
+already clean and level with `origin/main` throughout this session, so no
+`git fetch && git reset --hard` was actually needed this time (§16.6's
+hazard is still real and still worth checking for, just not what triggered
+here). Production upload behavior itself (parsing and publishing against
+Alli's real admin uploads) was verified separately, in the design/build
+chat session — Claude Code did not observe those upload attempts directly.
+18.1 is still a direct example of why that separate verification mattered:
+it could not have been caught by local/dev-server testing at all, only by
+testing the actual deployed function against a real upload.
 
 ---
