@@ -116,8 +116,9 @@ export default function WeeklyStandingSheetForm({ seasonId, history, leagueSlug,
 
       const payload = {
         weekNumber: parseData.weekNumber,
-        teamStandings: parseData.teamStandings.map(({ teamId, pointsWon, pointsLost, pctWon }) => ({
+        teamStandings: parseData.teamStandings.map(({ teamId, teamName, pointsWon, pointsLost, pctWon }) => ({
           teamId,
+          teamName,
           pointsWon,
           pointsLost,
           pctWon,
