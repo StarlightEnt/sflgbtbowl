@@ -244,6 +244,9 @@ permanent admin features):
 - The half-point text format in standing sheet PDFs is still unverified — every
   real example seen so far has been whole numbers. The parser only handles the
   whole-number case; extending it needs a real half-point example first.
+  **RESOLVED — see §19.** The real LWC Week 3 sheet (9/23/2026) supplied the
+  example: a half prints as the single character "½" glued to the whole
+  number ("5½", "4½"). The parser now reads it.
 - **Added (§17):** the Venues feature (§17) was built and verified on the dev
   server only — its source notes don't confirm whether the new `venues` table's
   migration (and the drop of `leagues`' old free-text venue columns) has been
@@ -1282,5 +1285,91 @@ chat session — Claude Code did not observe those upload attempts directly.
 18.1 is still a direct example of why that separate verification mattered:
 it could not have been caught by local/dev-server testing at all, only by
 testing the actual deployed function against a real upload.
+
+---
+
+## 19. Half-point parsing fix: "½" was being dropped from Team Standings
+
+**Session date:** September 30, 2026
+**Commit applied and pushed to `main`:** `4811bb1` (touches only
+`lib/pdf/parseLeagueStandings.js`).
+
+Alli noticed the League Dashboard's Team Standings didn't match the real
+Week 3 sheet (`LeagueStandingSheet-Wk03Final-Corrected.pdf`, LWC, 9/23/2026).
+Half points had been discussed in earlier design work — including printing
+the half as a single character — but that handling had never been carried
+into the parser, which is what §8 had flagged as an open follow-up.
+
+### 19.1 Symptom
+
+| Team | Sheet prints | Site showed | Site %Won | Correct %Won |
+|---|---|---|---|---|
+| Wisteria Lanes | 5½ – 6½ | 5 – 6 | 45.5 | 45.8 |
+| Pilsner Penguins | 4½ – 7½ | 4 – 7 | 36.4 | 37.5 |
+
+Both the record and the percentage were wrong, because `pct_won` is computed
+from the parsed points and the truncation also shrank the total.
+
+### 19.2 Root cause
+
+In `parseLeagueStandingsPDF`, the Team Standings Won/Lost values and the
+"Review of Last Week's Bowling" WON values were read with
+`parseInt(item.str, 10) || 0`. `parseInt("5½")` stops at the "½" and returns
+5, so every half point was silently dropped with no error. Nothing downstream
+was at fault: the `team_standings` and `weekly_results` point columns are
+already `NUMERIC(5,1)` (§4), and `lib/formatPoints.js` already renders `.5`
+as "½". Only the parser lost the value.
+
+### 19.3 Fix
+
+Added `parsePointsValue(str)` beside `parseAverageValue` in
+`lib/pdf/parseLeagueStandings.js`. It accepts a whole number, a whole number
+followed by "½" (or ".5"), or a bare "½" alone, and falls back to the old
+`parseInt(...) || 0` behavior for anything else. It is used in three places:
+Team Standings `points_won` and `points_lost`, and weekly results
+`team_a_points` and `team_b_points`. No schema, formatter, or UI changes.
+
+### 19.4 Verification, and its limits
+
+Run locally against the real Week 3 PDF: Wisteria Lanes parses as 5.5 / 6.5
+(45.8) and Pilsner Penguins as 4.5 / 7.5 (37.5); every other team row matches
+the sheet. Limits worth knowing:
+
+- **Weekly results half-point path is unverified against real data.** Week 3's
+  last-week matchups contained only whole numbers, so that half of the fix
+  was applied for consistency and is covered only by the same helper.
+- A bare "½" with no whole number (a team on half a point) is handled but has
+  not appeared in any real sheet yet.
+- No automated test was added; verification was a one-off script against the
+  real PDF.
+- Production deployment status and the re-upload below were **not observed**
+  by the session that made the fix.
+
+### 19.5 Action still required: re-upload Week 3
+
+The stored Week 3 standings rows are the truncated values from before the fix.
+Correcting them needs the existing Danger Zone delete of Week 3's standing
+sheet, then a fresh upload and publish once the fix is deployed (same flow as
+§18.2's planned Team 8 replacement sheet). Per §18.3, use a fresh browser
+session or reload the tab, since Publish trusts already-parsed client state
+and a stale tab can resubmit pre-fix data.
+
+### 19.6 Noted, not changed: the BYE row
+
+On the sheet, BYE prints 1 – 11 with a blank %Won. The parser reads 1 and 11
+and computes 8.3 for it. The screenshot of the dashboard lists 13 teams
+without BYE, so it appears to be hidden on display. This was not investigated
+in code or changed. An earlier message in the session incorrectly said the
+sheet prints 0 for BYE; the sheet text shows 1 – 11.
+
+### 19.7 Process notes
+
+- The session's sandbox did not have the repo at first. It was attached and
+  cloned fresh, and the fix was built on top of `359663e`. The first push was
+  refused with a 403 because the Claude GitHub App lacked access to the
+  StarlightEnt org; after Alli fixed the app's access, the push to `main`
+  succeeded (`359663e..4811bb1`).
+- `npm install` rewrote `package-lock.json` in the sandbox; it was reverted
+  and not committed, so the commit contains only the parser change.
 
 ---
