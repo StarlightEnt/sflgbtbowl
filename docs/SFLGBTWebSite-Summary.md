@@ -1373,3 +1373,17 @@ sheet prints 0 for BYE; the sheet text shows 1 – 11.
   and not committed, so the commit contains only the parser change.
 
 ---
+
+### 19.8 Confirmed in production (Sept 30, 2026)
+
+Alli deleted and re-uploaded the corrected Week 3 sheet after the fix
+deployed, and confirmed the live League Dashboard now matches the sheet.
+A screenshot of the live page shows Wisteria Lanes at 5½–6½ (45.8) and
+Pilsner Penguins at 4½–7½ (37.5), with all other rows unchanged. This
+closes the open items in §19.4 (production deployment) and §19.5 (Week 3
+re-upload). The BYE row is not shown on the dashboard (13 teams listed),
+which confirms the display-side observation in §19.6. The weekly-results
+half-point caveat in §19.4 still stands: the Week 3 last-week results strip
+showed whole numbers only.
+
+---
