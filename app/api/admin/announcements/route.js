@@ -1,5 +1,6 @@
 import { requireAdminOrOfficerApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
+import { createAnnouncement, ValidationError } from "@/lib/announcements/saveAnnouncement";
 
 const MAX_TITLE_LEN = 120;
 
@@ -10,7 +11,7 @@ export async function POST(req) {
   const { email, forbidden } = await requireAdminOrOfficerApi();
   if (forbidden) return forbidden;
 
-  const { title, body } = await req.json();
+  const { title, body, leagueIds } = await req.json();
   const trimmedTitle = (title ?? "").trim();
   const trimmedBody = (body ?? "").trim();
   if (!trimmedTitle) {
@@ -26,10 +27,19 @@ export async function POST(req) {
   const bowlerRows = await sql`SELECT id FROM bowlers WHERE email = ${email}`;
   const posterBowlerId = bowlerRows[0]?.id ?? null;
 
-  const rows = await sql`
-    INSERT INTO announcements (title, body, posted_by_bowler_id, posted_by_email)
-    VALUES (${trimmedTitle}, ${trimmedBody}, ${posterBowlerId}, ${email})
-    RETURNING id
-  `;
-  return Response.json({ ok: true, id: rows[0].id });
+  try {
+    const id = await createAnnouncement({
+      title: trimmedTitle,
+      body: trimmedBody,
+      posterBowlerId,
+      postedByEmail: email,
+      leagueIds,
+    });
+    return Response.json({ ok: true, id });
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      return Response.json({ error: err.message }, { status: 400 });
+    }
+    throw err;
+  }
 }

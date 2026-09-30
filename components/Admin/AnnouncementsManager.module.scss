@@ -64,6 +64,38 @@
   }
 }
 
+.leagueChecks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+
+  // Overrides .field label's uppercase field-label styling for the
+  // per-league checkbox labels.
+  .leagueCheck {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--sflgbtbowl-ink);
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+  }
+}
+
+.fieldNote {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--sflgbtbowl-red);
+}
+
 .formActions {
   display: flex;
   gap: 10px;
@@ -120,6 +152,22 @@
   border-radius: 999px;
   margin-right: 8px;
   vertical-align: middle;
+}
+
+// Muted variant of .pinBadge for the per-league tags.
+.leagueBadge {
+  color: var(--sflgbtbowl-ink-dim);
+  background: rgba(244, 241, 251, 0.08);
+  border: 1px solid rgba(244, 241, 251, 0.16);
+  margin-right: 0;
+}
+
+.announceMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
 }
 
 .announceDate {

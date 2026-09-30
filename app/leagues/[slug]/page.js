@@ -79,14 +79,19 @@ export default async function LeagueDashboardPage({ params }) {
     `,
   ]);
 
-  // Not season-scoped (announcements table has no FK) — same query
-  // shape as GET /api/announcements, read directly here rather than
-  // self-fetching that route, matching how every other section of
-  // this server component reads its data.
+  // Not season-scoped, but league-tagged: only announcements tagged for
+  // this league in announcement_leagues. Same filter as
+  // GET /api/announcements?league=<slug>, read directly here rather than
+  // self-fetching that route, matching how every other section of this
+  // server component reads its data.
   const announcements = await sql`
-    SELECT id, title, body, is_pinned, created_at
-    FROM announcements
-    ORDER BY is_pinned DESC, created_at DESC
+    SELECT a.id, a.title, a.body, a.is_pinned, a.created_at
+    FROM announcements a
+    WHERE EXISTS (
+      SELECT 1 FROM announcement_leagues al
+      WHERE al.announcement_id = a.id AND al.league_id = ${league.id}
+    )
+    ORDER BY a.is_pinned DESC, a.created_at DESC
   `;
 
   const totalWeeks = totalWeeksRows[0]?.total_weeks ?? null;

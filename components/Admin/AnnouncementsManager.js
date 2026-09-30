@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./AnnouncementsManager.module.scss";
 
-function emptyDraft() {
-  return { title: "", body: "" };
+// New announcements start tagged for every league; the admin unchecks
+// any it shouldn't show on.
+function emptyDraft(leagues) {
+  return { title: "", body: "", leagueIds: leagues.map((l) => l.id) };
 }
 
 // timeZone: "UTC" is load-bearing, not decorative (see
@@ -25,11 +27,11 @@ function formatDate(d) {
   });
 }
 
-export default function AnnouncementsManager({ announcements }) {
+export default function AnnouncementsManager({ announcements, leagues }) {
   const router = useRouter();
 
   const [editingId, setEditingId] = useState(null); // null = not editing, "new" = create form
-  const [draft, setDraft] = useState(emptyDraft());
+  const [draft, setDraft] = useState(() => emptyDraft(leagues));
   const [saveStatus, setSaveStatus] = useState("idle");
   const [saveError, setSaveError] = useState("");
   const [busyId, setBusyId] = useState(null);
@@ -37,21 +39,30 @@ export default function AnnouncementsManager({ announcements }) {
 
   function startCreate() {
     setEditingId("new");
-    setDraft(emptyDraft());
+    setDraft(emptyDraft(leagues));
     setSaveError("");
   }
 
   function startEdit(a) {
     setEditingId(a.id);
-    setDraft({ title: a.title, body: a.body });
+    setDraft({ title: a.title, body: a.body, leagueIds: a.leagues.map((l) => l.id) });
     setSaveError("");
   }
 
   function cancelEdit() {
     setEditingId(null);
-    setDraft(emptyDraft());
+    setDraft(emptyDraft(leagues));
     setSaveError("");
   }
+
+  function toggleLeague(leagueId, checked) {
+    setDraft((d) => ({
+      ...d,
+      leagueIds: checked ? [...d.leagueIds, leagueId] : d.leagueIds.filter((id) => id !== leagueId),
+    }));
+  }
+
+  const noLeaguesSelected = draft.leagueIds.length === 0;
 
   async function handleSave(e) {
     e.preventDefault();
@@ -69,7 +80,7 @@ export default function AnnouncementsManager({ announcements }) {
       if (!res.ok) throw new Error(data.error || "Save failed");
       setSaveStatus("idle");
       setEditingId(null);
-      setDraft(emptyDraft());
+      setDraft(emptyDraft(leagues));
       router.refresh();
     } catch (err) {
       setSaveError(err.message);
@@ -118,8 +129,8 @@ export default function AnnouncementsManager({ announcements }) {
         <div>
           <h1 className={`display ${styles.heading}`}>Announcements</h1>
           <p className={styles.sub}>
-            Pinned announcements always show first on the public League Dashboard, then newest
-            first.
+            Choose which leagues each announcement shows on. Pinned announcements show first, then
+            newest first.
           </p>
         </div>
         {editingId === null && (
@@ -152,9 +163,25 @@ export default function AnnouncementsManager({ announcements }) {
                 required
               />
             </div>
+            <div className={styles.field}>
+              <label>Show on</label>
+              <div className={styles.leagueChecks}>
+                {leagues.map((l) => (
+                  <label key={l.id} className={styles.leagueCheck}>
+                    <input
+                      type="checkbox"
+                      checked={draft.leagueIds.includes(l.id)}
+                      onChange={(e) => toggleLeague(l.id, e.target.checked)}
+                    />
+                    {l.name}
+                  </label>
+                ))}
+              </div>
+              {noLeaguesSelected && <div className={styles.fieldNote}>Select at least one league</div>}
+            </div>
             {saveStatus === "error" && <div className={styles.statusError}>✕ {saveError}</div>}
             <div className={styles.formActions}>
-              <button type="submit" className="btn" disabled={saveStatus === "saving"}>
+              <button type="submit" className="btn" disabled={saveStatus === "saving" || noLeaguesSelected}>
                 {saveStatus === "saving" ? "Saving…" : "Save"}
               </button>
               <button type="button" className={styles.btnCancel} onClick={cancelEdit}>
@@ -177,7 +204,14 @@ export default function AnnouncementsManager({ announcements }) {
                 {a.is_pinned && <span className={styles.pinBadge}>📌 Pinned</span>}
                 {a.title}
               </div>
-              <div className={styles.announceDate}>Posted {formatDate(a.created_at)}</div>
+              <div className={styles.announceMeta}>
+                {a.leagues.map((l) => (
+                  <span key={l.id} className={`${styles.pinBadge} ${styles.leagueBadge}`}>
+                    {l.name}
+                  </span>
+                ))}
+                <span className={styles.announceDate}>Posted {formatDate(a.created_at)}</span>
+              </div>
             </div>
             <p className={styles.announceBody}>{a.body}</p>
             <div className={styles.rowActions}>

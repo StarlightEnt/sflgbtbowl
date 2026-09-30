@@ -1,5 +1,6 @@
 import { requireAdminOrOfficerApi } from "@/lib/requireAdminApi";
 import { sql } from "@/lib/db";
+import { updateAnnouncement, ValidationError, NotFoundError } from "@/lib/announcements/saveAnnouncement";
 
 const MAX_TITLE_LEN = 120;
 
@@ -13,7 +14,7 @@ export async function PUT(req, { params }) {
     return Response.json({ error: "Invalid announcement id" }, { status: 400 });
   }
 
-  const { title, body } = await req.json();
+  const { title, body, leagueIds } = await req.json();
   const trimmedTitle = (title ?? "").trim();
   const trimmedBody = (body ?? "").trim();
   if (!trimmedTitle) {
@@ -26,14 +27,16 @@ export async function PUT(req, { params }) {
     return Response.json({ error: "A body is required" }, { status: 400 });
   }
 
-  const rows = await sql`
-    UPDATE announcements
-    SET title = ${trimmedTitle}, body = ${trimmedBody}, updated_at = now()
-    WHERE id = ${announcementId}
-    RETURNING id
-  `;
-  if (rows.length === 0) {
-    return Response.json({ error: "Announcement not found" }, { status: 404 });
+  try {
+    await updateAnnouncement({ id: announcementId, title: trimmedTitle, body: trimmedBody, leagueIds });
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return Response.json({ error: "Announcement not found" }, { status: 404 });
+    }
+    if (err instanceof ValidationError) {
+      return Response.json({ error: err.message }, { status: 400 });
+    }
+    throw err;
   }
   return Response.json({ ok: true });
 }
