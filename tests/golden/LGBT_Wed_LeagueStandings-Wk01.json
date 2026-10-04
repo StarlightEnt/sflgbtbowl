@@ -1,0 +1,796 @@
+{
+  "week_number": 1,
+  "week_date": "9/9/2026",
+  "teams": [
+    {
+      "team_number": 1,
+      "team_name": "Snappy Backends",
+      "bowlers": [
+        {
+          "first_name": "Mark",
+          "last_name": "Bertelsen",
+          "full_name": "Mark Bertelsen",
+          "real_average": 173,
+          "is_captain": false
+        },
+        {
+          "first_name": "Patrick",
+          "last_name": "Mebine",
+          "full_name": "Patrick Mebine",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Glenn",
+          "last_name": "Normandin",
+          "full_name": "Glenn Normandin",
+          "real_average": 185,
+          "is_captain": true
+        },
+        {
+          "first_name": "Charlie",
+          "last_name": "Esteban",
+          "full_name": "Charlie Esteban",
+          "real_average": 0,
+          "is_captain": false
+        }
+      ]
+    },
+    {
+      "team_number": 2,
+      "team_name": "Pity Party of Fo",
+      "bowlers": [
+        {
+          "first_name": "Robert",
+          "last_name": "Hughes",
+          "full_name": "Robert Hughes",
+          "real_average": 175,
+          "is_captain": true
+        },
+        {
+          "first_name": "Rian",
+          "last_name": "Vandermaden",
+          "full_name": "Rian Vandermaden",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Cathy",
+          "last_name": "Patterson",
+          "full_name": "Cathy Patterson",
+          "real_average": 161,
+          "is_captain": false
+        },
+        {
+          "first_name": "Richard",
+          "last_name": "Perez",
+          "full_name": "Richard Perez",
+          "real_average": 181,
+          "is_captain": false
+        }
+      ]
+    },
+    {
+      "team_number": 3,
+      "team_name": "Sacurrity",
+      "bowlers": [
+        {
+          "first_name": "Joseph",
+          "last_name": "Johnson",
+          "full_name": "Joseph Johnson",
+          "real_average": 139,
+          "is_captain": false
+        },
+        {
+          "first_name": "Mark",
+          "last_name": "Parrott",
+          "full_name": "Mark Parrott",
+          "real_average": 129,
+          "is_captain": true
+        },
+        {
+          "first_name": "Walter",
+          "last_name": "Turner",
+          "full_name": "Walter Turner",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Vince",
+          "last_name": "Wilson",
+          "full_name": "Vince Wilson",
+          "real_average": 179,
+          "is_captain": false
+        }
+      ]
+    },
+    {
+      "team_number": 4,
+      "team_name": "Gutter Fillers",
+      "bowlers": [
+        {
+          "first_name": "Stephen",
+          "last_name": "Yu",
+          "full_name": "Stephen Yu",
+          "real_average": 151,
+          "is_captain": false
+        },
+        {
+          "first_name": "Ric",
+          "last_name": "Lewis",
+          "full_name": "Ric Lewis",
+          "real_average": 150,
+          "is_captain": true
+        },
+        {
+          "first_name": "Micah",
+          "last_name": "Castro",
+          "full_name": "Micah Castro",
+          "real_average": 171,
+          "is_captain": false
+        },
+        {
+          "first_name": "Jeremy",
+          "last_name": "Schrader",
+          "full_name": "Jeremy Schrader",
+          "real_average": 156,
+          "is_captain": false
+        }
+      ]
+    },
+    {
+      "team_number": 5,
+      "team_name": "O'Malley & The Sallys",
+      "bowlers": [
+        {
+          "first_name": "John",
+          "last_name": "Bernier",
+          "full_name": "John Bernier",
+          "real_average": 126,
+          "is_captain": false
+        },
+        {
+          "first_name": "Wade",
+          "last_name": "Crosson",
+          "full_name": "Wade Crosson",
+          "real_average": 161,
+          "is_captain": false
+        },
+        {
+          "first_name": "Patrick",
+          "last_name": "O'Connor",
+          "full_name": "Patrick O'Connor",
+          "real_average": 140,
+          "is_captain": true
+        },
+        {
+          "first_name": "Saman",
+          "last_name": "Oun",
+          "full_name": "Saman Oun",
+          "real_average": 156,
+          "is_captain": false
+        }
+      ]
+    },
+    {
+      "team_number": 6,
+      "team_name": "Pick Up Artists",
+      "bowlers": [
+        {
+          "first_name": "Chad",
+          "last_name": "Amsler",
+          "full_name": "Chad Amsler",
+          "real_average": 124,
+          "is_captain": false
+        },
+        {
+          "first_name": "Todd",
+          "last_name": "Nagengast",
+          "full_name": "Todd Nagengast",
+          "real_average": 184,
+          "is_captain": false
+        },
+        {
+          "first_name": "Duane",
+          "last_name": "Flohra",
+          "full_name": "Duane Flohra",
+          "real_average": 188,
+          "is_captain": false
+        },
+        {
+          "first_name": "Henry",
+          "last_name": "Stockwell",
+          "full_name": "Henry Stockwell",
+          "real_average": 203,
+          "is_captain": true
+        }
+      ]
+    },
+    {
+      "team_number": 7,
+      "team_name": "Wisteria Lanes",
+      "bowlers": [
+        {
+          "first_name": "Keith",
+          "last_name": "Myers",
+          "full_name": "Keith Myers",
+          "real_average": 133,
+          "is_captain": false
+        },
+        {
+          "first_name": "Andy",
+          "last_name": "LeClair",
+          "full_name": "Andy LeClair",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Peter",
+          "last_name": "Grady",
+          "full_name": "Peter Grady",
+          "real_average": 164,
+          "is_captain": true
+        },
+        {
+          "first_name": "Kirk",
+          "last_name": "Smith",
+          "full_name": "Kirk Smith",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Robert",
+          "last_name": "Martin",
+          "full_name": "Robert Martin",
+          "real_average": 142,
+          "is_captain": false
+        }
+      ]
+    },
+    {
+      "team_number": 8,
+      "team_name": "Rocky Squirrels",
+      "bowlers": [
+        {
+          "first_name": "Peter",
+          "last_name": "Thomas",
+          "full_name": "Peter Thomas",
+          "real_average": 122,
+          "is_captain": false
+        },
+        {
+          "first_name": "John",
+          "last_name": "Francis Unson",
+          "full_name": "John Francis Unson",
+          "real_average": 128,
+          "is_captain": false
+        },
+        {
+          "first_name": "Michael",
+          "last_name": "Cross",
+          "full_name": "Michael Cross",
+          "real_average": 192,
+          "is_captain": false
+        },
+        {
+          "first_name": "Robert",
+          "last_name": "Werner",
+          "full_name": "Robert Werner",
+          "real_average": 165,
+          "is_captain": true
+        }
+      ]
+    },
+    {
+      "team_number": 9,
+      "team_name": "Dawg Pound",
+      "bowlers": [
+        {
+          "first_name": "James",
+          "last_name": "Camarillo",
+          "full_name": "James Camarillo",
+          "real_average": 166,
+          "is_captain": false
+        },
+        {
+          "first_name": "Michael",
+          "last_name": "Harrington",
+          "full_name": "Michael Harrington",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Joe",
+          "last_name": "Kelso",
+          "full_name": "Joe Kelso",
+          "real_average": 159,
+          "is_captain": false
+        },
+        {
+          "first_name": "Robert",
+          "last_name": "Whitman",
+          "full_name": "Robert Whitman",
+          "real_average": 158,
+          "is_captain": true
+        }
+      ]
+    },
+    {
+      "team_number": 10,
+      "team_name": "Pilsner Penguins",
+      "bowlers": [
+        {
+          "first_name": "Brian",
+          "last_name": "Kneuker",
+          "full_name": "Brian Kneuker",
+          "real_average": 160,
+          "is_captain": false
+        },
+        {
+          "first_name": "David",
+          "last_name": "Caldera",
+          "full_name": "David Caldera",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Charles",
+          "last_name": "Reader",
+          "full_name": "Charles Reader",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Bryan",
+          "last_name": "Hoff",
+          "full_name": "Bryan Hoff",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Darryl",
+          "last_name": "Lee",
+          "full_name": "Darryl Lee",
+          "real_average": 0,
+          "is_captain": true
+        }
+      ]
+    },
+    {
+      "team_number": 11,
+      "team_name": "Taste The Rainbow",
+      "bowlers": [
+        {
+          "first_name": "Raymond",
+          "last_name": "Evans",
+          "full_name": "Raymond Evans",
+          "real_average": 141,
+          "is_captain": false
+        },
+        {
+          "first_name": "Don",
+          "last_name": "Corbiell",
+          "full_name": "Don Corbiell",
+          "real_average": 0,
+          "is_captain": false
+        },
+        {
+          "first_name": "Samuel",
+          "last_name": "Kohler",
+          "full_name": "Samuel Kohler",
+          "real_average": 128,
+          "is_captain": false
+        },
+        {
+          "first_name": "Allison",
+          "last_name": "Laureano",
+          "full_name": "Allison Laureano",
+          "real_average": 145,
+          "is_captain": true
+        }
+      ]
+    },
+    {
+      "team_number": 12,
+      "team_name": "Wood Whackers",
+      "bowlers": [
+        {
+          "first_name": "John",
+          "last_name": "Riccuito",
+          "full_name": "John Riccuito",
+          "real_average": 163,
+          "is_captain": false
+        },
+        {
+          "first_name": "Rodney",
+          "last_name": "Duncan",
+          "full_name": "Rodney Duncan",
+          "real_average": 106,
+          "is_captain": false
+        },
+        {
+          "first_name": "Jerry",
+          "last_name": "Cox",
+          "full_name": "Jerry Cox",
+          "real_average": 110,
+          "is_captain": false
+        },
+        {
+          "first_name": "Ron",
+          "last_name": "Jury",
+          "full_name": "Ron Jury",
+          "real_average": 124,
+          "is_captain": true
+        }
+      ]
+    },
+    {
+      "team_number": 13,
+      "team_name": "StrikeForce",
+      "bowlers": [
+        {
+          "first_name": "Erric",
+          "last_name": "White",
+          "full_name": "Erric White",
+          "real_average": 166,
+          "is_captain": false
+        },
+        {
+          "first_name": "Todd",
+          "last_name": "Barrett",
+          "full_name": "Todd Barrett",
+          "real_average": 156,
+          "is_captain": false
+        },
+        {
+          "first_name": "Andrei",
+          "last_name": "Cobbs II",
+          "full_name": "Andrei Cobbs II",
+          "real_average": 153,
+          "is_captain": false
+        },
+        {
+          "first_name": "Kevin",
+          "last_name": "Ahart",
+          "full_name": "Kevin Ahart",
+          "real_average": 183,
+          "is_captain": true
+        }
+      ]
+    },
+    {
+      "team_number": 14,
+      "team_name": "BYE",
+      "bowlers": []
+    }
+  ],
+  "subs": [
+    {
+      "first_name": "Ray",
+      "last_name": "Aquino",
+      "full_name": "Ray Aquino",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Bryn",
+      "last_name": "Barone",
+      "full_name": "Bryn Barone",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Ryan",
+      "last_name": "Behrens",
+      "full_name": "Ryan Behrens",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Jonathan",
+      "last_name": "Chow",
+      "full_name": "Jonathan Chow",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Paul",
+      "last_name": "Chung",
+      "full_name": "Paul Chung",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Alex",
+      "last_name": "Dohrmann",
+      "full_name": "Alex Dohrmann",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Joe",
+      "last_name": "Dolen",
+      "full_name": "Joe Dolen",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Allister",
+      "last_name": "Fong",
+      "full_name": "Allister Fong",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Gregg",
+      "last_name": "Gaubatz",
+      "full_name": "Gregg Gaubatz",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Jeff",
+      "last_name": "Goldenberg",
+      "full_name": "Jeff Goldenberg",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Brandon",
+      "last_name": "Holroyd",
+      "full_name": "Brandon Holroyd",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Thomas",
+      "last_name": "Ligouri",
+      "full_name": "Thomas Ligouri",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Douglas",
+      "last_name": "Litwin",
+      "full_name": "Douglas Litwin",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "David",
+      "last_name": "Marks",
+      "full_name": "David Marks",
+      "real_average": 186,
+      "is_captain": false
+    },
+    {
+      "first_name": "Alfredo",
+      "last_name": "Martinez",
+      "full_name": "Alfredo Martinez",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Rich",
+      "last_name": "Martini",
+      "full_name": "Rich Martini",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Michael",
+      "last_name": "Masterson",
+      "full_name": "Michael Masterson",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Ken",
+      "last_name": "Mitchell",
+      "full_name": "Ken Mitchell",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Sean",
+      "last_name": "Pappas",
+      "full_name": "Sean Pappas",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Reagan",
+      "last_name": "Peralta",
+      "full_name": "Reagan Peralta",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Jorge",
+      "last_name": "Pinero",
+      "full_name": "Jorge Pinero",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Jesse",
+      "last_name": "Pugach",
+      "full_name": "Jesse Pugach",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Dave",
+      "last_name": "Savoni",
+      "full_name": "Dave Savoni",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "YuPing",
+      "last_name": "Toh",
+      "full_name": "YuPing Toh",
+      "real_average": 0,
+      "is_captain": false
+    },
+    {
+      "first_name": "Linda",
+      "last_name": "Wright",
+      "full_name": "Linda Wright",
+      "real_average": 0,
+      "is_captain": false
+    }
+  ],
+  "team_standings": [
+    {
+      "team_number": 2,
+      "team_name": "Pity Party of Fo",
+      "points_won": 3,
+      "points_lost": 1,
+      "pct_won": 75
+    },
+    {
+      "team_number": 9,
+      "team_name": "Dawg Pound",
+      "points_won": 3,
+      "points_lost": 1,
+      "pct_won": 75
+    },
+    {
+      "team_number": 13,
+      "team_name": "StrikeForce",
+      "points_won": 3,
+      "points_lost": 1,
+      "pct_won": 75
+    },
+    {
+      "team_number": 8,
+      "team_name": "Rocky Squirrels",
+      "points_won": 3,
+      "points_lost": 1,
+      "pct_won": 75
+    },
+    {
+      "team_number": 3,
+      "team_name": "Sacurrity",
+      "points_won": 3,
+      "points_lost": 1,
+      "pct_won": 75
+    },
+    {
+      "team_number": 11,
+      "team_name": "Taste The Rainbow",
+      "points_won": 3,
+      "points_lost": 1,
+      "pct_won": 75
+    },
+    {
+      "team_number": 5,
+      "team_name": "O'Malley & The Sallys",
+      "points_won": 2,
+      "points_lost": 2,
+      "pct_won": 50
+    },
+    {
+      "team_number": 6,
+      "team_name": "Pick Up Artists",
+      "points_won": 2,
+      "points_lost": 2,
+      "pct_won": 50
+    },
+    {
+      "team_number": 1,
+      "team_name": "Snappy Backends",
+      "points_won": 1,
+      "points_lost": 3,
+      "pct_won": 25
+    },
+    {
+      "team_number": 10,
+      "team_name": "Pilsner Penguins",
+      "points_won": 1,
+      "points_lost": 3,
+      "pct_won": 25
+    },
+    {
+      "team_number": 4,
+      "team_name": "Gutter Fillers",
+      "points_won": 1,
+      "points_lost": 3,
+      "pct_won": 25
+    },
+    {
+      "team_number": 7,
+      "team_name": "Wisteria Lanes",
+      "points_won": 1,
+      "points_lost": 3,
+      "pct_won": 25
+    },
+    {
+      "team_number": 12,
+      "team_name": "Wood Whackers",
+      "points_won": 1,
+      "points_lost": 3,
+      "pct_won": 25
+    },
+    {
+      "team_number": 14,
+      "team_name": "BYE",
+      "points_won": 1,
+      "points_lost": 3,
+      "pct_won": 25
+    }
+  ],
+  "weekly_results": [
+    {
+      "lane_pair": "1-2",
+      "team_a_number": 14,
+      "team_a_points": 1,
+      "team_b_number": 13,
+      "team_b_points": 3
+    },
+    {
+      "lane_pair": "3-4",
+      "team_a_number": 3,
+      "team_a_points": 3,
+      "team_b_number": 4,
+      "team_b_points": 1
+    },
+    {
+      "lane_pair": "5-6",
+      "team_a_number": 5,
+      "team_a_points": 2,
+      "team_b_number": 6,
+      "team_b_points": 2
+    },
+    {
+      "lane_pair": "7-8",
+      "team_a_number": 7,
+      "team_a_points": 1,
+      "team_b_number": 8,
+      "team_b_points": 3
+    },
+    {
+      "lane_pair": "9-10",
+      "team_a_number": 9,
+      "team_a_points": 3,
+      "team_b_number": 10,
+      "team_b_points": 1
+    },
+    {
+      "lane_pair": "11-12",
+      "team_a_number": 11,
+      "team_a_points": 3,
+      "team_b_number": 12,
+      "team_b_points": 1
+    },
+    {
+      "lane_pair": "13-14",
+      "team_a_number": 1,
+      "team_a_points": 1,
+      "team_b_number": 2,
+      "team_b_points": 3
+    }
+  ],
+  "capturesCaptainData": true
+}

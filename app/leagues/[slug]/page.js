@@ -116,7 +116,7 @@ export default async function LeagueDashboardPage({ params }) {
   let prebowlAuthState = "signed-out";
   let captainTeam = null;
   if (email) {
-    const bowlerRows = await sql`SELECT id FROM bowlers WHERE email = ${email}`;
+    const bowlerRows = await sql`SELECT id FROM bowlers WHERE lower(email) = lower(${email})`;
     if (bowlerRows.length > 0) {
       const membershipRows = await sql`
         SELECT lm.team_id, t.team_name

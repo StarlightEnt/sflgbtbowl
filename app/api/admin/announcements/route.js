@@ -24,7 +24,7 @@ export async function POST(req) {
     return Response.json({ error: "A body is required" }, { status: 400 });
   }
 
-  const bowlerRows = await sql`SELECT id FROM bowlers WHERE email = ${email}`;
+  const bowlerRows = await sql`SELECT id FROM bowlers WHERE lower(email) = lower(${email})`;
   const posterBowlerId = bowlerRows[0]?.id ?? null;
 
   try {

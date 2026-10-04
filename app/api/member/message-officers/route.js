@@ -24,7 +24,7 @@ export async function POST(req) {
     return Response.json({ error: "Subject and message are required" }, { status: 400 });
   }
 
-  const bowlerRows = await sql`SELECT first_name, last_name FROM bowlers WHERE email = ${email}`;
+  const bowlerRows = await sql`SELECT first_name, last_name FROM bowlers WHERE lower(email) = lower(${email})`;
   const senderName = bowlerRows[0]
     ? `${bowlerRows[0].first_name} ${bowlerRows[0].last_name}`
     : session.user?.name || email;

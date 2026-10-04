@@ -3,6 +3,7 @@ import { isAdmin, isMember, isOfficer } from "@/lib/auth-helpers";
 import { sql } from "@/lib/db";
 import { getCurrentSeason } from "@/lib/currentSeason";
 import { canViewContactInfo } from "@/lib/canViewContactInfo";
+import { normalizeEmail } from "@/lib/normalizeEmail";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -10,7 +11,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // so neither has to call isOfficer/isAdmin a second time.
 async function getViewerContext(email) {
   const [admin, officer] = await Promise.all([isAdmin(email), isOfficer(email)]);
-  const rows = await sql`SELECT id FROM bowlers WHERE email = ${email}`;
+  const rows = await sql`SELECT id FROM bowlers WHERE lower(email) = lower(${email})`;
   return { isAdminViewer: admin, isOfficerViewer: officer, viewerBowlerId: rows[0]?.id ?? null };
 }
 
@@ -224,7 +225,9 @@ export async function PUT(req, { params }) {
   // matches bowlerDisplayName()'s own fallback in lib/displayName.js,
   // so the stored flag never claims a display behavior that isn't real.
   const nicknameUseInDisplay = Boolean(body.nicknameUseInDisplay) && Boolean(nickname);
-  const newEmail = (body.email ?? "").trim() || null;
+  // Stored trimmed + lowercased (lib/normalizeEmail.js) so it always matches
+  // the address a sign-in produces, whatever case an officer typed.
+  const newEmail = normalizeEmail(body.email);
   const phone = (body.phone ?? "").trim() || null;
   const usbcId = (body.usbcId ?? "").trim() || null;
 
@@ -249,7 +252,7 @@ export async function PUT(req, { params }) {
     `;
   } catch (err) {
     if (err.code === "23505") {
-      if (err.constraint === "idx_bowlers_email_unique") {
+      if (err.constraint === "idx_bowlers_email_lower_unique" || err.constraint === "idx_bowlers_email_unique") {
         return Response.json({ error: "That email is already in use by another bowler" }, { status: 400 });
       }
       return Response.json({ error: "That USBC ID is already in use by another bowler" }, { status: 400 });

@@ -18,7 +18,7 @@ export async function POST(req) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const bowlerRows = await sql`SELECT id FROM bowlers WHERE email = ${email}`;
+  const bowlerRows = await sql`SELECT id FROM bowlers WHERE lower(email) = lower(${email})`;
   if (bowlerRows.length === 0) {
     return Response.json({ error: "No bowler record found for this account" }, { status: 403 });
   }
