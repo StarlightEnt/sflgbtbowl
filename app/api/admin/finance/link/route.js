@@ -10,7 +10,25 @@ export async function POST(req) {
   const { email, forbidden } = await requireAdminOrOfficerApi();
   if (forbidden) return forbidden;
 
-  const { rowId, bowlerId } = await req.json();
+  const body = await req.json();
+
+  // Bulk confirm: every automatic match in one season becomes approved.
+  // Only rows that already have a bowler and are still 'auto' change.
+  if (body.confirmAllSeasonId !== undefined) {
+    const sid = Number(body.confirmAllSeasonId);
+    if (!Number.isInteger(sid)) {
+      return Response.json({ error: "Invalid season id" }, { status: 400 });
+    }
+    const confirmed = await sql`
+      UPDATE finance_rows
+      SET link_status = 'approved', linked_by_email = ${email}, linked_at = now()
+      WHERE season_id = ${sid} AND link_status = 'auto' AND bowler_id IS NOT NULL
+      RETURNING id
+    `;
+    return Response.json({ ok: true, confirmed: confirmed.length });
+  }
+
+  const { rowId, bowlerId } = body;
   const rid = Number(rowId);
   if (!Number.isInteger(rid)) {
     return Response.json({ error: "Invalid row id" }, { status: 400 });

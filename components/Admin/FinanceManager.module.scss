@@ -188,3 +188,16 @@
   font-size: 0.85rem;
   flex-wrap: wrap;
 }
+
+.confirmBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(184, 116, 255, 0.08);
+  border: 1px solid rgba(184, 116, 255, 0.25);
+  font-size: 0.82rem;
+}

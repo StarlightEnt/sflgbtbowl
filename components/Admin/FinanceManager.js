@@ -84,6 +84,10 @@ function Section({ section }) {
   const final2Open = section.rows.filter((r) => r.final2Applies && r.final2Marked < 2).length;
   const arrears = section.rows.filter((r) => r.inArrears).length;
 
+  const autoCount = section.rows.filter((r) => r.linkStatus === "auto").length;
+  const confirmAll = () =>
+    run(() => post("/api/admin/finance/link", "POST", { confirmAllSeasonId: section.id }));
+
   const link = (rowId, bowlerId) => run(() => post("/api/admin/finance/link", "POST", { rowId, bowlerId }));
 
   return (
@@ -160,6 +164,15 @@ function Section({ section }) {
       </div>
 
       <h3 className={styles.subhead}>Bowlers</h3>
+      {autoCount > 0 && (
+        <div className={styles.confirmBar}>
+          {autoCount} names were matched automatically. Rows where the sheet name differs from the
+          site name show a Confirm button; otherwise confirm them all at once.
+          <button className={styles.smallBtn} disabled={busy} onClick={confirmAll}>
+            Confirm all {autoCount}
+          </button>
+        </div>
+      )}
       <div className={styles.sortRow}>
         Sort by{" "}
         <button
@@ -211,11 +224,14 @@ function Section({ section }) {
                   <td>{r.inArrears ? <span className={styles.warn}>⚠ Yes</span> : "—"}</td>
                   <td>
                     {r.linkStatus === "approved" && <span className={styles.good}>✓ Linked</span>}
-                    {r.linkStatus === "auto" && (
-                      <button className={styles.smallBtn} disabled={busy} onClick={() => link(r.id, r.bowlerId)}>
-                        Confirm match
-                      </button>
-                    )}
+                    {r.linkStatus === "auto" &&
+                      (r.siteName && r.siteName !== r.sheetName ? (
+                        <button className={styles.smallBtn} disabled={busy} onClick={() => link(r.id, r.bowlerId)}>
+                          Confirm match
+                        </button>
+                      ) : (
+                        <span className={styles.sheetName}>Auto (same name)</span>
+                      ))}
                     {r.linkStatus === "unmatched" && <span className={styles.warn}>⚠ Not linked</span>}
                   </td>
                 </tr>
