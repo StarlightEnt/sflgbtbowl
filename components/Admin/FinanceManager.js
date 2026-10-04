@@ -280,10 +280,10 @@ function Section({ section }) {
   );
 }
 
-export default function FinanceManager({ sections }) {
+export default function FinanceManager({ leagueName, sections }) {
   return (
     <>
-      <h1 className={`display ${styles.heading}`}>Finances</h1>
+      <h1 className={`display ${styles.heading}`}>{leagueName} — Finances</h1>
       <p className={styles.sub}>
         Payments, balances, and the final-two-weeks tracker for every team, from the treasurer&apos;s
         spreadsheet. Visible to officers and admins only.

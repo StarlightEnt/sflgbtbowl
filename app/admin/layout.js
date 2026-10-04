@@ -27,9 +27,27 @@ export default async function AdminLayout({ children }) {
   const leagues =
     admin || officer ? await sql`SELECT id, name, slug FROM leagues ORDER BY id ASC` : [];
 
+  // Finances are per league: only leagues that actually have finance
+  // data loaded get the sidebar link.
+  const financeRows =
+    admin || officer
+      ? await sql`
+          SELECT DISTINCT l.slug
+          FROM finance_meta fm
+          JOIN seasons s ON s.id = fm.season_id
+          JOIN leagues l ON l.id = s.league_id
+        `
+      : [];
+  const financeLeagueSlugs = financeRows.map((r) => r.slug);
+
   return (
     <div className={styles.shell}>
-      <AdminSidebar isAdminUser={admin} isOfficerUser={officer} leagues={leagues} />
+      <AdminSidebar
+        isAdminUser={admin}
+        isOfficerUser={officer}
+        leagues={leagues}
+        financeLeagueSlugs={financeLeagueSlugs}
+      />
       <div className={styles.main}>{children}</div>
     </div>
   );
