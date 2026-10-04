@@ -30,7 +30,7 @@ async function getMembership(bowlerId, seasonId) {
 // in the league/season the modal was opened from — that's the only row
 // the Team Captain checkbox is ever editable for, since is_captain
 // lives per league_membership (one per season), not per bowler.
-async function loadLeagues(bowlerId, currentSeasonId) {
+async function loadLeagues(bowlerId, currentSeasonId, includeFinance = false) {
   const rows = await sql`
     SELECT s.id AS season_id, l.name AS league_name, lm.team_id, t.team_name, lm.real_average, lm.is_captain
     FROM league_memberships lm
@@ -40,7 +40,37 @@ async function loadLeagues(bowlerId, currentSeasonId) {
     WHERE lm.bowler_id = ${bowlerId}
     ORDER BY s.id DESC
   `;
+  // Finance (owed/paid/final-2) is attached only when the caller has
+  // already established the viewer may see it — own card, officer or
+  // admin. When includeFinance is false the key is never present at
+  // all, so there is nothing for the client to leak or hide.
+  const financeBySeason = new Map();
+  if (includeFinance) {
+    const finRows = await sql`
+      SELECT fr.season_id, fr.weeks, fr.paid, fr.owed, fr.final2_applies, fr.final2_marked,
+             fr.in_arrears, fm.as_of, fm.final2_deadline
+      FROM finance_rows fr
+      LEFT JOIN finance_meta fm ON fm.season_id = fr.season_id
+      WHERE fr.bowler_id = ${bowlerId}
+    `;
+    for (const f of finRows) {
+      financeBySeason.set(f.season_id, {
+        weeks: f.weeks,
+        paid: Number(f.paid),
+        owed: Number(f.owed),
+        final2Applies: f.final2_applies,
+        final2Marked: f.final2_marked,
+        inArrears: f.in_arrears,
+        asOf: f.as_of,
+        final2Deadline: f.final2_deadline,
+      });
+    }
+  }
+
   return rows.map((r) => ({
+    ...(includeFinance && financeBySeason.has(r.season_id)
+      ? { finance: financeBySeason.get(r.season_id) }
+      : {}),
     league: r.league_name,
     team: r.team_id ? r.team_name : "Substitute (not assigned to a team)",
     avg: Number(r.real_average) > 0 ? Number(r.real_average) : null,
@@ -84,6 +114,9 @@ export async function GET(req, { params }) {
   const { isAdminViewer, isOfficerViewer, viewerBowlerId } = await getViewerContext(email);
   const isOwnCard = viewerBowlerId === bowlerId;
   const editable = isAdminViewer || isOfficerViewer || isOwnCard;
+  // Money details: the bowler themself, officers and admins only. Not
+  // teammates, not captains (revisit if captains should see their team).
+  const canViewFinance = isOwnCard || isAdminViewer || isOfficerViewer;
 
   // The viewer's contact-visibility tiering is scoped to whichever
   // league's roster page this request came from — a shared team in
@@ -94,7 +127,7 @@ export async function GET(req, { params }) {
   const [viewerMembership, targetMembership, leagues] = await Promise.all([
     getMembership(viewerBowlerId, season?.id),
     getMembership(bowlerId, season?.id),
-    loadLeagues(bowlerId, season?.id ?? null),
+    loadLeagues(bowlerId, season?.id ?? null, canViewFinance),
   ]);
   const canViewContact = canViewContactInfo({
     isAdmin: isAdminViewer,

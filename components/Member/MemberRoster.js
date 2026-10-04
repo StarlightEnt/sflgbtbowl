@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { bowlerDisplayName } from "@/lib/displayName";
 import BylawsCard from "./BylawsCard";
+import FinanceSummary from "./FinanceSummary";
 import styles from "./MemberRoster.module.scss";
 
 function formatAvg(n) {
@@ -234,6 +235,7 @@ function BowlerModal({ bowlerId, leagueSlug, onClose }) {
                   <div className={styles.lname}>{l.league}</div>
                   <div className={styles.lteam}>{l.team}</div>
                   <div className={styles.lavg}>Real average: {l.avg ?? "Not yet established"}</div>
+                  {l.finance && <FinanceSummary finance={l.finance} />}
                   <label className={styles.capCheckbox}>
                     <input
                       type="checkbox"

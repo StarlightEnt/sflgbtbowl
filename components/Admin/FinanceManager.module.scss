@@ -1,0 +1,190 @@
+.heading {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+
+.sub {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.92rem;
+  max-width: 68ch;
+  margin-bottom: 28px;
+}
+
+.card {
+  background: var(--sflgbtbowl-bg-mid);
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.cardSub {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+
+.subhead {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sflgbtbowl-ink-dim);
+  margin: 22px 0 10px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.warnText {
+  color: var(--sflgbtbowl-yellow);
+}
+
+.warn {
+  color: var(--sflgbtbowl-yellow);
+  font-weight: 700;
+}
+
+.good {
+  color: var(--sflgbtbowl-green);
+  font-weight: 600;
+}
+
+.error {
+  margin-top: 12px;
+  color: var(--sflgbtbowl-red);
+  font-size: 0.85rem;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.teamBox {
+  border: 1px solid rgba(244, 241, 251, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(244, 241, 251, 0.02);
+  font-size: 0.85rem;
+}
+
+.teamFlagged {
+  border-color: var(--sflgbtbowl-orange);
+  background: rgba(255, 152, 56, 0.1);
+}
+
+.teamName {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.flagReason {
+  font-size: 0.78rem;
+  color: var(--sflgbtbowl-ink-dim);
+  margin-bottom: 6px;
+}
+
+.flagForm {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background: var(--sflgbtbowl-bg);
+  color: var(--sflgbtbowl-ink);
+  border: 1px solid rgba(244, 241, 251, 0.2);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+}
+
+.smallBtn {
+  background: transparent;
+  color: var(--sflgbtbowl-ink);
+  border: 1px solid rgba(244, 241, 251, 0.3);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.active {
+  background: var(--sflgbtbowl-purple);
+  color: var(--sflgbtbowl-bg);
+  border-color: var(--sflgbtbowl-purple);
+}
+
+.sortRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(244, 241, 251, 0.06);
+    white-space: nowrap;
+  }
+
+  th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--sflgbtbowl-ink-dim);
+  }
+
+  .num {
+    text-align: right;
+  }
+}
+
+.rowArrears {
+  background: rgba(255, 152, 56, 0.12);
+}
+
+.sheetName {
+  color: var(--sflgbtbowl-ink-dim);
+  font-size: 0.75rem;
+}
+
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
