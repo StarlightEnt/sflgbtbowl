@@ -40,6 +40,7 @@ export default function AdminSidebar({ isAdminUser = false, isOfficerUser = fals
           <NavLink href="/admin/tournaments">Tournaments</NavLink>
           <NavLink href="/admin/venues">Venue Setup</NavLink>
           <NavLink href="/admin/announcements">Announcements</NavLink>
+          <NavLink href="/admin/finance">Finances</NavLink>
           <NavLink href="/admin/officers">Officers</NavLink>
           <NavLink href="/admin/settings">Admin Settings</NavLink>
         </>
@@ -54,6 +55,7 @@ export default function AdminSidebar({ isAdminUser = false, isOfficerUser = fals
           <div className={styles.dividerLine} />
           <div className={styles.label}>Site-wide</div>
           <NavLink href="/admin/announcements">Announcements</NavLink>
+          <NavLink href="/admin/finance">Finances</NavLink>
         </>
       ) : null}
       <Link href="/leagues" className={styles.sidebarLink}>

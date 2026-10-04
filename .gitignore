@@ -48,3 +48,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# finance snapshots hold real names and money figures
+/finance-snapshot*.json

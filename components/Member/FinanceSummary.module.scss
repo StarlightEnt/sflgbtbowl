@@ -1,0 +1,46 @@
+.finance {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(244, 241, 251, 0.08);
+  font-size: 0.85rem;
+}
+
+.moneyRow {
+  display: flex;
+  gap: 18px;
+  font-weight: 600;
+}
+
+.moneyLabel {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--sflgbtbowl-ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+}
+
+// Status lines carry an icon and words, so color is never the only cue.
+.final2 {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.ok {
+  color: var(--sflgbtbowl-green);
+  background: rgba(53, 214, 143, 0.1);
+}
+
+.warn {
+  color: #1a1200;
+  background: var(--sflgbtbowl-yellow);
+}
+
+.asOf {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  color: var(--sflgbtbowl-ink-dim);
+}

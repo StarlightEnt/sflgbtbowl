@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { formatPoints, formatRecord } from "@/lib/formatPoints";
+import { getFlaggedTeamIds } from "@/lib/teamFlags";
 import VenueLink from "@/components/Venues/VenueLink";
 import PrebowlForm from "@/components/Dashboard/PrebowlForm";
 import StandingSheetsDownload from "@/components/Dashboard/StandingSheetsDownload";
@@ -39,6 +40,17 @@ export default async function LeagueDashboardPage({ params }) {
     FROM teams WHERE season_id = ${season.id}
   `;
   const teamsById = new Map(teamRows.map((t) => [t.id, t]));
+
+  // Teams flagged "see an officer" (finance, admin, ...). Only the fact
+  // of a flag reaches this public page — never the private reason. A
+  // failure here must not take down the schedule, so it degrades to
+  // "no flags".
+  let flaggedTeamIds = new Set();
+  try {
+    flaggedTeamIds = await getFlaggedTeamIds(season.id);
+  } catch (err) {
+    console.error("team flags lookup failed", err);
+  }
 
   const [{ last_week: lastCompletedWeek }] = await sql`
     SELECT MAX(week_number) AS last_week FROM weekly_results WHERE season_id = ${season.id}
@@ -188,17 +200,35 @@ export default async function LeagueDashboardPage({ params }) {
                 thisWeekSchedule.lane_positions?.map((pos) => {
                   const teamA = teamsById.get(pos.team_a_id);
                   const teamB = teamsById.get(pos.team_b_id);
+                  const aFlagged = flaggedTeamIds.has(pos.team_a_id);
+                  const bFlagged = flaggedTeamIds.has(pos.team_b_id);
                   return (
                     <div key={pos.lanes} className={styles.scheduleItem}>
                       <span className={styles.laneTag}>Lanes {pos.lanes}</span>
                       <span className={styles.matchup}>
-                        {teamA?.team_name} vs {teamB?.team_name}
+                        <span className={aFlagged ? styles.flaggedTeam : undefined}>
+                          {teamA?.team_name}
+                          {aFlagged && <span aria-label="needs to check in with an officer">*</span>}
+                        </span>
+                        {" vs "}
+                        <span className={bFlagged ? styles.flaggedTeam : undefined}>
+                          {teamB?.team_name}
+                          {bFlagged && <span aria-label="needs to check in with an officer">*</span>}
+                        </span>
                       </span>
                     </div>
                   );
                 })
               ) : (
                 <p className={styles.emptyNote}>Schedule for this week isn&apos;t posted yet.</p>
+              )}
+              {thisWeekSchedule?.lane_positions?.some(
+                (pos) => flaggedTeamIds.has(pos.team_a_id) || flaggedTeamIds.has(pos.team_b_id),
+              ) && (
+                <p className={styles.flagLegend}>
+                  <span className={styles.flagLegendStar}>*</span> This team needs to check in with
+                  an officer to resolve an issue.
+                </p>
               )}
             </div>
 
