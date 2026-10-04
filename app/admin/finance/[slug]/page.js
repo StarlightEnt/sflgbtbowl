@@ -1,13 +1,15 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { isAdmin, isOfficer } from "@/lib/auth-helpers";
 import { sql } from "@/lib/db";
 import { getTeamFlagDetails } from "@/lib/teamFlags";
 import FinanceManager from "@/components/Admin/FinanceManager";
 
-// Officers and admins both see finances. The data checks here are the
-// boundary for this page; the layout's check is only a convenience.
-export default async function AdminFinancePage() {
+// Finances are per league (today only LGBT Wednesday Community has
+// them). Officers and admins both see them. The data checks here are
+// the boundary for this page; the layout's check is only a convenience.
+export default async function AdminFinancePage({ params }) {
+  const { slug } = await params;
   const session = await auth();
   const email = session?.user?.email ?? null;
   if (!email || !((await isAdmin(email)) || (await isOfficer(email)))) {
@@ -21,8 +23,12 @@ export default async function AdminFinancePage() {
     FROM finance_meta fm
     JOIN seasons s ON s.id = fm.season_id
     JOIN leagues l ON l.id = s.league_id
+    WHERE l.slug = ${slug}
     ORDER BY s.id DESC
+    LIMIT 1
   `;
+  // Unknown league, or a league with no finance data: nothing to show.
+  if (seasons.length === 0) notFound();
 
   const sections = [];
   for (const season of seasons) {
@@ -84,5 +90,5 @@ export default async function AdminFinancePage() {
     });
   }
 
-  return <FinanceManager sections={sections} />;
+  return <FinanceManager leagueName={seasons[0].league_name} sections={sections} />;
 }
