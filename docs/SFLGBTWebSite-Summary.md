@@ -57,6 +57,15 @@ before moving to the next.
   project.
 - **Database:** New Neon Postgres project, separate from the Manager/Digiplay Neon
   projects (one-Neon-project-per-app convention).
+- **Dev and production share one database (confirmed Sept 30, 2026 — see §20.6).**
+  `.env.local` on the dev machine points at the same Neon database as the live
+  site; there is no separate dev database. Anything a dev-server test writes is
+  written to production data and is briefly visible on the live site until
+  cleaned up, and running a migration locally *is* running it in production.
+  Earlier sections' "verified on the dev server" notes should be read in that
+  light: several of them already describe creating and deleting test rows
+  "against the production database," but this was never stated as a general fact
+  until now.
 - **File storage:** A dedicated Vercel Blob store (`sflgbtbowl-storage`) for uploaded
   standing sheet PDFs.
 - **Dev environment:** `~/DevProjects/sflgbtbowl` on the Mac Mini M1, same setup as
@@ -99,6 +108,10 @@ columns (`venue_name`/`venue_city`/`venue_state`). A standalone `venues` table w
 added later and those columns were backfilled and dropped — **see §17** for the
 full design and why.
 
+**Schema update (§20):** announcements are no longer site-wide — a new
+`announcement_leagues` join table tags each announcement with the leagues it shows
+on. **See §20.**
+
 ## 5. Authentication
 
 - **NextAuth v5** (`5.0.0-beta.32`) with `@auth/neon-adapter` (`1.11.3`) — versions
@@ -132,6 +145,9 @@ full design and why.
   see §7). A signed-in, unlinked bowler currently can't access Member Area.
 - **Google OAuth Production publishing:** required a real privacy policy page
   (see §6.5) before Google would allow leaving Testing mode.
+- **Added (§21):** a third visibility tier used for finance data, `isAdmin(email)
+  || isOfficer(email)` or the bowler's own record — the same pattern already used
+  for Announcements (§14). See §21.4.
 
 ## 6. Pages built
 
@@ -154,6 +170,12 @@ Public page. "Current week" is data-driven, not date-based: last completed week 
   Resend *and* writes a `scheduling_requests` row
 - **Updated (§17):** the dashboard's venue line, previously plain text, now links
   to that venue's `/venues?venue=<slug>` popup.
+- **Updated (§20):** the Announcements section now shows only announcements
+  tagged for that dashboard's league.
+- **Updated (§21):** "This week's schedule" now highlights any flagged team with
+  an asterisk and a legend line ("this team needs to check in with an officer");
+  visible to every visitor, reading flagged-team ids only, never the reason. See
+  §21.1/§21.4.
 
 ### 6.3 Sign-in (`/signin`)
 Shared by both admin and member access. Google button + magic-link email form.
@@ -186,6 +208,15 @@ third time).
 - **Updated (§17):** Season Setup's (`/admin/league-setup`) previously free-text
   venue inputs were replaced with a dropdown sourced from the new `venues` table —
   see §17.
+- **Updated (§20):** the Announcements admin page (`/admin/announcements`,
+  admin + officer) gained a per-league "Show on" checkbox group and league
+  badges on each announcement — see §20.
+- **Added (§21):** a new, **league-specific** Finances page
+  (`/admin/finance/[slug]`, e.g. `/admin/finance/lgbt-wednesday-community`),
+  reachable by admins and officers and linked from that league's own sidebar
+  block (not Site-wide), appearing only for leagues that have finance data
+  (currently LGBT Wednesday Community only; 404 for a league with none, e.g.
+  `/admin/finance/gay-games`). See §21.4.
 
 ### 6.5 Member area
 - **Team Roster** — grouped by team, captain star badges, Substitutes as their own
@@ -202,6 +233,10 @@ third time).
 - **Privacy policy page** (`/privacy`) — plain-language, factual description of
   what's collected and who can see it; required by Google before the OAuth app
   could leave Testing mode.
+- **Added (§21):** the demographics card's per-league block now also shows that
+  league's Owed/Paid and Final-2 status to the bowler themself, officers, and
+  admins — absent entirely for anyone else, and absent for leagues with no
+  finance data. See §21.4.
 
 ## 7. Data seeded
 
@@ -252,7 +287,25 @@ permanent admin features):
   migration (and the drop of `leagues`' old free-text venue columns) has been
   run against the real production database yet. Worth checking directly, the
   same way this doc already flags checking production status for other
-  migrations rather than assuming.
+  migrations rather than assuming. **Note (§20.6):** dev and production turned
+  out to share one database, so any migration run from the dev machine has
+  already been run against production — worth confirming the venues migration
+  against that fact rather than assuming it is still pending.
+- **Added (§21):** teams with more than 4 bowlers carrying weeks (teams 1, 7,
+  10, 13) produce "review," not "exact," arrears estimates — Pilsner Penguins
+  is currently flagged on an estimate and should be confirmed by the treasurer;
+  the Override column is keyed to the sheet row, not the person; weekly lineups
+  aren't recorded anywhere, so shared positions can't be resolved exactly; a
+  sheet team name that doesn't match the site's team name (by name, then
+  number) won't get a flag; captains see only the asterisk, not finance data
+  (revisit if wanted); the finance name-matcher's nickname table is separate
+  from §11's matcher — consolidating the two is a possible follow-up; adding
+  finance for another league (e.g. Gay Games) needs a sheet/script and a
+  `LEAGUE_SLUG` for it — the page and sidebar link appear automatically once
+  that league has finance data. **Also open:** the finance privacy rule (only
+  the bowler themself, officers, and admins see money) was verified by code
+  reading, not by actually signing in as an ordinary member and confirming no
+  Paid/Owed section shows on someone else's card — see §21.9.
 
 ---
 
@@ -670,11 +723,12 @@ just points there instead of duplicating that UI under `/admin`.
   (standings, schedule, standing sheets) already reads its own data,
   avoiding a needless network round-trip to itself. Same sort order
   (pinned first, then newest) and the same 📌 badge as the admin view.
-- **Known scope note, not a bug:** `announcements` has no foreign key to
-  `leagues` or `seasons` — it's genuinely site-wide, the same feed shows on
-  every league's dashboard. Fine today with only one real league live; worth
-  revisiting if/when Gay Games (§8) becomes a second real, loaded league and
-  per-league announcements turn out to matter.
+- **Superseded (§20):** this section originally recorded, as a known scope
+  note, that `announcements` had no foreign key to `leagues` or `seasons` and
+  that the same feed showed on every league's dashboard, to be revisited once
+  a second league (Gay Games) was real. That revisit happened on Sept 30,
+  2026: announcements are now tagged per league via an `announcement_leagues`
+  join table. They are still not season-scoped. **See §20.**
 
 **Verification — every item from the task's checklist confirmed live**
 against the dev server, not just read from the code: created a real
@@ -1385,5 +1439,449 @@ re-upload). The BYE row is not shown on the dashboard (13 teams listed),
 which confirms the display-side observation in §19.6. The weekly-results
 half-point caveat in §19.4 still stands: the Week 3 last-week results strip
 showed whole numbers only.
+
+---
+
+## 20. Per-league announcements
+
+**Session date:** September 30, 2026
+**Commit applied and pushed to `main`:** `aaca814`, from
+`TASK-announcement-leagues.md` (deleted after it was applied). The Production
+deploy reached `Ready`, and the live `/api/announcements` returns the new
+`leagues` field, confirming production is running the new code.
+
+### 20.1 The problem
+
+Announcements (§14) were a single site-wide feed: `announcements` had no link
+to `leagues`, so every announcement showed on every league's dashboard. §14
+had flagged this as a known scope note, to be revisited once a second league
+was real. Gay Games is now a real, loaded league alongside LGBT Wednesday
+Community, so an admin or officer needs to choose which leagues an announcement
+appears on.
+
+### 20.2 Decisions confirmed with Alli (approach discussed before any code,
+per §2)
+
+1. A new announcement starts with **all leagues checked**.
+2. A league added later does **not** automatically inherit old announcements.
+   Each announcement shows only where it was explicitly tagged; an admin can
+   edit an old one to add the new league.
+3. The admin list shows **league badges only** on each announcement. No filter
+   control.
+4. Saving with zero leagues is rejected **server-side**, not just in the UI.
+5. A public list request for an unknown league slug
+   (`/api/announcements?league=<slug>`) returns `200` with an empty list, not
+   an error.
+
+### 20.3 Schema and data
+
+**Migration `20260930-create-announcement-leagues.mjs`** adds one join table:
+`announcement_leagues (announcement_id, league_id)`, primary key on the pair,
+both columns foreign keys with `ON DELETE CASCADE` (deleting an announcement,
+or a league, cleans up its tag rows with no separate step), plus an index on
+`league_id` for the public dashboard's lookup. "Both leagues" is simply a row
+per league, so a third league later needs no schema change. `announcements`
+itself is unchanged.
+
+The migration also **backfills** one row for every existing announcement ×
+every existing league (`ON CONFLICT DO NOTHING`, so it is safe to re-run), so
+current live behavior was unchanged at deploy. Production counts: 1
+announcement × 2 leagues (LGBT Wednesday Community, Gay Games) = 2 rows
+backfilled; re-running inserted 0. After deploy, both dashboards still showed
+the existing "IGBO Awards and Eligibility" announcement. Recorded in
+`migrations/README.md`'s history table.
+
+### 20.4 Code
+
+- **`lib/announcements/saveAnnouncement.js`** — one shared helper used by both
+  the POST and PUT routes, so the transaction logic lives in one place. Same
+  `Pool` + explicit `BEGIN`/`COMMIT`/`ROLLBACK` shape as
+  `lib/pdf/publishBylawsRevision.js`. `createAnnouncement()` inserts the
+  announcement and its league rows in one transaction; `updateAnnouncement()`
+  updates title/body/`updated_at` and replaces the league set in one
+  transaction, rolling back and signalling not-found if no row matched.
+  Validation is shared: `leagueIds` must be a non-empty array of integers
+  (de-duplicated) and every id must exist in `leagues`, otherwise a
+  `ValidationError` is thrown with a specific message.
+- **`POST /api/admin/announcements`** and **`PUT /api/admin/announcements/[id]`**
+  now accept `leagueIds` alongside `title`/`body`. The existing title/body
+  validation, the `requireAdminOrOfficerApi()` gate, the `Number.isInteger` id
+  check and the 404 are unchanged; `ValidationError` maps to a 400 with its
+  message. DELETE needed no change (the cascade removes the tag rows). The pin
+  route only updates `is_pinned` and needed no change.
+- **`GET /api/announcements`** (public) gained an optional `?league=<slug>`
+  filter; with no parameter it returns everything, as before. Each announcement
+  in the response now also carries a `leagues` array, produced by the same
+  query with no extra round trips. A grep of the repo found **no other caller**
+  of this route (including `fetch` calls), so the shape change has no other
+  consumers to break.
+- **`app/admin/announcements/page.js`** loads all leagues and each
+  announcement's tagged leagues in one query.
+- **`components/Admin/AnnouncementsManager.js`** — the create/edit form gained a
+  "Show on" checkbox group (one per league, between Body and the buttons).
+  New announcements default to every league checked; editing loads that
+  announcement's current tags. Unchecking everything shows an inline message
+  and disables Save (the server also rejects it). Each announcement in the list
+  shows a badge per tagged league, reusing the existing `pinBadge` styling as
+  the base. The page subtitle no longer implies a single site-wide feed.
+- **`app/leagues/[slug]/page.js`** — the Announcements section now only reads
+  announcements tagged for that dashboard's `league.id`, keeping the
+  pinned-first, newest-first order. Announcements are read directly from the
+  database here, as before (§14). Still **not season-scoped**.
+
+Announcements remain a hard-delete table with no revision history (§14).
+Officers keep exactly the permissions they had: they can create and edit
+announcements with league tags and get the same validation as admins.
+
+### 20.5 Verification
+
+All 11 checklist items in the task file passed, against the dev server (which
+is the production database — see §20.6) and direct database checks:
+- Tagged for only one league: shown on that dashboard, absent from the other.
+  Tagged for both: shown on both, pinned first. Re-tagging an announcement
+  (one league → the other → both) moved it between dashboards each time.
+- Direct API calls with no leagues, a missing `leagueIds`, an unknown league, or
+  a non-integer id all returned 400, for both admin and officer sessions. A
+  rejected create left no half-saved announcement; a failed edit left the
+  title, body, `updated_at` and tags unchanged.
+- Deleting announcements removed their tag rows too.
+- The admin list showed correct badges for both roles, and the backfilled
+  announcement showed both leagues.
+- `?league=<slug>` filters correctly; with no parameter you get everything.
+- The form was tested in headless Chrome: a new announcement starts with every
+  league checked; unchecking all shows the message and disables Save; editing
+  loads the current tags and saves through the UI.
+- `eslint`: 0 errors (the 4 warnings are the same pre-existing `<img>`
+  warnings). `next dev` was stopped and `.next` removed before a full
+  `next build`, which ran clean; `next dev` was then restarted.
+- All test data (announcements titled "ZZ TEST …", plus a throwaway test
+  bowler, officer, user and session for the officer checks, and a temporary
+  session on Alli's user for the admin checks) was deleted, and the database
+  was confirmed back to where it started: 1 announcement, 2 tag rows, 6
+  officers.
+
+**Not verified:** the admin Announcements page was not clicked through in a
+signed-in browser on the **live** site; the UI testing was on the dev server.
+
+### 20.6 Finding: dev and production share one database
+
+The task file assumed the dev and production databases were separate. They are
+not: `.env.local` points at the same Neon database as the live site. Two
+consequences, both now reflected in §3:
+- Running the migration from the dev machine **was** the production migration
+  run. It ran before the code deploy, as the task required.
+- Dev-server tests write to production data. Alli chose "run once, test on the
+  shared database" for this task, so the "ZZ TEST" announcements were visible
+  on the live dashboards for a few minutes before being deleted.
+
+Claude Code saved this as a memory for future tasks. Worth remembering for any
+future task file: migrations run from the dev machine are production
+migrations, and test fixtures should be named and cleaned up with that in mind.
+
+### 20.7 Process notes
+
+- Before starting, Claude Code fast-forwarded local `main` by 3 commits to match
+  `origin/main`, per the task's sandbox-drift instruction (§16.6).
+- Three places read the `announcements` table (the public list route, the admin
+  Announcements page, the League Dashboard); all three were updated.
+
+---
+
+## 21. Finance display: Owed/Paid/Final-2, team flags, and the Google Sheet sync
+
+**Session date:** October 3, 2026
+**Status:** built, deployed to production, and verified end to end (sheet → site)
+except one item (see 21.9). Finances is a **per-league** admin page (PR #6, merged
+Oct 3).
+
+### 21.1 The problem and the agreed design
+
+The treasurer's workbook ("Bowling Treasurer Winter 2026-2027") calculates what
+each bowler owes and has paid, per team. Each team pays for 4 positions at $27
+per position per week for 29 weeks ($783 per position-season). Rule: if a team
+position is unpaid for the last two completed weeks, one bowler sits or pays;
+the captain decides who, defaulting to the bowler with the most assigned weeks.
+Separately, a "Final 2 Wks" tracker: weeks 28 and 29 must be prepaid by
+**October 8, 2026** for bowlers with at least 15 of 29 weeks.
+
+Decisions made with Alli (all discussed before code, per §2 rule #2):
+- Scope: **LGBT Wednesday Community only** (Gay Games has no finance data; it can
+  be added later if its treasurer wants it). Finances is therefore a
+  league-specific admin page, not a site-wide one.
+- **Bowler card, per league block:** exact Owed and Paid, plus Final-2 status for
+  bowlers at 15+ weeks, in a warning color until paid; a "team position is
+  behind" line when the summary flags that bowler.
+- **Visibility:** the bowler themself, officers, and admins. The treasurer
+  (Richard "Chewie" Perez) is in the `officers` table; "all officers and admins
+  need to see finances." Captains see only the asterisk (not finances) for now.
+- **Schedule card:** a team with any flag gets a highlight and asterisk on its
+  name in "This week's schedule", plus a legend at the bottom ("this team needs
+  to check in with an officer"). Visible to everyone; wording is generic because
+  the flag may later cover non-finance reasons.
+- **General team-flag mechanism** (not finance-specific): flag per team and per
+  source ("finance", "admin", future), private reason note visible only to
+  officers/admins, callable set/clear functions.
+- **Officer/admin page** listing all teams and bowlers, so the treasurer does not
+  need to open the spreadsheet.
+- **The sheet computes everything.** The site only reads a pared-down snapshot; it
+  never touches the full workbook or the treasurer's payment handles.
+- **One-time name linking:** sheet names are fuzzy-matched to roster bowlers once,
+  confirmed by an officer/admin, then fixed by bowler id. Unmatched shows nothing.
+
+### 21.2 Source data (the treasurer's sheet)
+
+- The treasurer agreed to work directly in the **Google Sheet** (converted from
+  the Excel file; the Excel file is archived). It lives in the Shared Drive; the
+  treasurer has file-organizer access. This removed the need for any
+  Excel-to-Google conversion and the earlier requirement that formulas stay plain
+  Excel.
+- Structure: tabs "House Totals", "Summary", team tabs "1".."16" (13 with
+  rosters). Each team tab has the roster (A3:A9), week-1-15 payment cells
+  (B3:P9), week-16-29 cells (B16:O23), positions-paid-per-week rows (12 and 25),
+  and a per-bowler table (rows 28-34: weeks K, balance owed M, paid O, Final-2 P).
+  Cells are text: "PP $108" = payment received, "PP 9/9" = covered by that
+  payment.
+- The sheet has **no per-week lineup data**, so for teams with more than 4
+  bowlers carrying weeks (shared positions) the arrears result is an estimate.
+- **New tab "Web Summary"** (added this session; no existing tab changed).
+  Settings at the top (as-of date with optional override in C2, completed weeks
+  W, final-2 threshold 15, deadline 2026-10-08, positions per team 4). A
+  per-bowler table (rows 13-124, 16 teams x 7 slots) pulls weeks/paid/owed/
+  final-2 from each team tab via INDIRECT, and computes: final-2 applies and
+  status; whether the bowler's cell was marked in weeks W-1 and W; "missed both
+  weeks"; rank among the team's missed-both bowlers by weeks bowled; auto flag;
+  manual Override (force/clear, slot-keyed, so a roster edit in that slot
+  carries the override); and "In arrears". A team table (S12:AD28) computes
+  positions paid per week, positions in arrears = MIN(unpaid week W-1, unpaid
+  week W, bowlers who missed both), a basis ("exact" when exactly 4 bowlers have
+  weeks, otherwise "review"), and the team flag.
+- First read (as of 10/3/2026): 59 bowlers; 52 at 15+ weeks, 27 of those not
+  complete (26 none, 1 partial). Team 6 (Pick Up Artists, exact; Henry Stockwell)
+  and Team 10 (Pilsner Penguins, estimate; Bryan Hoff) are in arrears.
+
+### 21.3 Schema (two additive migrations, run Oct 3 against the shared DB)
+
+| Table | Purpose |
+|---|---|
+| `team_flags` | `team_id` (FK, cascade), `source` (text), `reason` (private), `set_by_email`, `set_at`; UNIQUE (team_id, source). Migration `20261003-create-team-flags.mjs` |
+| `finance_rows` | One row per sheet bowler line: season, team number/name, sheet name, weeks, paid, owed, final-2 applies/marked, in arrears, `bowler_id` (nullable FK, set null), `link_status` ('auto'/'approved'/'unmatched'), who/when linked. UNIQUE (season_id, team_number, sheet_name) |
+| `finance_meta` | One row per season: as-of date, synced-at, final-2 deadline and threshold, weeks completed. Migration `20261003-create-finance-tables.mjs` |
+
+Dev and production share one database (§20.6), so these ran on production when
+run from the dev machine; both are additive and production ignored them until
+the code shipped.
+
+### 21.4 Code
+
+- `lib/teamFlags.js`: `setTeamFlag`, `clearTeamFlag`, `getFlaggedTeamIds`
+  (public-safe, ids only), `getTeamFlagDetails` (reasons, officer/admin only).
+- `lib/finance/ingest.js`: `ingestFinanceSnapshot` is the only writer of finance
+  numbers and of the "finance" flag. **Safe-fail:** validates before writing;
+  rejects an empty/malformed snapshot or one under half the stored row count.
+  Upserts numbers without touching existing links; removes rows no longer on the
+  sheet; auto-links unlinked names; sets/clears the finance flag per team (only
+  that source); records as-of.
+- `lib/finance/matchNames.js`: fuzzy match, nickname groups (Mike/Michael,
+  Rob/Robert, Dave/David, Doug/Douglas, Jeremy/Jeremey, ...), suffix and
+  middle-name tolerant, one-edit tolerance, same-team as a tiebreaker only.
+  Separate from `lib/pdf/matchBowlerIdentity.js` (§11); consolidating the two is
+  a possible follow-up.
+- `app/leagues/[slug]/page.js`: reads flagged team ids only (never the reason);
+  highlight, asterisk and legend; a failed flag lookup degrades to "no flags"
+  and never breaks the schedule.
+- `app/api/member/bowler/[id]/route.js`: attaches `finance` to a league row only
+  when the viewer is the bowler, an officer, or an admin (`canViewFinance`);
+  otherwise the key is absent from the response. Dates are formatted as
+  YYYY-MM-DD in SQL (`to_char`) so they survive JSON/server-to-client hand-off.
+- `components/Member/FinanceSummary.js`: Paid/Owed, Final-2 line (green when
+  paid; yellow "not paid, due Oct 8", "1 of 2" for partial, "OVERDUE" after the
+  deadline), team-behind line, "payments as of".
+- **Admin page is per league:** `app/admin/finance/[slug]/page.js` (route
+  `/admin/finance/<league-slug>`, e.g. `/admin/finance/lgbt-wednesday-community`;
+  officers and admins; 404 for an unknown league) +
+  `components/Admin/FinanceManager.js` (title "<League name> — Finances"): team
+  boxes with flag reasons and manual flag set/clear, sortable bowler table,
+  in-arrears highlight, name-link controls (Confirm all, per-row Confirm where
+  the sheet name differs from the site name, dropdown for unmatched), "payments
+  as of" and last-synced time.
+- **Sidebar placement:** `app/admin/layout.js` looks up which leagues have
+  finance data (a `finance_meta` row for the league's season) and passes
+  `financeLeagueSlugs` to `AdminSidebar`, which shows a "Finances" link inside
+  that league's own block (admin block and officer block). Leagues without
+  finance data (Gay Games) get no link; nothing finance-related is in Site-wide.
+  The old `/admin/finance` URL no longer exists.
+- `app/api/admin/team-flags/route.js` (POST/DELETE, officers and admins; manual
+  "admin" source only, so it can never clear the finance flag).
+  `app/api/admin/finance/link/route.js` (link, unlink, confirm all; bowler must
+  be on the season roster; one bowler per sheet row).
+- `app/api/finance/sync/route.js`: POST, guarded by `FINANCE_SYNC_SECRET`
+  (constant-time compare; 503 when unset, 403 on a wrong key, 422 on a rejected
+  snapshot).
+- `scripts/ingest-finance-snapshot.mjs`: manual loader (used once for the
+  initial load). `scripts/apps-script/finance-sync.gs`: reference copy of the
+  Google script. Finance snapshot JSON files are git-ignored (real names and
+  amounts).
+
+### 21.5 Sync: Google Sheet to the site
+
+The Apps Script bound to the sheet reads "Web Summary" and POSTs
+`{league, snapshot}` to `https://www.sflgbtbowl.com/api/finance/sync` (the bare
+domain 308-redirects to www, and a redirect can drop the key, so the script uses
+the www address).
+- **Triggers:** an installable **on-edit** trigger (fires for edits on the team
+  tabs "1".."16" and Web Summary) syncs immediately unless one ran in the last
+  30 seconds; a **one-minute timer** sends any held-back edit; a **10-minute
+  re-check** covers formula-only changes such as the date rolling over.
+  Unchanged data is not re-sent except an hourly heartbeat. A script lock
+  prevents overlapping syncs. Installed with `installTriggers()`.
+- **Safe-fail:** the script refuses to send if it finds a spreadsheet error
+  value or no bowlers; after any failure it waits 5 minutes before retrying and
+  emails `ALERT_EMAIL` at most once per 6 hours. The site keeps the last good
+  data.
+- **Config:** Script properties `SYNC_URL`, `SYNC_SECRET`, `LEAGUE_SLUG`
+  (`lgbt-wednesday-community`), `ALERT_EMAIL`. `FINANCE_SYNC_SECRET` is set in
+  Vercel (Production only) and `.env.local`. Anyone who can edit the sheet can
+  open its script and see the secret.
+- **Quotas:** on a free Google account trigger runtime is limited to about 90
+  minutes per day; an idle minute tick costs a fraction of a second and a sync a
+  few seconds.
+- The on-edit trigger does not fire for edits made by other scripts/add-ons or
+  for formula recalculation; the timer covers those.
+
+### 21.6 Verification
+
+- Dev server (against the shared DB): ran both migrations; loaded the Oct 3
+  snapshot (59 rows, 59 auto-linked, 0 unmatched, 2 teams flagged); confirmed
+  the bowler card (Bryan Hoff: $0 paid, $756 owed, final-2 and team-behind
+  warnings), the schedule asterisk and legend (Pilsner Penguins and Pick Up
+  Artists), the finance page, Confirm all (all rows "Linked"), and the sync
+  endpoint (valid key: loaded; wrong key: 403).
+- Production: both PRs deployed and went Ready; after adding the secret and
+  redeploying, a wrong key to the www address returned 403 (so the key is set).
+  First live run of the script returned `{"ok":true,"rows":59,...}`.
+- End-to-end timing test: changing the as-of override (Web Summary C2) to
+  10/5/2026 changed the live site's "payments as of" date. With the old
+  10-minute timer it took up to 10 minutes; with the on-edit trigger it was
+  seconds. Override cleared afterward.
+- Bug found and fixed in testing: the admin page showed "Invalid Date" for the
+  as-of and deadline dates (the database returned plain dates as JS Date
+  objects that the client could not parse); fixed by formatting in SQL, and
+  applied to the bowler API too.
+- Per-league correction (PR #6): Alli noticed Finances sat in the site-wide
+  admin section although the data is LGBT Wednesday only. Moved to the
+  league's sidebar block and `/admin/finance/[slug]`; verified on dev: link
+  only under LGBT Wednesday Community, none under Gay Games or Site-wide,
+  title names the league, `/admin/finance/gay-games` returns 404.
+- `eslint` and `next build` clean (dummy env) before each merge.
+
+### 21.7 Process (new working method this session)
+
+Alli asked for a walkthrough of "a new way of working": instead of handing a
+`TASK-*.md` file to Claude Code on the dev box, the build session wrote the code
+directly on a feature branch in a clone, pushed it to GitHub
+(`feature/finance-display`, `feature/finance-sync`,
+`feature/finance-sync-onedit`, `fix/finance-per-league`), and Alli pulled each
+branch on the dev box (`git fetch origin && git checkout <branch>`), ran the
+additive migrations and a local test, then the PRs were opened and merged to
+`main` through the GitHub REST API at her explicit go-ahead (PRs #3 to #6;
+Vercel deployed on merge). The standing rule to discuss before coding (§2 rule
+#2) was followed; rule #1 (task files) was not used for this feature. Commands
+were given one at a time in copy-ready code blocks. The branch hook that said
+"unpushed commits" was a false alarm each time (the sandbox clone did not track
+the remote branch).
+
+### 21.8 Known limits and follow-ups
+
+- Teams with more than 4 bowlers carrying weeks (1, 7, 10, 13) are "review"
+  estimates; Pilsner Penguins is currently flagged on an estimate and should be
+  confirmed by the treasurer.
+- The Override column is keyed to the sheet row, not the person.
+- Weekly lineups are not recorded anywhere, so shared positions cannot be
+  resolved exactly.
+- Teams 14-16 tabs are empty. A team whose sheet name does not match its site
+  team name (matched by name, then by number) will not get a flag.
+- Captains do not see finance data (only the asterisk); revisit if wanted.
+- The matcher's nickname table is separate from §11's matcher.
+- Adding finances for another league (e.g. Gay Games) means a sheet/script for
+  that league, a `LEAGUE_SLUG` for it, and an ingest; the page and sidebar link
+  appear automatically once that league has finance data.
+- 8 npm audit warnings predate this work (not addressed).
+
+### 21.9 Open item
+
+The privacy rule (only the bowler themself, officers and admins see money) was
+verified by reading the code (finance rows are read in exactly three gated
+places: the bowler API, the admin page, the link route; the public league page
+reads flagged team ids only), **not** by logging in as an ordinary member. The
+first ordinary member who opens another bowler's card should see no Paid/Owed
+section.
+
+---
+
+## Appendix: Doc-maintenance note (added October 4, 2026)
+
+This update merged §21 (Finance display) from a separately supplied,
+merge-ready summary (`Finance-Display-Build-Plan.md`), plus the "Edits to
+existing sections" notes it specified for §2, §3, §4, §5, §6.2, §6.4, §6.5,
+and §8 — applied additively, as inline "Added (§21)" notes alongside the
+existing text rather than replacing anything, consistent with this document's
+standing rule (additions/updates/corrections, never deletion).
+
+A broader "does the whole document match current code/memory/recent work"
+review was also requested alongside this merge. This merge used: the live
+claude.ai Project copy of this document (read fresh immediately before
+editing, confirmed current through §20.7), the uploaded
+`Finance-Display-Build-Plan.md`, and this project's saved memory files
+(`areas/bowler-finance-card.md`, `areas/sflgbtbowl-landing.md`, and the
+project index/preferences/profile files), which were consistent with
+Finance-Display-Build-Plan.md's "built and deployed" status and introduced no
+contradictions.
+
+**GitHub repo check (added, same day, superseding the paragraph below):**
+direct `gh api` calls against `StarlightEnt/sflgbtbowl` are blocked for this
+session ("GitHub access to this repository is not enabled for this session"),
+and no `add_repo`-equivalent tool is available here to request it — but a
+plain `git clone` of the repo over HTTPS (using this session's proxy-injected
+GitHub credentials) works despite that block, and was used to read
+`docs/SFLGBTWebSite-Summary.md` directly and in full (1,389 lines).
+
+**Finding:** that file is real content, not a near-empty stub as first
+guessed from `project_search` snippets alone — it runs through §19.8 (the
+Sept 30 half-point fix confirmed in production), including §16–§19 in full.
+But it is still an older, superseded snapshot relative to this document: it
+has no §20 (per-league announcements) and no §21 (Finance display) at all,
+§14's announcements section still carries the original "known scope note"
+text with no "Superseded (§20)" annotation, and §8 has no dev/prod-shared-
+database cross-reference or §21 follow-up items. `git log` shows the file has
+exactly one commit in its history — the Oct 3 merge of PR #6
+(`fix/finance-per-league`), the same PR that shipped Finance per-league. That
+PR added this file fresh, apparently from an intermediate copy of this
+document taken sometime between §19.8 and §20, and nothing since has updated
+it — including the PR's own finance work, which never got added to it. Every
+line in it is an older version of text already carried forward (and, in
+§14's case, superseded) in this document; nothing in it needed merging in.
+No other discrepancy between the rest of this document and current
+code/memory turned up beyond the pre-existing, already-flagged §8 note about
+the `/leagues` hub page. If `docs/SFLGBTWebSite-Summary.md` in the repo is
+meant to stay current going forward, this document's content should be
+pushed back to it as a follow-up (not done here, since this merge only read
+from the repo, and intentionally made no write to it without being asked).
+
+<details>
+<summary>Superseded: earlier same-day note, based on project_search snippets rather than a direct repo read</summary>
+
+Direct `gh api` access to `StarlightEnt/sflgbtbowl` is not enabled for this
+session, and no `add_repo`-equivalent tool was available to request it.
+However, the repo's synced content is independently indexed into this
+project's knowledge base, and `project_search` surfaced
+`docs/SFLGBTWebSite-Summary.md` from it. Comparing a handful of search hits
+against this document suggested the GitHub copy was a near-empty early
+snapshot stopping around §8, with nothing beyond it. A direct `git clone`
+read immediately afterward (see above) showed this undersold how much
+content the file actually has — it runs through §19.8 — though the
+conclusion that it's a stale, non-divergent snapshot with nothing unique to
+merge still held up.
+
+</details>
 
 ---
