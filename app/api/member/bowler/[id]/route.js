@@ -48,7 +48,8 @@ async function loadLeagues(bowlerId, currentSeasonId, includeFinance = false) {
   if (includeFinance) {
     const finRows = await sql`
       SELECT fr.season_id, fr.weeks, fr.paid, fr.owed, fr.final2_applies, fr.final2_marked,
-             fr.in_arrears, fm.as_of, fm.final2_deadline
+             fr.in_arrears, to_char(fm.as_of, 'YYYY-MM-DD') AS as_of,
+             to_char(fm.final2_deadline, 'YYYY-MM-DD') AS final2_deadline
       FROM finance_rows fr
       LEFT JOIN finance_meta fm ON fm.season_id = fr.season_id
       WHERE fr.bowler_id = ${bowlerId}

@@ -154,9 +154,8 @@
   th,
   td {
     text-align: left;
-    padding: 7px 10px;
+    padding: 7px 8px;
     border-bottom: 1px solid rgba(244, 241, 251, 0.06);
-    white-space: nowrap;
   }
 
   th {
@@ -168,6 +167,7 @@
 
   .num {
     text-align: right;
+    white-space: nowrap;
   }
 }
 

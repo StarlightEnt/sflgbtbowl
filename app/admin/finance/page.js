@@ -16,7 +16,8 @@ export default async function AdminFinancePage() {
 
   const seasons = await sql`
     SELECT s.id, s.name AS season_name, l.name AS league_name,
-           fm.as_of, fm.synced_at, fm.final2_deadline, fm.final2_threshold
+           to_char(fm.as_of, 'YYYY-MM-DD') AS as_of, fm.synced_at,
+           to_char(fm.final2_deadline, 'YYYY-MM-DD') AS final2_deadline, fm.final2_threshold
     FROM finance_meta fm
     JOIN seasons s ON s.id = fm.season_id
     JOIN leagues l ON l.id = s.league_id
