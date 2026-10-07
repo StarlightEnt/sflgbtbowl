@@ -10,6 +10,7 @@ function resetReviewState(setters) {
   setters.setParseData(null);
   setters.setRosterDecisions({});
   setters.setMatchDecisions({});
+  setters.setWarningAcks({});
   setters.setUploadStatus("idle");
   setters.setUploadError("");
   setters.setPublishStatus("idle");
@@ -25,6 +26,7 @@ export default function WeeklyStandingSheetForm({ seasonId, history, leagueSlug,
   const [parseData, setParseData] = useState(null);
   const [rosterDecisions, setRosterDecisions] = useState({});
   const [matchDecisions, setMatchDecisions] = useState({});
+  const [warningAcks, setWarningAcks] = useState({});
   const [publishStatus, setPublishStatus] = useState("idle");
   const [publishError, setPublishError] = useState("");
 
@@ -38,6 +40,7 @@ export default function WeeklyStandingSheetForm({ seasonId, history, leagueSlug,
     setParseData,
     setRosterDecisions,
     setMatchDecisions,
+    setWarningAcks,
     setUploadStatus,
     setUploadError,
     setPublishStatus,
@@ -71,7 +74,8 @@ export default function WeeklyStandingSheetForm({ seasonId, history, leagueSlug,
     !parseData || parseData.rosterChanges.every((c) => rosterDecisions[c.bowlerId]);
   const matchesResolved =
     !parseData || parseData.possibleMatches.every((m) => matchDecisions[m.tempId]);
-  const readyToPublish = parseData && rosterResolved && matchesResolved;
+  const warningsResolved = !parseData || parseData.parseWarnings.every((_, i) => warningAcks[i]);
+  const readyToPublish = parseData && rosterResolved && matchesResolved && warningsResolved;
 
   async function handlePublish() {
     setPublishStatus("publishing");
@@ -268,6 +272,34 @@ export default function WeeklyStandingSheetForm({ seasonId, history, leagueSlug,
                   Yellow row = half-point split detected. Green row = winner. Doesn&apos;t match what
                   actually happened? Don&apos;t publish — fix the PDF at the source and re-upload.
                 </p>
+
+                {parseData.parseWarnings.length > 0 && (
+                  <>
+                    <div className={styles.reviewLabel}>Rows that couldn&apos;t be read</div>
+                    {parseData.parseWarnings.map((w, i) => (
+                      <div key={i} className={`${styles.rosterChangeRow} ${styles.fuzzy}`}>
+                        <div className={styles.rosterChangeText}>
+                          ⚠ <strong>{w.section}:</strong> no team matches{" "}
+                          <strong>&quot;{w.rawName}&quot;</strong>, so this row will be left out.
+                          <div className={styles.helpNote}>{w.rowText}</div>
+                        </div>
+                        <div className={styles.rosterChangeActions}>
+                          <button
+                            type="button"
+                            className={`${styles.btnIgnore} ${warningAcks[i] ? styles.selected : ""}`}
+                            onClick={() => setWarningAcks((prev) => ({ ...prev, [i]: true }))}
+                          >
+                            Publish without this row
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <p className={styles.helpNote}>
+                      Each of these needs a decision before publishing. If a row belongs on the
+                      dashboard, discard this upload instead and fix the team name on the sheet.
+                    </p>
+                  </>
+                )}
 
                 {parseData.rosterChanges.length > 0 && (
                   <>
