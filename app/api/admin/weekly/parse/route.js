@@ -30,9 +30,17 @@ export async function POST(req) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
+  // Each team's stored name is last week's, since Publish is what syncs
+  // team_name to this sheet. It's the parser's fallback for a renamed
+  // team that BLS still prints under its old name in Review of Last Week.
+  const teamRows = await sql`
+    SELECT id, team_number, team_name, abbreviation, is_bye FROM teams WHERE season_id = ${season.id}
+  `;
+  const priorNames = new Map(teamRows.map((t) => [t.team_number, [t.team_name]]));
+
   let result;
   try {
-    result = await parseLeagueStandingsPDF(buffer);
+    result = await parseLeagueStandingsPDF(buffer, { priorNames });
   } catch (err) {
     console.error("weekly/parse failed:", err);
     return Response.json({ error: "Could not read PDF" }, { status: 400 });
@@ -45,8 +53,7 @@ export async function POST(req) {
     );
   }
 
-  const [teamRows, [{ total_weeks }], membershipRows] = await Promise.all([
-    sql`SELECT id, team_number, team_name, abbreviation, is_bye FROM teams WHERE season_id = ${season.id}`,
+  const [[{ total_weeks }], membershipRows] = await Promise.all([
     sql`SELECT MAX(week_number) AS total_weeks FROM schedule WHERE season_id = ${season.id}`,
     sql`
       SELECT lm.bowler_id, lm.team_id, b.first_name, b.last_name, b.nickname
@@ -138,5 +145,6 @@ export async function POST(req) {
     rosterChanges,
     possibleMatches,
     newBowlers: diff.newBowlers,
+    parseWarnings: result.warnings,
   });
 }
